@@ -87,9 +87,8 @@ class Search extends React.Component<SearchProps, SearchState> {
   }
 
   async launchLookUpRequest(value: string) {
-    const encodedValue = encodeURIComponent(value)
     const args = {
-      content_like: `%${encodedValue}%`,
+      content_like: `%${value}%`,
       limit: 15,
       include_user: true
     }

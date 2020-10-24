@@ -11,10 +11,10 @@ class NotesController < ApplicationController
     notes = notes.where(user_id: params["user_ids"]) if params["user_ids"].present? && params["user_ids"].is_a?(Array)
     notes = notes.where(ancestry: params["ancestry"]&.empty? ? nil : params["ancestry"]) if params.include?("ancestry")
     notes = notes.where(slug: params["slug"]) if params["slug"]
-    notes = notes.where(content: URI.unescape(params["content"])) if params["content"]
+    notes = notes.where(content: params["content"]) if params["content"]
 
     if params["content_like"]
-      notes = notes.where("lower(content) like ?", URI.unescape(params['content_like'].downcase))
+      notes = notes.where("lower(content) like ?", params['content_like'].downcase)
     end
     if params["except_ids"].present?
       notes = notes.where.not(id: params["except_ids"])
