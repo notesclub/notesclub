@@ -25,7 +25,7 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
     return (
       <div className="container">
         <div className="text-center waiting-list-title">
-          <h1>See notes about books, podcasts, ideas, etc.</h1>
+          <h1>Notes about books, podcasts, ideas, etc.</h1>
           <div>Writing is thinking. Note-taking fosters writing. In the open.</div>
         </div>
         <div className="row">
