@@ -4,7 +4,6 @@ import '@ionic/react/css/core.css';
 import Login from './Login';
 import Logout from './Logout';
 import Header from './Header';
-import Footer from './Footer';
 import { Alert } from 'react-bootstrap';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import UserNotePage from './notes/UserNotePage'
@@ -130,7 +129,6 @@ class App extends React.Component<AppProps, AppState> {
             {alert ? <Alert variant={alert["variant"]} onClose={() => this.updateState({alert: undefined})} dismissible>{alert["message"]}</Alert> : <></>}
           </div>
           {this.renderRoutes()}
-          <Footer />
         </Router>
       </div>
     )
