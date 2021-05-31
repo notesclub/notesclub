@@ -93,8 +93,6 @@ class Login extends React.Component<LoginProps, LoginState> {
               </Form.Group>
 
               <Button onClick={this.submit}>Login</Button>
-              {" or "}
-              <Link to="/signup" onClick={() => window.location.href = `/signup`}>sign up</Link>.
             </Form>
           </div>
           <div className="col-lg-4"></div>

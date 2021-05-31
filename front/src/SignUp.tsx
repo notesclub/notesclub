@@ -73,9 +73,6 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
 
     return (
       <div className="container">
-        <div className="text-center waiting-list-title">
-          <h1>Sign up</h1>
-        </div>
         <div className="row">
           <div className="col-lg-4"></div>
           <div className="col-lg-4">

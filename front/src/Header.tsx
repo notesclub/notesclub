@@ -52,7 +52,6 @@ class Header extends React.Component<HeaderProps, HeaderState> {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
           </Nav>
-          <Nav.Link href='/signup' onClick={() => window.location.href = '/signup'}>Sign up</Nav.Link>
           <Nav.Link href='/login' onClick={() => window.location.href='/login'}>Log in</Nav.Link>
         </Navbar.Collapse>
       </>

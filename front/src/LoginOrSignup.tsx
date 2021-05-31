@@ -6,8 +6,6 @@ class LoginOrSignup extends React.Component {
     return (
       <div>
         <Link to="/login" onClick={() => window.location.href = "/login"}>Log in</Link>
-        {" or "}
-        <Link to="/signup" onClick={() => window.location.href = "/signup"}>sign up</Link>
         {" to add notes."}
       </div>
     )

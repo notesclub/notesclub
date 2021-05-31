@@ -32,9 +32,7 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
           <div className="col-lg-4"></div>
           <div className="col-lg-4 center">
             <div className="center-buttons">
-              <Link to="/signup" className="btn btn-primary" onClick={() => window.location.href = `/signup`}>Sign up</Link>
-              {" or "}
-              <Link to="/login" onClick={() => window.location.href = `/login`}>Log in</Link>
+              <Link to="/login" className="btn btn-primary" onClick={() => window.location.href = `/login`}>Log in</Link>
             </div>
           </div>
           <div className="col-lg-4"></div>
