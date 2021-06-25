@@ -1,4 +1,5 @@
 # Notes Club
+This repository (React + Ruby on Rails) is no longer maintained. It has been replaced by a new application (Elixir + Phoenix).
 https://notes.club
 
 ## Background
