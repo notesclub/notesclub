@@ -1,5 +1,41 @@
-<div class="p-16">
-  <h1 class="text-3xl font-bold underline">
-    Hey there!
-  </h1>
+<div class="bg-gray-50">
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-y-0 h-full w-full" aria-hidden="true">
+      <div class="h-full">
+        <div class="pt-2 pl-4 tracking-thight text-gray-500 sm:text-xl sm:tracking-tight md:text-2xl md:tracking-tight">
+          <%= link "Notes Club", to: "/" %>
+        </div>
+      </div>
+    </div>
+    <div class="relative pb-4 sm:pb-24">
+      <div class="mt-16 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
+        <div class="text-center">
+          <h1 class="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl sm:tracking-tight md:text-6xl md:tracking-tight">
+            <span>Discover</span>
+            <span class="text-indigo-600">Livebook</span>
+            <span>notebooks</span>
+          </h1>
+          <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">Find any public notebook stored on Github. Feel free to <%= link("contribute on Github", to: "/", class: "text-blue-600") %> and join the <%= link("conversation in the elixir forum", to: "/", class: "text-blue-600") %>. </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="absolute inset-0 flex flex-col" aria-hidden="true">
+        <div class="flex-1"></div>
+        <div class="flex-1 w-full bg-gray-800"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="relative rounded-lg shadow-lg">
+          <%= render "_notebooks_table.html", assigns %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-gray-800">
+    <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+      <h2 class="text-center text-gray-400 text-base font-semibold">2436 Livebook notebooks</h2>
+      <h2 class="pt-4 text-center text-gray-400 text-base font-semibold">Made by <%= link "Hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
+    </div>
+  </div>
 </div>
