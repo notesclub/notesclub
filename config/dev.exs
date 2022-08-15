@@ -26,7 +26,8 @@ config :notesclub, NotesclubWeb.Endpoint,
   secret_key_base: "eRcDklG1/wNHEiV+UxI8qJ5QGrUqa9ChhiFy78c++cfj/tjwYocV2tFnoT9p5Oa9",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
