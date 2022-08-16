@@ -4,10 +4,10 @@ defmodule Notesclub.Notebooks.Notebook do
 
   schema "notebooks" do
     field :github_filename, :string
-    field :github_html_url, :string
-    field :github_owner_avatar_url, :string
     field :github_owner_login, :string
     field :github_repo_name, :string
+    field :github_html_url, :string
+    field :github_owner_avatar_url, :string
 
     timestamps()
   end
