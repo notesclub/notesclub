@@ -13,8 +13,8 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-              <%= for  _i <- 1..5 do %>
-                <%= render "_notebook_raw.html", assigns %>
+              <%= for notebook <- @notebooks do %>
+                <%= render "_notebook_row.html", notebook: notebook %>
               <% end %>
             </tbody>
           </table>
