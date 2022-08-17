@@ -18,6 +18,7 @@ defmodule NotesclubWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/all", PageController, :all
   end
 
   # Other scopes may use custom stacks.
