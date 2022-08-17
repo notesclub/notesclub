@@ -28,6 +28,13 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="relative rounded-lg">
           <%= render "_notebooks_table.html", assigns %>
+          <div class="text-center p-6">
+            <%= if @all do %>
+              <%= link "Less notebooks", to: "/", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            <% else %>
+              <%= link "More notebooks", to: "/all", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>

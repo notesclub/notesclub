@@ -18,7 +18,16 @@ defmodule Notesclub.Notebooks do
 
   """
   def list_notebooks do
-    Repo.all(Notebook)
+    from(n in Notebook,
+      order_by: -n.id)
+    |> Repo.all()
+  end
+
+  def list_random_notebooks(%{limit: limit}) do
+    from(n in Notebook,
+      order_by: fragment("RANDOM()"),
+      limit: ^limit)
+    |> Repo.all()
   end
 
   @doc """
@@ -100,5 +109,12 @@ defmodule Notesclub.Notebooks do
   """
   def change_notebook(%Notebook{} = notebook, attrs \\ %{}) do
     Notebook.changeset(notebook, attrs)
+  end
+
+  @spec count :: number
+  def count() do
+    from(n in Notebook,
+      select: count(n.id))
+    |> Repo.one()
   end
 end
