@@ -38,6 +38,28 @@ defmodule Notesclub.Notebooks do
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
   @doc """
+  Gets a notebook by its filename, owner and repo
+  This allows us to override a file if the url has changed
+
+  ## Examples
+    iex> get_by_filename_owner_and_repo?(%{url: "https://github.com/.../file.livemd"})
+    true
+
+  TODO: We should probably deprecate this once we re-download all public livemd files within
+        each repo's default branch and their history of blobs.
+        Then, we won't create new files but update
+  """
+  def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
+   when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
+    from(n in Notebook,
+      where: n.github_filename == ^filename,
+      where: n.github_owner_login == ^owner_login,
+      where: n.github_repo_name == ^repo_name,
+      limit: 1)
+    |> Repo.one()
+  end
+
+  @doc """
   Creates a notebook.
 
   ## Examples

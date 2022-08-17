@@ -2,13 +2,14 @@ defmodule Notesclub.NotebooksTest do
   use Notesclub.DataCase
 
   alias Notesclub.Notebooks
+  alias Notesclub.SearchesFixtures
 
   describe "notebooks" do
     alias Notesclub.Notebooks.Notebook
 
     import Notesclub.NotebooksFixtures
 
-    @invalid_attrs %{github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, github_api_response: nil}
+    @invalid_attrs %{github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, github_api_response: nil, search: nil}
     @valid_github_api_response %{
       "name" => "structs.livemd",
       "html_url" => "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
@@ -34,7 +35,8 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "create_notebook/1 with valid data creates a notebook" do
-      valid_attrs = %{github_filename: "some github_filename", github_html_url: "some github_html_url", github_owner_avatar_url: "some github_owner_avatar_url", github_owner_login: "some github_owner_login", github_repo_name: "some github_repo_name", github_api_response: @valid_github_api_response}
+      search = SearchesFixtures.search_fixture()
+      valid_attrs = %{github_filename: "some github_filename", github_html_url: "some github_html_url", github_owner_avatar_url: "some github_owner_avatar_url", github_owner_login: "some github_owner_login", github_repo_name: "some github_repo_name", github_api_response: @valid_github_api_response, search_id: search.id}
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
       assert notebook.github_filename == "some github_filename"
@@ -42,6 +44,7 @@ defmodule Notesclub.NotebooksTest do
       assert notebook.github_owner_avatar_url == "some github_owner_avatar_url"
       assert notebook.github_owner_login == "some github_owner_login"
       assert notebook.github_repo_name == "some github_repo_name"
+      assert notebook.search_id == search.id
     end
 
     test "create_notebook/1 with invalid data returns error changeset" do
@@ -75,6 +78,15 @@ defmodule Notesclub.NotebooksTest do
     test "change_notebook/1 returns a notebook changeset" do
       notebook = notebook_fixture()
       assert %Ecto.Changeset{} = Notebooks.change_notebook(notebook)
+    end
+
+    test "get_by_filename_owner_and_repo/3 returns a notebook" do
+      notebook = notebook_fixture(%{
+        github_filename: "myfile.livemd",
+        github_owner_login: "someone",
+        github_repo_name: "myrepo"})
+
+      assert notebook.id == Notebooks.get_by_filename_owner_and_repo("myfile.livemd", "someone", "myrepo").id
     end
   end
 end

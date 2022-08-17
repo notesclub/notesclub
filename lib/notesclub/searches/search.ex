@@ -2,6 +2,8 @@ defmodule Notesclub.Searches.Search do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Notesclub.Notebooks.Notebook
+
   schema "searches" do
     field :order, :string
     field :page, :integer
@@ -12,6 +14,7 @@ defmodule Notesclub.Searches.Search do
     field :response_private, :map
     field :response_status, :integer
     field :url, :string
+    has_many :notebooks, Notebook
 
     timestamps()
   end

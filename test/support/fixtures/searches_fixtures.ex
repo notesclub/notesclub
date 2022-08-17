@@ -11,15 +11,15 @@ defmodule Notesclub.SearchesFixtures do
     {:ok, search} =
       attrs
       |> Enum.into(%{
-        order: "some order",
-        page: 42,
-        per_page: 42,
+        order: ":asc",
+        page: 2,
+        per_page: 10,
         response_body: %{},
         response_headers: %{},
-        response_notebooks_count: 42,
+        response_notebooks_count: 10,
         response_private: %{},
         response_status: 42,
-        url: "some url"
+        url: "https://github.com/..."
       })
       |> Notesclub.Searches.create_search()
 
