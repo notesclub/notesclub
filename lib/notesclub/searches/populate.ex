@@ -42,19 +42,29 @@ defmodule Notesclub.Searches.Populate do
 
   def next() do
     Logger.info "Populate.next() start. Downloading new notebooks."
-    case Searches.get_last_search() do
-      nil ->
-        populate(%Options{per_page: 5, page: 1, order: "asc"})
-      search ->
-        options = %Options{
-          per_page: search.per_page,
-          page: search.page + 1,
-          order: search.order
-        }
-        populate(options)
-        Logger.info "Populate.next() end"
-    end
+
+    result =
+      Searches.get_last_search()
+      |> next_options()
+      |> populate()
+
+    Logger.info "Populate.next() end" <> inspect(result)
   end
+
+  defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
+  defp next_options(%Search{} = last_search) do
+    %Options{
+      per_page: last_search.per_page,
+      page: next_page(last_search),
+      order: last_search.order
+    }
+  end
+
+  # We repeat the page when last search per_page doesn't match the returned data
+  # When this happens, sometimes the returned results are not from the page
+  # This happens especially for per_page > 5
+  defp next_page(%Search{per_page: same, response_notebooks_count: same} = last_search), do: last_search.page + 1
+  defp next_page(%Search{} = last_search), do: last_search.page
 
   defp save_notebooks(notebooks_data, %Search{} = search) when is_list(notebooks_data) do
     notebooks_data

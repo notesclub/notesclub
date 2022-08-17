@@ -17,7 +17,11 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  def list_notebooks do
+  def list_notebooks() do
+    Repo.all(Notebook)
+  end
+
+  def list_notebooks_desc do
     from(n in Notebook,
       order_by: -n.id)
     |> Repo.all()
