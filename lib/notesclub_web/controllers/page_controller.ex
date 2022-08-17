@@ -8,11 +8,13 @@ defmodule NotesclubWeb.PageController do
 
   def index(conn, _params) do
     notebooks = Notebooks.list_random_notebooks(%{limit: @notebooks_in_home_count})
-    render(conn, "index.html", notebooks: notebooks, all: false)
+    notebooks_count = Notebooks.count()
+    render(conn, "index.html", notebooks: notebooks, notebooks_count: notebooks_count, all: false)
   end
 
   def all(conn, _params) do
     notebooks = Notebooks.list_notebooks()
-    render(conn, "index.html", notebooks: notebooks, all: true)
+    notebooks_count = Notebooks.count()
+    render(conn, "index.html", notebooks: notebooks, notebooks_count: notebooks_count, all: true)
   end
 end
