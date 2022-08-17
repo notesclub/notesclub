@@ -65,6 +65,11 @@ config :notesclub, NotesclubWeb.Endpoint,
     ]
   ]
 
+config :logger, level: :debug
+# skip cron scheduler logs
+# config :notesclub, Notesclub.Scheduler,
+#  debug_logging: false
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

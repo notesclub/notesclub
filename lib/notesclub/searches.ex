@@ -37,6 +37,13 @@ defmodule Notesclub.Searches do
   """
   def get_search!(id), do: Repo.get!(Search, id)
 
+  def get_last_search() do
+    from(s in Search,
+      order_by: -s.id,
+      limit: 1)
+    |> Repo.one()
+  end
+
   @doc """
   Creates a search.
 

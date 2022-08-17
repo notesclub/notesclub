@@ -38,6 +38,22 @@ defmodule Notesclub.Searches.Populate do
     end
   end
 
+  def next() do
+    Logger.info "Populate.next() start. Downloading new notebooks."
+    case Searches.get_last_search() do
+      nil ->
+        populate(%Options{per_page: 5, page: 1, order: "asc"})
+      search ->
+        options = %Options{
+          per_page: search.per_page,
+          page: search.page + 1,
+          order: search.order
+        }
+        populate(options)
+        Logger.info "Populate.next() end"
+    end
+  end
+
   defp save_notebooks(notebooks_data, %Search{} = search) when is_list(notebooks_data) do
     notebooks_data
     |> Enum.map(fn new_attributes ->

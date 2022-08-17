@@ -15,7 +15,9 @@ defmodule Notesclub.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Notesclub.PubSub},
       # Start the Endpoint (http/https)
-      NotesclubWeb.Endpoint
+      NotesclubWeb.Endpoint,
+      # Cron scheduler
+      Notesclub.Scheduler
       # Start a worker by calling: Notesclub.Worker.start_link(arg)
       # {Notesclub.Worker, arg}
     ]
