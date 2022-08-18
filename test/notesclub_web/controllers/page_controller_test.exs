@@ -40,4 +40,32 @@ defmodule NotesclubWeb.PageControllerTest do
       end)
       |> Enum.count
   end
+
+  test "GET /a/:author filters notebooks", %{conn: conn} do
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone"})
+
+    conn = get(conn, "/a/someone")
+
+    assert html_response(conn, 200) =~ "whatever1.livemd"
+    assert html_response(conn, 200) =~ "whatever2.livemd"
+    refute html_response(conn, 200) =~ "whatever3.livemd"
+    assert html_response(conn, 200) =~ "whatever4.livemd"
+  end
+
+  test "GET /a/:author/:repo filters notebooks", %{conn: conn} do
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone", github_repo_name: "one"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone", github_repo_name: "two"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else", github_repo_name: "three"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone", github_repo_name: "one"})
+
+    conn = get(conn, "/a/someone/one")
+
+    assert html_response(conn, 200) =~ "whatever1.livemd"
+    refute html_response(conn, 200) =~ "whatever2.livemd"
+    refute html_response(conn, 200) =~ "whatever3.livemd"
+    assert html_response(conn, 200) =~ "whatever4.livemd"
+  end
 end

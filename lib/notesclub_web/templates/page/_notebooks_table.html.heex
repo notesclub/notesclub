@@ -2,6 +2,15 @@
   <div class="mt-8 flex flex-col">
     <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+
+        <%= if @filter do %>
+          <div class="pb-2 text-sm">
+            Filtering by <%= @filter %>
+            · <%= link "remove filter", to: Routes.all_path(@conn, :all) %>
+            · <%= link "github", to: "https://github.com/#{@filter}", target: "_blank" %>
+          </div>
+        <% end %>
+
         <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
           <table class="min-w-full divide-y divide-gray-300">
             <thead class="bg-gray-50">
@@ -14,7 +23,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
               <%= for notebook <- @notebooks do %>
-                <%= render "_notebook_row.html", notebook: notebook %>
+                <%= render "_notebook_row.html", notebook: notebook, conn: @conn %>
               <% end %>
             </tbody>
           </table>

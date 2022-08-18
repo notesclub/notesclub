@@ -27,6 +27,48 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
+  @doc """
+  Returns the notebooks from an author in desc order
+
+  ## Examples
+
+      iex> list_author_notebooks_desc("someone")
+      [%Notebook{}, ...]
+
+  """
+  def list_author_notebooks_desc(author) when is_binary(author) do
+    from(n in Notebook,
+      where: n.github_owner_login == ^author,
+      order_by: -n.id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the notebooks within a repo in desc order
+
+  ## Examples
+
+      iex> list_repo_author_notebooks_desc("my_repo", "my_login")
+      [%Notebook{}, ...]
+
+  """
+  def list_repo_author_notebooks_desc(repo_name, author_login) when is_binary(repo_name) and is_binary(author_login) do
+    from(n in Notebook,
+      where: n.github_repo_name == ^repo_name,
+      where: n.github_owner_login == ^author_login,
+      order_by: -n.id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns a list of random notebooks
+
+  ## Examples
+
+      iex> list_random_notebooks(%{limit: 2}
+      [%Notebook{}, %Notebook{}]
+
+  """
   def list_random_notebooks(%{limit: limit}) do
     from(n in Notebook,
       order_by: fragment("RANDOM()"),
