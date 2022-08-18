@@ -1,6 +1,6 @@
-# fly.toml file generated for notesclub on 2022-08-18T13:44:54+02:00
+# fly.toml file generated for notesclub-production on 2022-08-18T15:36:28+02:00
 
-app = "notesclub"
+app = "notesclub-production"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
@@ -9,7 +9,7 @@ processes = []
   release_command = "/app/bin/migrate"
 
 [env]
-  PHX_HOST = "notesclub.fly.dev"
+  PHX_HOST = "notesclub-production.fly.dev"
   PORT = "8080"
 
 [experimental]
