@@ -6,12 +6,12 @@
       </div>
       <div class="ml-4">
         <div class="font-medium text-gray-900"><%= link "@#{@notebook.github_owner_login}", to: Routes.author_path(@conn, :author, @notebook.github_owner_login) %></div>
-        <div class="text-gray-500"><%= link @notebook.github_repo_name, to: Routes.repo_path(@conn, :repo, @notebook.github_owner_login, @notebook.github_repo_name) %></div>
+        <div class="text-gray-500"><%= link Notesclub.StringTools.truncate(@notebook.github_repo_name, 25), to: Routes.repo_path(@conn, :repo, @notebook.github_owner_login, @notebook.github_repo_name) %></div>
       </div>
     </div>
   </td>
   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-    <div class="text-gray-900"><%= link @notebook.github_filename, to: @notebook.github_html_url %></div>
+    <div class="text-gray-900"><%= link Notesclub.StringTools.truncate(@notebook.github_filename, 50), to: @notebook.github_html_url %></div>
   </td>
   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
     <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">To do</span>
