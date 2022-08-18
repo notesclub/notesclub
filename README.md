@@ -1,5 +1,14 @@
 # Notesclub
 
+Discover Livebook Notebooks
+
+https://notes.club
+
+# Contributors
+- [Hec Perez](https://hecperez.com)
+
+# Get involved
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
