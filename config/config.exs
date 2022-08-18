@@ -56,6 +56,14 @@ config :tailwind, version: "3.1.8", default: [
   cd: Path.expand("../assets", __DIR__)
 ]
 
+config :notesclub, Notesclub.Scheduler,
+  jobs: [
+    # Every minute
+    {"* * * * *", fn ->
+      Notesclub.Searches.Populate.next()
+    end}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

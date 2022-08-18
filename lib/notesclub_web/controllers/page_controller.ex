@@ -13,7 +13,7 @@ defmodule NotesclubWeb.PageController do
   end
 
   def all(conn, _params) do
-    notebooks = Notebooks.list_notebooks()
+    notebooks = Notebooks.list_notebooks_desc()
     notebooks_count = Notebooks.count()
     render(conn, "index.html", notebooks: notebooks, notebooks_count: notebooks_count, button: :less, filter: nil)
   end
