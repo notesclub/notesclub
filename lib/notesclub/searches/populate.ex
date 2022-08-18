@@ -12,7 +12,7 @@ defmodule Notesclub.Searches.Populate do
   Saves one Search and creates n Notebook records.
 
   ## Example
-  iex> populate(per_page: 5, page: 1, order: "asc")
+  iex> Notesclub.Searches.populate(per_page: 5, page: 201, order: "asc")
   %{created: 3, updated: 2, errors: 0}
 
   # TODO: We should probably only save the Search record and NOT the Notebooks.
@@ -59,6 +59,26 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
+
+  # Reached Github limit. It only returns the last 1000 records.
+  # Start :desc
+  defp next_options(%Search{page: 200, per_page: 5, response_notebooks_count: 5, order: "asc"}) do
+    %Options{
+      order: "desc",
+      per_page: 5,
+      page: 1,
+    }
+  end
+
+  # Reached Github limit. It only returns 1000 records.
+  # Start :desc again from page 1
+  defp next_options(%Search{page: 200, per_page: 5, response_notebooks_count: 5, order: "desc"}) do
+    %Options{
+      order: "desc",
+      per_page: 5,
+      page: 1,
+    }
+  end
   defp next_options(%Search{} = last_search) do
     %Options{
       per_page: last_search.per_page,
