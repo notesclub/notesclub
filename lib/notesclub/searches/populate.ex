@@ -34,7 +34,7 @@ defmodule Notesclub.Searches.Populate do
             num = length(notebooks_data)
             %{created: 0, updated: 0, errors: num, downloaded: num, error: "ERROR downloading data"}
         end
-      {:error, %Fetch{} = fetch} ->
+      {:error, %Fetch{}} ->
         Logger.error "Searches.Populate ERROR before saving search"
         %{created: 0, updated: 0, errors: 0, downloaded: 0, error: "ERROR downloading data"}
     end
@@ -49,6 +49,14 @@ defmodule Notesclub.Searches.Populate do
       |> populate()
 
     Logger.info "Populate.next() end" <> inspect(result)
+  end
+
+  def next_three() do
+    for _ <- 1..3 do
+      next()
+      seconds_to_wait = 20
+      :timer.sleep(seconds_to_wait * 1_000)
+    end
   end
 
   defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
