@@ -1,5 +1,5 @@
 defmodule Notesclub.Searches.Fetch do
-  @fetch_api_key System.get_env("NOTESCLUB_GITHUB_API_KEY")
+  @github_api_key System.get_env("NOTESCLUB_GITHUB_API_KEY")
 
   alias Notesclub.Searches.Fetch
   alias Notesclub.Searches.Fetch.Options
@@ -86,7 +86,7 @@ defmodule Notesclub.Searches.Fetch do
     response = Req.get!(fetch.url,
       headers: [
         Accept: ["application/vnd.github+json"],
-        Authorization: ["token #{@fetch_api_key}"]
+        Authorization: ["token #{@github_api_key}"]
       ]
     )
     Map.put(fetch, :response, response)
