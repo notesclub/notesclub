@@ -6,7 +6,6 @@ defmodule Notesclub.Searches.Fetch do
 
   defstruct options: Options, url: nil, response: nil, notebooks_data: nil
 
-  @spec get(per_page: number, page: number, order: string) :: Fetch | {:error, Req.Response.t()}
   @doc """
 
   Gets files with 'livemd' extension from Fetch.
@@ -27,16 +26,17 @@ defmodule Notesclub.Searches.Fetch do
   A common error happens when we reach Fetch's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  def get(%Options{} = options), do: get(options, get_github_api_key())
-  def get(%Options{}, nil) do
-    Logger.error "No env variable Github API key"
-    {:error, %Fetch{}}
-  end
-  def get(%Options{} = options, github_api_key) when is_binary(github_api_key) do
-    options
-    |> build_url()
-    |> make_request(github_api_key)
-    |> extract_notebooks_data()
+  def get(%Options{} = options) do
+    github_api_key = get_github_api_key()
+    if github_api_key != nil || Mix.env() == :test do
+      options
+      |> build_url()
+      |> make_request(github_api_key)
+      |> extract_notebooks_data()
+    else
+      Logger.error "No env variable Github API key"
+      {:error, %Fetch{}}
+    end
   end
 
   defp extract_notebooks_data(%Fetch{response: response} = fetch) do
