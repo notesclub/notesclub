@@ -5,7 +5,8 @@
         <%= img_tag @notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
       </div>
       <div class="ml-4">
-        <div class="font-medium text-gray-900"><%= @notebook.github_owner_login <> "/" <> @notebook.github_repo_name %></div>
+        <div class="font-medium text-gray-900">@<%= @notebook.github_owner_login %></div>
+        <div class="text-gray-500"><%= @notebook.github_repo_name %></div>
       </div>
     </div>
   </td>
