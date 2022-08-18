@@ -8,7 +8,8 @@ defmodule Notesclub.Searches.Populate do
   alias Notesclub.Searches.Fetch.Options
 
   @doc """
-  Fetches notebooks from Github and saves one Search and creates n Notebook records.
+  Makes a request to fetch notebooks from Github.
+  Saves one Search and creates n Notebook records.
 
   ## Example
   iex> populate(per_page: 5, page: 1, order: "asc")
@@ -40,6 +41,11 @@ defmodule Notesclub.Searches.Populate do
     end
   end
 
+  @doc """
+  Makes a request to fetch new notebooks from Github
+  per_page, page and order depends on the last search
+
+  """
   def next() do
     Logger.info "Populate.next() start. Downloading new notebooks."
 
@@ -49,14 +55,20 @@ defmodule Notesclub.Searches.Populate do
       |> populate()
 
     Logger.info "Populate.next() end" <> inspect(result)
+    result
   end
 
+  @doc """
+  Makes three requests to fetch new notebooks from Github
+  per_page, page and order depends on the last search
+  """
   def next_three() do
-    for _ <- 1..3 do
-      next()
+    Enum.map(1..3, fn _ ->
+      result = next()
       seconds_to_wait = 20
       :timer.sleep(seconds_to_wait * 1_000)
-    end
+      result
+    end)
   end
 
   defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
