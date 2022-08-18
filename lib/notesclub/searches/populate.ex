@@ -58,19 +58,6 @@ defmodule Notesclub.Searches.Populate do
     result
   end
 
-  @doc """
-  Makes three requests to fetch new notebooks from Github
-  per_page, page and order depends on the last search
-  """
-  def next_three() do
-    Enum.map(1..3, fn _ ->
-      result = next()
-      seconds_to_wait = 20
-      :timer.sleep(seconds_to_wait * 1_000)
-      result
-    end)
-  end
-
   defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
   defp next_options(%Search{} = last_search) do
     %Options{
