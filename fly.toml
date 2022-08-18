@@ -1,16 +1,15 @@
-# fly.toml file generated for notesclub on 2022-08-18T13:38:55+02:00
+# fly.toml file generated for notesclub on 2022-08-18T13:44:54+02:00
 
 app = "notesclub"
-
-kill_signal = "SIGINT"
+kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
 
-[build]
-  builder = "heroku/buildpacks:20"
-  buildpacks = ["https://cnb-shim.herokuapp.com/v1/hashnuke/elixir"]
+[deploy]
+  release_command = "/app/bin/migrate"
 
 [env]
+  PHX_HOST = "notesclub.fly.dev"
   PORT = "8080"
 
 [experimental]
@@ -23,7 +22,6 @@ processes = []
   processes = ["app"]
   protocol = "tcp"
   script_checks = []
-
   [services.concurrency]
     hard_limit = 25
     soft_limit = 20
