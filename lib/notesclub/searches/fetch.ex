@@ -1,6 +1,4 @@
 defmodule Notesclub.Searches.Fetch do
-  @github_api_key System.get_env("NOTESCLUB_GITHUB_API_KEY")
-
   alias Notesclub.Searches.Fetch
   alias Notesclub.Searches.Fetch.Options
 
@@ -29,10 +27,15 @@ defmodule Notesclub.Searches.Fetch do
   A common error happens when we reach Fetch's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  def get(%Options{} = options) do
+  def get(%Options{} = options), do: get(options, get_github_api_key())
+  def get(%Options{}, nil) do
+    Logger.error "No env variable Github API key"
+    {:error, %Fetch{}}
+  end
+  def get(%Options{} = options, github_api_key) when is_binary(github_api_key) do
     options
     |> build_url()
-    |> make_request()
+    |> make_request(github_api_key)
     |> extract_notebooks_data()
   end
 
@@ -82,20 +85,22 @@ defmodule Notesclub.Searches.Fetch do
     end)
   end
 
-  defp make_request(%Fetch{} = fetch) do
-    response = Req.get!(fetch.url,
-      headers: [
-        Accept: ["application/vnd.github+json"],
-        Authorization: ["token #{@github_api_key}"]
-      ]
-    )
-    Map.put(fetch, :response, response)
-  end
-
   defp build_url(%Options{per_page: per_page, page: page, order: order} = options) do
     %Fetch{
       url: "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end
+
+  defp make_request(%Fetch{} = fetch, github_api_key) do
+    response = Req.get!(fetch.url,
+      headers: [
+        Accept: ["application/vnd.github+json"],
+        Authorization: ["token #{github_api_key}"]
+      ]
+    )
+    Map.put(fetch, :response, response)
+  end
+
+  defp get_github_api_key(), do: Application.get_env(:notesclub, :github_api_key)
 end
