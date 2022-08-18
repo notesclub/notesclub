@@ -58,10 +58,10 @@ config :tailwind, version: "3.1.8", default: [
 
 config :notesclub, Notesclub.Scheduler,
   jobs: [
-    # Every minute
-    {"* * * * *", fn ->
-      Notesclub.Searches.Populate.next()
-    end}
+    application_tags: [
+      schedule: "* * * * *", # Every minute
+      task: {Notesclub.Searches.Populate, :next, []}
+    ]
   ]
 
 # Import environment specific config. This must remain at the bottom
