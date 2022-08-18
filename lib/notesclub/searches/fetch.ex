@@ -4,7 +4,7 @@ defmodule Notesclub.Searches.Fetch do
 
   require Logger
 
-  defstruct options: Options, url: nil, response: nil, notebooks_data: nil
+  defstruct options: Options, url: nil, response: nil, notebooks_data: nil, error: nil
 
   @doc """
 
@@ -35,7 +35,7 @@ defmodule Notesclub.Searches.Fetch do
       |> extract_notebooks_data()
     else
       Logger.error "No env variable Github API key"
-      {:error, %Fetch{}}
+      {:error, %Fetch{error: "no github api key"}}
     end
   end
 
