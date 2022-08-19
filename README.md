@@ -2,7 +2,7 @@
 
 Discover Livebook Notebooks
 
-https://notes.club
+https://livebook.notes.club
 
 # Contributors
 - [Hec Perez](https://hecperez.com)

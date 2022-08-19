@@ -23,7 +23,7 @@ defmodule NotesclubWeb.PageControllerTest do
       |> Enum.count
   end
 
-  test "GET /livebookll returns all notebooks", %{conn: conn} do
+  test "GET /notebooks returns all notebooks", %{conn: conn} do
     notebooks_in_home_count = PageController.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3
 
@@ -31,7 +31,7 @@ defmodule NotesclubWeb.PageControllerTest do
       NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
     end
 
-    conn = get(conn, "/livebook")
+    conn = get(conn, "/notebooks")
 
     assert notebooks_count ==
       1..notebooks_count
@@ -41,13 +41,13 @@ defmodule NotesclubWeb.PageControllerTest do
       |> Enum.count
   end
 
-  test "GET /livebook/:author filters notebooks", %{conn: conn} do
+  test "GET /notebooks/:author filters notebooks", %{conn: conn} do
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone"})
 
-    conn = get(conn, "/livebook/someone")
+    conn = get(conn, "/notebooks/someone")
 
     assert html_response(conn, 200) =~ "whatever1.livemd"
     assert html_response(conn, 200) =~ "whatever2.livemd"
@@ -55,13 +55,13 @@ defmodule NotesclubWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "whatever4.livemd"
   end
 
-  test "GET /livebook/:author/:repo filters notebooks", %{conn: conn} do
+  test "GET /notebooks/:author/:repo filters notebooks", %{conn: conn} do
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone", github_repo_name: "one"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone", github_repo_name: "two"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else", github_repo_name: "three"})
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone", github_repo_name: "one"})
 
-    conn = get(conn, "/livebook/someone/one")
+    conn = get(conn, "/notebooks/someone/one")
 
     assert html_response(conn, 200) =~ "whatever1.livemd"
     refute html_response(conn, 200) =~ "whatever2.livemd"
