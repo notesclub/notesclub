@@ -83,10 +83,6 @@ if config_env() == :prod do
 end
 
 if config_env() == :prod || config_env() == :dev do
-  github_api_key =
-    System.get_env("NOTESCLUB_GITHUB_API_KEY") ||
-      raise """
-      environment variable NOTESCLUB_GITHUB_API_KEY is missing.
-      """
+  github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
   config :notesclub, :github_api_key, github_api_key
 end
