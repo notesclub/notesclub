@@ -82,6 +82,8 @@ if config_env() == :prod do
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
 
+config :notesclub, env: config_env()
+
 if config_env() == :prod || config_env() == :dev do
   github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
   config :notesclub, :github_api_key, github_api_key

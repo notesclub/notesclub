@@ -28,7 +28,7 @@ defmodule Notesclub.Searches.Fetch do
   """
   def get(%Options{} = options) do
     github_api_key = get_github_api_key()
-    if github_api_key != nil || Mix.env() == :test do
+    if github_api_key != nil || Application.get_env(:notesclub, :env) == :test do
       options
       |> build_url()
       |> make_request(github_api_key)
