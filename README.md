@@ -1,4 +1,4 @@
-# Notesclub
+# Livebook Notes Club
 
 Discover Livebook Notebooks
 
