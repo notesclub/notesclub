@@ -1,8 +1,6 @@
-# Livebook Notes Club
+# Notesclub · Discover Livebook Notebooks
 
-Discover Livebook Notebooks
-
-https://livebook.notes.club
+https://notes.club
 
 # Contributors
 - [Hec Perez](https://hecperez.com)
