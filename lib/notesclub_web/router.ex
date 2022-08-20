@@ -18,9 +18,9 @@ defmodule NotesclubWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/notebooks", PageController, :all, as: :all
-    get "/notebooks/:author", PageController, :author, as: :author
-    get "/notebooks/:author/:repo", PageController, :repo, as: :repo
+    get "/livebook-notebooks", PageController, :all, as: :all
+    get "/:author", PageController, :author, as: :author
+    get "/:author/:repo", PageController, :repo, as: :repo
   end
 
   # Other scopes may use custom stacks.
