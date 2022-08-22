@@ -8,6 +8,8 @@ https://notes.club
 
 Welcome to Notesclub! Feel free to take an issue or propose any new one.
 
+# Run it locally
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
