@@ -1,8 +1,12 @@
 # Notesclub · Discover Livebook Notebooks
 
+Every day we add new Livebook notebooks from Github.
+
 https://notes.club
 
 # Get involved
+
+Welcome to Notesclub! Feel free to take an issue or propose any new one.
 
 To start your Phoenix server:
 
