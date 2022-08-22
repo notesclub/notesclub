@@ -1,6 +1,9 @@
 defmodule Notesclub.Searches.Populate do
   require Logger
 
+  @daily_page_limit 10
+  def daily_page_limit, do: @daily_page_limit
+
   alias Notesclub.Notebooks
   alias Notesclub.Searches
   alias Notesclub.Searches.Search
@@ -49,36 +52,22 @@ defmodule Notesclub.Searches.Populate do
   def next() do
     Logger.info "Populate.next() start. Downloading new notebooks."
 
-    result =
-      Searches.get_last_search()
-      |> next_options()
-      |> populate()
-
-    Logger.info "Populate.next() end" <> inspect(result)
-    result
+    case Searches.get_last_search_from_today() do
+      %Search{page: @daily_page_limit} ->
+        Logger.info "Populate.next() end — reached 10 daily pages. Do NOT fetch Github anymore for today"
+        %{created: 0, updated: 0, downloaded: 0}
+      last_search_from_today ->
+        result =
+          last_search_from_today
+          |> next_options()
+          |> populate()
+        Logger.info "Populate.next() end" <> inspect(result)
+        result
+    end
   end
 
-  defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "asc"}
+  defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "desc"}
 
-  # Reached Github limit. It only returns the last 1000 records.
-  # Start :desc
-  defp next_options(%Search{page: 200, per_page: 5, response_notebooks_count: 5, order: "asc"}) do
-    %Options{
-      order: "desc",
-      per_page: 5,
-      page: 1,
-    }
-  end
-
-  # Reached Github limit. It only returns 1000 records.
-  # Start :desc again from page 1
-  defp next_options(%Search{page: 200, per_page: 5, response_notebooks_count: 5, order: "desc"}) do
-    %Options{
-      order: "desc",
-      per_page: 5,
-      page: 1,
-    }
-  end
   defp next_options(%Search{} = last_search) do
     %Options{
       per_page: last_search.per_page,

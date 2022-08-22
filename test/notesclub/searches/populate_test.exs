@@ -76,6 +76,24 @@ defmodule Notesclub.Searches.PopulateTest do
       end
     end
 
+    def test "next/0" do
+      with_mocks([
+        { Populate, [:passthrough], [populate: fn -> %{downloaded: 5} end]}
+      ]) do
+
+        assert [] = Notebooks.list_notebooks()
+
+        # The first daily_page_limit() pages call populate()
+        for _ <- 1..Populate.daily_page_limit() do
+          assert %{downloaded: 5} == Populate.next()
+        end
+
+        # From then on, we don't download anymore:
+        assert %{downloaded: 0} == Populate.next()
+        assert %{downloaded: 0} == Populate.next()
+      end
+    end
+
     def assert_attributes(notebook, expected, search) do
       assert notebook.github_html_url == expected["html_url"]
       assert notebook.github_repo_name == expected["repository"]["name"]

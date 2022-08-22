@@ -37,10 +37,11 @@ defmodule Notesclub.Searches do
   """
   def get_search!(id), do: Repo.get!(Search, id)
 
-  def get_last_search() do
+  def get_last_search_from_today() do
     from(s in Search,
       order_by: -s.id,
-      limit: 1)
+      limit: 1,
+      where: fragment("?::date", s.inserted_at) == ^Date.utc_today())
     |> Repo.one()
   end
 
