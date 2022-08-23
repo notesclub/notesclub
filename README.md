@@ -6,7 +6,7 @@ https://notes.club
 
 # Get involved
 
-Welcome to Notesclub! Feel free to take an issue or propose any new one.
+Welcome to Notesclub! Feel free to [take an issue](https://github.com/notesclub/notesclub/issues) or propose any new one.
 
 # Run it locally
 
