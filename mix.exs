@@ -52,7 +52,9 @@ defmodule Notesclub.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.3.0"},
       {:mock, "~> 0.3.7"},
-      {:quantum, "~> 3.5.0"}
+      {:quantum, "~> 3.5.0"},
+      {:appsignal, "~> 2.2.16"},
+      {:appsignal_phoenix, "~> 2.1.2"}
     ]
   end
 
