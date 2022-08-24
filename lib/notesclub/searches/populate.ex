@@ -1,7 +1,7 @@
 defmodule Notesclub.Searches.Populate do
   require Logger
 
-  @daily_page_limit 50
+  @daily_page_limit 50 # max: 200 when per_page=5
 
   def daily_page_limit, do: @daily_page_limit
 
@@ -49,22 +49,41 @@ defmodule Notesclub.Searches.Populate do
   Makes a request to fetch new notebooks from Github
   per_page, page and order depends on the last search
 
+  When cron uses next(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
   def next() do
     Logger.info "Populate.next() start. Downloading new notebooks."
 
     case Searches.get_last_search_from_today() do
-      %Search{page: @daily_page_limit} ->
+      %Search{page: @daily_page_limit, per_page: same, response_notebooks_count: same} ->
         Logger.info "Populate.next() end — reached 10 daily pages. Do NOT fetch Github anymore for today"
         %{created: 0, updated: 0, downloaded: 0}
       last_search_from_today ->
-        result =
-          last_search_from_today
-          |> next_options()
-          |> populate()
-        Logger.info "Populate.next() end" <> inspect(result)
-        result
+        last_search_from_today
+        |> next_options()
+        |> populate()
+        |> log_info("Populate.next() end")
     end
+  end
+
+  @doc """
+  Makes a request to fetch new notebooks from Github
+  per_page, page and order depends on the last search
+
+  When cron uses next_loop(), every day we fetch the last @daily_page_limit indexed by GitHub
+  """
+  def next_loop() do
+    Logger.info "Populate.next_loop() start. Downloading new notebooks."
+
+    Searches.get_last_search_from_today()
+    |> next_options()
+    |> populate()
+    |> log_info("Populate.next_loop() end")
+  end
+
+  defp log_info(result, text) do
+    Logger.info text <> inspect(result)
+    result
   end
 
   defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "desc"}
@@ -77,6 +96,8 @@ defmodule Notesclub.Searches.Populate do
     }
   end
 
+  # Github only returns the last 1000 records indexed, So when per_page=5, the page 201 returns error
+  defp next_page(%Search{page: 200, per_page: 5, response_notebooks_count: 5}), do: 1
   # We repeat the page when last search per_page doesn't match the returned data
   # When this happens, sometimes the returned results are not from the page
   # This happens especially for per_page > 5
