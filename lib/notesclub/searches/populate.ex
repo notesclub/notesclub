@@ -1,7 +1,8 @@
 defmodule Notesclub.Searches.Populate do
   require Logger
 
-  @daily_page_limit 10
+  @daily_page_limit 50
+
   def daily_page_limit, do: @daily_page_limit
 
   alias Notesclub.Notebooks
