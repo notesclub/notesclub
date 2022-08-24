@@ -60,7 +60,7 @@ config :notesclub, Notesclub.Scheduler,
   jobs: [
     application_tags: [
       schedule: "* * * * *", # Every minute
-      task: {Notesclub.Searches.Populate, :next_loop, []}
+      task: {Notesclub.Searches.Populate, :next, []}
     ]
   ]
 

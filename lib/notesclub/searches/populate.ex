@@ -1,7 +1,7 @@
 defmodule Notesclub.Searches.Populate do
   require Logger
 
-  @daily_page_limit 50 # max: 200 when per_page=5
+  @daily_page_limit 200 # max: 200 when per_page=5. 50 should be enough at the moment
 
   def daily_page_limit, do: @daily_page_limit
 
