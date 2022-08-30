@@ -27,18 +27,16 @@ defmodule Notesclub.Searches.Fetch do
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
   def get(%Options{} = options) do
-    github_api_key = get_github_api_key()
-    if github_api_key != nil || Application.get_env(:notesclub, :env) == :test do
-      options
-      |> build_url()
-      |> make_request(github_api_key)
-      |> extract_notebooks_data()
-    else
-      Logger.error "No env variable Github API key"
-      {:error, %Fetch{error: "no github api key"}}
-    end
+    options
+    |> build_url()
+    |> make_request()
+    |> extract_notebooks_data()
   end
 
+  defp extract_notebooks_data(nil) do
+    Logger.error "No env variable Github API key"
+    {:error, %Fetch{error: "no github api key"}}
+  end
   defp extract_notebooks_data(%Fetch{response: response} = fetch) do
     prepare_data(fetch, response.body["items"])
   end
@@ -92,8 +90,10 @@ defmodule Notesclub.Searches.Fetch do
     }
   end
 
-  defp make_request(%Fetch{} = fetch, github_api_key) do
-    response = Req.get!(fetch.url,
+  defp make_request(%Fetch{} = fetch) do
+    github_api_key = Application.get_env(:notesclub, :github_api_key)
+
+    response = Req.get!(url(fetch),
       headers: [
         Accept: ["application/vnd.github+json"],
         Authorization: ["token #{github_api_key}"]
@@ -102,5 +102,12 @@ defmodule Notesclub.Searches.Fetch do
     Map.put(fetch, :response, response)
   end
 
-  defp get_github_api_key(), do: Application.get_env(:notesclub, :github_api_key)
+  defp url(%Fetch{} = fetch) do
+    case Mix.env() do
+      :test ->
+        ""
+      _ ->
+        fetch.url
+    end
+  end
 end

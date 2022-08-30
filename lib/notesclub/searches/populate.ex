@@ -1,49 +1,17 @@
 defmodule Notesclub.Searches.Populate do
   require Logger
 
-  @daily_page_limit 50 # max: 200 when per_page=5
+  @daily_page_limit 50 # max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"
+  @default_per_page 5
 
-  def daily_page_limit, do: @daily_page_limit
+  def default_per_page(), do: @default_per_page # public function so we can mock it in tests
+  def daily_page_limit, do: @daily_page_limit   # public function so we can mock it in tests
 
   alias Notesclub.Notebooks
   alias Notesclub.Searches
   alias Notesclub.Searches.Search
   alias Notesclub.Searches.Fetch
   alias Notesclub.Searches.Fetch.Options
-
-  @doc """
-  Makes a request to fetch notebooks from Github.
-  Saves one Search and creates n Notebook records.
-
-  ## Example
-  iex> Notesclub.Searches.populate(per_page: 5, page: 201, order: "asc")
-  %{created: 3, updated: 2, errors: 0}
-
-  # TODO: We should probably only save the Search record and NOT the Notebooks.
-          Then, enqueue a job to download all livemd within the repo's default branch
-          Also, we would download the history of blobs of each file.
-          That way, we could update notebooks instead of creating new ones.
-          Useful to send emails, tweets, etc. with new notebooks.
-  """
-  def populate(%Options{per_page: per_page, page: page, order: order} = options) do
-    case Fetch.get(options) do
-      {:ok, %Fetch{notebooks_data: notebooks_data, response: response, url: url}} ->
-        headers = Enum.into(response.headers, %{}) # response.headers is a list of tuples and we store a map (jsonb)
-        case Searches.create_search(%{response_notebooks_count: length(notebooks_data), response_body: response.body, response_headers: headers, response_private: response.private, response_status: response.status, url: url, order: order, page: page, per_page: per_page}) do
-          {:ok, search} ->
-            if search.response_notebooks_count == per_page do
-              save_notebooks(notebooks_data, search)
-            end
-          {:error, changeset} ->
-            Logger.error "Searches.Populate ERROR populate while saving search\nChangeset:" <> inspect(changeset.errors) <> "\nOptions:\n" <> inspect(options)
-            num = length(notebooks_data)
-            %{created: 0, updated: 0, errors: num, downloaded: num, error: "ERROR downloading data"}
-        end
-      {:error, %Fetch{}} ->
-        Logger.error "Searches.Populate ERROR before saving search"
-        %{created: 0, updated: 0, errors: 0, downloaded: 0, error: "ERROR downloading data"}
-    end
-  end
 
   @doc """
   Makes a request to fetch new notebooks from Github
@@ -54,11 +22,13 @@ defmodule Notesclub.Searches.Populate do
   def next() do
     Logger.info "Populate.next() start. Downloading new notebooks."
 
-    case Searches.get_last_search_from_today() do
-      %Search{page: @daily_page_limit, per_page: same, response_notebooks_count: same} ->
-        Logger.info "Populate.next() end — reached 10 daily pages. Do NOT fetch Github anymore for today"
+    last_search_from_today = Searches.get_last_search_from_today()
+    daily_page_limit = __MODULE__.daily_page_limit()
+    cond do
+      last_search_from_today && (last_search_from_today.page >= daily_page_limit) ->
+        Logger.info "Populate.next() end — reached #{daily_page_limit} daily pages. Do NOT fetch Github anymore for today"
         %{created: 0, updated: 0, downloaded: 0}
-      last_search_from_today ->
+      true ->
         last_search_from_today
         |> next_options()
         |> populate()
@@ -81,13 +51,32 @@ defmodule Notesclub.Searches.Populate do
     |> log_info("Populate.next_loop() end")
   end
 
+  defp populate(%Options{per_page: per_page, page: page, order: order} = options) do
+    case Fetch.get(options) do
+      {:ok, %Fetch{notebooks_data: notebooks_data, response: response, url: url}} ->
+        headers = Enum.into(response.headers, %{}) # response.headers is a list of tuples and we store a map (jsonb)
+        case Searches.create_search(%{response_notebooks_count: length(notebooks_data), response_body: response.body, response_headers: headers, response_private: response.private, response_status: response.status, url: url, order: order, page: page, per_page: per_page}) do
+          {:ok, search} ->
+            if search.response_notebooks_count == per_page do
+              save_notebooks(notebooks_data, search)
+            end
+          {:error, changeset} ->
+            Logger.error "Searches.Populate ERROR populate while saving search\nChangeset:" <> inspect(changeset.errors) <> "\nOptions:\n" <> inspect(options)
+            num = length(notebooks_data)
+            %{created: 0, updated: 0, errors: num, downloaded: num, error: "ERROR downloading data"}
+        end
+      {:error, %Fetch{}} ->
+        Logger.error "Searches.Populate ERROR before saving search"
+        %{created: 0, updated: 0, errors: 0, downloaded: 0, error: "ERROR downloading data"}
+    end
+  end
+
   defp log_info(result, text) do
     Logger.info text <> inspect(result)
     result
   end
 
-  defp next_options(nil), do: %Options{per_page: 5, page: 1, order: "desc"}
-
+  defp next_options(nil), do: %Options{per_page: __MODULE__.default_per_page(), page: 1, order: "desc"}
   defp next_options(%Search{} = last_search) do
     %Options{
       per_page: last_search.per_page,

@@ -4,7 +4,6 @@ defmodule Notesclub.Searches.PopulateTest do
   alias Notesclub.Searches.Populate
   alias Notesclub.Searches
   alias Notesclub.Searches.Search
-  alias Notesclub.Searches.Fetch.Options
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
 
@@ -46,51 +45,42 @@ defmodule Notesclub.Searches.PopulateTest do
     }
   }
 
-  describe "populate" do
-    test "populate/1 downloads and saves notebooks" do
+  describe "next/0" do
+    test "downloads and saves notebooks — until we reach daily_page_limit" do
       with_mocks([
+        { Populate, [:passthrough], [default_per_page: fn -> 2 end]},
+        { Populate, [:passthrough], [daily_page_limit: fn -> 2 end]},
         { Req, [:passthrough], [get!: fn(_url, _options) -> @valid_response end]}
       ]) do
-        options = %Options{per_page: 2, page: 1, order: "asc"}
-
         # Check that there are no searches or notebooks
         assert [] = Notebooks.list_notebooks()
         assert [] = Searches.list_searches()
 
-        # Download two records and create them:
-        assert Populate.populate(options) == %{created: 2, updated: 0, downloaded: 2}
+        # Download the first page
+        assert %{created: 2, updated: 0, downloaded: 2} == Populate.next()
 
         # Now we have one search and two notebooks
-        [%Notebook{} = notebook1, %Notebook{} = notebook2] = Notebooks.list_notebooks()
-        [%Search{} = search] = Searches.list_searches()
-        [expected1, expected2] = @valid_response.body["items"]
-        assert_attributes(notebook1, expected1, search)
-        assert_attributes(notebook2, expected2, search)
+        [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] = Notebooks.list_notebooks_desc()
+        [%Search{} = search1] = Searches.list_searches()
+        [notebook1_downloaded, notebook2_downloaded] = @valid_response.body["items"]
+        assert_attributes(notebook1_in_db, notebook1_downloaded, search1)
+        assert_attributes(notebook2_in_db, notebook2_downloaded, search1)
 
-        # Downloading the same records updates them — and creates one more search
-        assert Populate.populate(options) == %{created: 0, updated: 2, downloaded: 2}
-        [_, search2] = Searches.list_searches()
-        [notebook1_after_update, notebook2_after_update] = Notebooks.list_notebooks()
-        assert_attributes(notebook1_after_update, expected1, search2)
-        assert_attributes(notebook2_after_update, expected2, search2)
-      end
-    end
+        # Download the 2nd page updates because @valid_response is the same
+        assert %{created: 0, updated: 2, downloaded: 2} == Populate.next()
 
-    def test "next/0" do
-      with_mocks([
-        { Populate, [:passthrough], [populate: fn -> %{downloaded: 5} end]}
-      ]) do
+        # Now we have one more search and the same notebooks — with the new search_id
+        [^search1, search2] = Searches.list_searches()
+        [n2, n1] = Notebooks.list_notebooks_desc()
+        assert n2.id == notebook2_in_db.id
+        assert n1.id == notebook1_in_db.id
+        assert n1.search_id == search2.id
+        assert n2.search_id == search2.id
 
-        assert [] = Notebooks.list_notebooks()
-
-        # The first daily_page_limit() pages call populate()
-        for _ <- 1..Populate.daily_page_limit() do
-          assert %{downloaded: 5} == Populate.next()
-        end
-
-        # From then on, we don't download anymore:
-        assert %{downloaded: 0} == Populate.next()
-        assert %{downloaded: 0} == Populate.next()
+        # From now on, we download 0 notebooks as we reached daily_page_limit()
+        assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()
+        assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()
+        assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()
       end
     end
 
