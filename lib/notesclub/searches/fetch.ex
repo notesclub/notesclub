@@ -61,7 +61,6 @@ defmodule Notesclub.Searches.Fetch do
           github_repo_name: repo["name"],
           github_html_url: item["html_url"],
           github_owner_avatar_url: owner["avatar_url"],
-          github_api_response: item
         }
         end)
 

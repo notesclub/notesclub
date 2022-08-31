@@ -10,7 +10,6 @@ defmodule Notesclub.Notebooks.Notebook do
     field :github_repo_name, :string
     field :github_html_url, :string
     field :github_owner_avatar_url, :string
-    field :github_api_response, :map
     belongs_to :search, Search
 
     timestamps()
@@ -19,8 +18,8 @@ defmodule Notesclub.Notebooks.Notebook do
   @doc false
   def changeset(notebook, attrs) do
     notebook
-    |> cast(attrs, [:github_filename, :github_html_url, :github_owner_login, :github_owner_avatar_url, :github_repo_name, :github_api_response, :search_id])
-    |> validate_required([:github_filename, :github_html_url, :github_owner_login, :github_owner_avatar_url, :github_repo_name, :github_api_response])
+    |> cast(attrs, [:github_filename, :github_html_url, :github_owner_login, :github_owner_avatar_url, :github_repo_name, :search_id])
+    |> validate_required([:github_filename, :github_html_url, :github_owner_login, :github_owner_avatar_url, :github_repo_name])
     |> unique_constraint(:github_html_url)
   end
 end

@@ -21,7 +21,6 @@ defmodule Notesclub.NotebooksFixtures do
         github_owner_avatar_url: "some github_owner_avatar_url",
         github_owner_login: "some github_owner_login",
         github_repo_name: "some github_repo_name",
-        github_api_response: %{}
       })
       |> Notesclub.Notebooks.create_notebook()
 

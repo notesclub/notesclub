@@ -9,20 +9,7 @@ defmodule Notesclub.NotebooksTest do
 
     import Notesclub.NotebooksFixtures
 
-    @invalid_attrs %{github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, github_api_response: nil, search: nil}
-    @valid_github_api_response %{
-      "name" => "structs.livemd",
-      "html_url" => "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
-      "repository" => %{
-        "name" => "elixir-notebooks",
-        "private" => false,
-        "fork" => false,
-        "owner" => %{
-          "avatar_url" => "https://avatars.githubusercontent.com/u/13981427?v=4",
-          "login" => "charlieroth",
-        },
-      },
-    }
+    @invalid_attrs %{github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, search: nil}
 
     test "list_notebooks/0 returns all notebooks" do
       notebook = notebook_fixture()
@@ -36,7 +23,7 @@ defmodule Notesclub.NotebooksTest do
 
     test "create_notebook/1 with valid data creates a notebook" do
       search = SearchesFixtures.search_fixture()
-      valid_attrs = %{github_filename: "some github_filename", github_html_url: "some github_html_url", github_owner_avatar_url: "some github_owner_avatar_url", github_owner_login: "some github_owner_login", github_repo_name: "some github_repo_name", github_api_response: @valid_github_api_response, search_id: search.id}
+      valid_attrs = %{github_filename: "some github_filename", github_html_url: "some github_html_url", github_owner_avatar_url: "some github_owner_avatar_url", github_owner_login: "some github_owner_login", github_repo_name: "some github_repo_name", search_id: search.id}
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
       assert notebook.github_filename == "some github_filename"
@@ -53,7 +40,7 @@ defmodule Notesclub.NotebooksTest do
 
     test "update_notebook/2 with valid data updates the notebook" do
       notebook = notebook_fixture()
-      update_attrs = %{github_filename: "some updated github_filename", github_html_url: "some updated github_html_url", github_owner_avatar_url: "some updated github_owner_avatar_url", github_owner_login: "some updated github_owner_login", github_repo_name: "some updated github_repo_name", github_api_response: @valid_github_api_response}
+      update_attrs = %{github_filename: "some updated github_filename", github_html_url: "some updated github_html_url", github_owner_avatar_url: "some updated github_owner_avatar_url", github_owner_login: "some updated github_owner_login", github_repo_name: "some updated github_repo_name"}
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.update_notebook(notebook, update_attrs)
       assert notebook.github_filename == "some updated github_filename"
