@@ -8,7 +8,7 @@ defmodule Notesclub.SearchesTest do
 
     import Notesclub.SearchesFixtures
 
-    @invalid_attrs %{order: nil, page: nil, per_page: nil, response_body: nil, response_headers: nil, response_notebooks_count: nil, response_private: nil, response_status: nil, url: nil}
+    @invalid_attrs %{order: nil, page: nil, per_page: nil, response_notebooks_count: nil, response_status: nil, url: nil}
 
     test "list_searches/0 returns all searches" do
       search = search_fixture()
@@ -21,16 +21,13 @@ defmodule Notesclub.SearchesTest do
     end
 
     test "create_search/1 with valid data creates a search" do
-      valid_attrs = %{order: "some order", page: 42, per_page: 42, response_body: %{}, response_headers: %{}, response_notebooks_count: 42, response_private: %{}, response_status: 42, url: "some url"}
+      valid_attrs = %{order: "some order", page: 42, per_page: 42, response_notebooks_count: 42, response_status: 42, url: "some url"}
 
       assert {:ok, %Search{} = search} = Searches.create_search(valid_attrs)
       assert search.order == "some order"
       assert search.page == 42
       assert search.per_page == 42
-      assert search.response_body == %{}
-      assert search.response_headers == %{}
       assert search.response_notebooks_count == 42
-      assert search.response_private == %{}
       assert search.response_status == 42
       assert search.url == "some url"
     end
@@ -41,16 +38,13 @@ defmodule Notesclub.SearchesTest do
 
     test "update_search/2 with valid data updates the search" do
       search = search_fixture()
-      update_attrs = %{order: "some updated order", page: 43, per_page: 43, response_body: %{}, response_headers: %{}, response_notebooks_count: 43, response_private: %{}, response_status: 43, url: "some updated url"}
+      update_attrs = %{order: "some updated order", page: 43, per_page: 43, response_notebooks_count: 43, response_status: 43, url: "some updated url"}
 
       assert {:ok, %Search{} = search} = Searches.update_search(search, update_attrs)
       assert search.order == "some updated order"
       assert search.page == 43
       assert search.per_page == 43
-      assert search.response_body == %{}
-      assert search.response_headers == %{}
       assert search.response_notebooks_count == 43
-      assert search.response_private == %{}
       assert search.response_status == 43
       assert search.url == "some updated url"
     end

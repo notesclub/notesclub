@@ -14,10 +14,7 @@ defmodule Notesclub.SearchesFixtures do
         order: ":asc",
         page: 2,
         per_page: 10,
-        response_body: %{},
-        response_headers: %{},
         response_notebooks_count: 10,
-        response_private: %{},
         response_status: 42,
         url: "https://github.com/..."
       })

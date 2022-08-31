@@ -55,7 +55,7 @@ defmodule Notesclub.Searches.Populate do
     case Fetch.get(options) do
       {:ok, %Fetch{notebooks_data: notebooks_data, response: response, url: url}} ->
         headers = Enum.into(response.headers, %{}) # response.headers is a list of tuples and we store a map (jsonb)
-        case Searches.create_search(%{response_notebooks_count: length(notebooks_data), response_body: response.body, response_headers: headers, response_private: response.private, response_status: response.status, url: url, order: order, page: page, per_page: per_page}) do
+        case Searches.create_search(%{response_notebooks_count: length(notebooks_data), response_status: response.status, url: url, order: order, page: page, per_page: per_page}) do
           {:ok, search} ->
             if search.response_notebooks_count == per_page do
               save_notebooks(notebooks_data, search)
