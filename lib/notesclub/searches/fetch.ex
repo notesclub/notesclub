@@ -103,7 +103,7 @@ defmodule Notesclub.Searches.Fetch do
   end
 
   defp url(%Fetch{} = fetch) do
-    case Mix.env() do
+    case Application.get_env(:notesclub, :env) do
       :test ->
         ""
       _ ->
