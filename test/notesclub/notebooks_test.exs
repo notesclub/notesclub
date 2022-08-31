@@ -16,6 +16,23 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.list_notebooks() == [notebook]
     end
 
+    test "list_notebooks_since/1 returns notebooks since n days ago" do
+      # We create a notebook and confirm we get it
+      notebook1 = notebook_fixture()
+      assert Notebooks.list_notebooks_since(2) == [notebook1]
+
+      # We change the time and now we do NOT get it
+      {:ok, _} = Notebooks.update_notebook(notebook1, %{inserted_at: DateTools.days_ago(3)})
+      assert Notebooks.list_notebooks_since(2) == []
+
+      # We create two more notebooks
+      notebook2 = notebook_fixture()
+      notebook3 = notebook_fixture()
+
+      # Now we get these two — without notebook1
+      assert Notebooks.list_notebooks_since(2) == [notebook3, notebook2]
+    end
+
     test "get_notebook!/1 returns the notebook with given id" do
       notebook = notebook_fixture()
       assert Notebooks.get_notebook!(notebook.id) == notebook
