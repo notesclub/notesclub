@@ -23,7 +23,7 @@ defmodule NotesclubWeb.PageControllerTest do
       |> Enum.count
   end
 
-  test "GET /livebook-notebooks returns all notebooks", %{conn: conn} do
+  test "GET /all returns all notebooks", %{conn: conn} do
     notebooks_in_home_count = PageController.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3
 
@@ -31,7 +31,7 @@ defmodule NotesclubWeb.PageControllerTest do
       NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
     end
 
-    conn = get(conn, "/livebook-notebooks")
+    conn = get(conn, "/all")
 
     assert notebooks_count ==
       1..notebooks_count
@@ -67,5 +67,23 @@ defmodule NotesclubWeb.PageControllerTest do
     refute html_response(conn, 200) =~ "whatever2.livemd"
     refute html_response(conn, 200) =~ "whatever3.livemd"
     assert html_response(conn, 200) =~ "whatever4.livemd"
+  end
+
+  test "GET /last_week returns last week's notebooks", %{conn: conn} do
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"}) # today
+    for day <- 1..10 do
+      n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
+      {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(1)})
+    end
+
+    conn = get(conn, "/someone/one")
+
+    for day <- 0..7 do
+      assert html_response(conn, 200) =~ "whatever#{day}.livemd"
+    end
+
+    refute html_response(conn, 200) =~ "whatever8.livemd"
+    refute html_response(conn, 200) =~ "whatever9.livemd"
+    refute html_response(conn, 200) =~ "whatever10.livemd"
   end
 end

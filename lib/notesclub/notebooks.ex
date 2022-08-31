@@ -27,6 +27,13 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
+  def list_notebooks_since(num_days_ago) when is_integer(num_days_ago) do
+    from(n in Notebook,
+      where: n.inserted_at >= from_now(-^num_days_ago, "day"),
+      order_by: -n.id)
+    |> Repo.all()
+  end
+
   @doc """
   Returns the notebooks from an author in desc order
 
