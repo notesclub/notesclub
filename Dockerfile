@@ -89,4 +89,4 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/notesclub ./
 
 USER nobody
 
-CMD ["sh", "-c", "/app/bin/notesclub eval MyApp.Release.migrate && exec /app/bin/server"]
+CMD ["sh", "-c", "/app/bin/notesclub eval Notesclub.Release.migrate && exec /app/bin/server"]
