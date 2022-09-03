@@ -73,12 +73,12 @@ defmodule NotesclubWeb.PageControllerTest do
     NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"}) # today
     for day <- 1..10 do
       n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
-      {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(1)})
+      {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
     end
 
-    conn = get(conn, "/someone/one")
+    conn = get(conn, "/last_week")
 
-    for day <- 0..7 do
+    for day <- 0..6 do
       assert html_response(conn, 200) =~ "whatever#{day}.livemd"
     end
 
