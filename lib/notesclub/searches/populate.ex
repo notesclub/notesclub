@@ -54,7 +54,6 @@ defmodule Notesclub.Searches.Populate do
   defp populate(%Options{per_page: per_page, page: page, order: order} = options) do
     case Fetch.get(options) do
       {:ok, %Fetch{notebooks_data: notebooks_data, response: response, url: url}} ->
-        headers = Enum.into(response.headers, %{}) # response.headers is a list of tuples and we store a map (jsonb)
         case Searches.create_search(%{response_notebooks_count: length(notebooks_data), response_status: response.status, url: url, order: order, page: page, per_page: per_page}) do
           {:ok, search} ->
             if search.response_notebooks_count == per_page do
@@ -65,9 +64,9 @@ defmodule Notesclub.Searches.Populate do
             num = length(notebooks_data)
             %{created: 0, updated: 0, errors: num, downloaded: num, error: "ERROR downloading data"}
         end
-      {:error, %Fetch{}} ->
-        Logger.error "Searches.Populate ERROR before saving search"
-        %{created: 0, updated: 0, errors: 0, downloaded: 0, error: "ERROR downloading data"}
+      {:error, %Fetch{errors: errors}} ->
+        Logger.warn "Searches.Populate ERROR before saving search: " <> inspect(errors)
+        %{created: 0, updated: 0, errors: 0, downloaded: 0, error: "ERROR downloading data: " <> inspect(errors)}
     end
   end
 
