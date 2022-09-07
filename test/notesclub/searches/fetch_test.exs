@@ -46,7 +46,8 @@ defmodule Notesclub.Searches.FetchTest do
   describe "Fetch.Search" do
     test "get/3 returns notebooks" do
       with_mocks([
-        { Req, [:passthrough], [get!: fn(_url, _options) -> @valid_reponse end]}
+        { Req, [:passthrough], [get!: fn(_url, _options) -> @valid_reponse end]},
+        { Fetch, [:passthrough], [check_github_api_key: fn() -> false end]}
       ]) do
         assert {
           :ok,
@@ -71,6 +72,23 @@ defmodule Notesclub.Searches.FetchTest do
             url: _url
           }
         } = Fetch.get(%Options{per_page: 2, page: 1, order: :asc})
+      end
+    end
+
+    test "get/3 complains about missing github_api_key" do
+      with_mocks([
+        { Req, [:passthrough], [get!: fn(_url, _options) -> @valid_reponse end]}
+      ]) do
+        options = %Options{per_page: 2, page: 1, order: :asc}
+        assert {
+          :error,
+          %Notesclub.Searches.Fetch{
+            errors: %{github_api_key: ["is missing"]},
+            notebooks_data: nil,
+            options: ^options,
+            response: nil,
+            url: _}
+          } = Fetch.get(options)
       end
     end
   end

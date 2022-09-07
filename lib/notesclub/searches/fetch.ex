@@ -4,7 +4,7 @@ defmodule Notesclub.Searches.Fetch do
 
   require Logger
 
-  defstruct options: Options, url: nil, response: nil, notebooks_data: nil, error: nil
+  defstruct options: Options, url: nil, response: nil, notebooks_data: nil, errors: %{}
 
   @doc """
 
@@ -33,12 +33,13 @@ defmodule Notesclub.Searches.Fetch do
     |> extract_notebooks_data()
   end
 
-  defp extract_notebooks_data(nil) do
-    Logger.error "No env variable Github API key"
-    {:error, %Fetch{error: "no github api key"}}
-  end
-  defp extract_notebooks_data(%Fetch{response: response} = fetch) do
-    prepare_data(fetch, response.body["items"])
+  defp extract_notebooks_data(%Fetch{response: response, errors: errors} = fetch) do
+    cond do
+      errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
+        {:error, fetch}
+      true ->
+        prepare_data(fetch, response.body["items"])
+    end
   end
 
   defp prepare_data(%Fetch{response: response} = fetch, nil) do
@@ -46,8 +47,6 @@ defmodule Notesclub.Searches.Fetch do
     {:error, fetch}
   end
   defp prepare_data(%Fetch{response: response} = fetch, items) do
-    Logger.info "Fetch.Search, response: " <> inspect(response)
-
     notebooks_data =
       items
       |> filter_private_repos(response) # This filter shouldn't be needed. See function for more info.
@@ -63,7 +62,6 @@ defmodule Notesclub.Searches.Fetch do
           github_owner_avatar_url: owner["avatar_url"],
         }
         end)
-
     {:ok, Map.put(fetch, :notebooks_data, notebooks_data)}
   end
 
@@ -91,22 +89,29 @@ defmodule Notesclub.Searches.Fetch do
 
   defp make_request(%Fetch{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
+    env = Application.get_env(:notesclub, :env)
 
-    response = Req.get!(url(fetch),
-      headers: [
-        Accept: ["application/vnd.github+json"],
-        Authorization: ["token #{github_api_key}"]
-      ]
-    )
-    Map.put(fetch, :response, response)
-  end
-
-  defp url(%Fetch{} = fetch) do
-    case Application.get_env(:notesclub, :env) do
-      :test ->
-        ""
-      _ ->
-        fetch.url
+    cond do
+      github_api_key == nil && __MODULE__.check_github_api_key() ->
+        Map.put(fetch, :errors, %{github_api_key: ["is missing"]})
+      true ->
+        response = Req.get!(
+          url(fetch, env == :test),
+          headers: [
+            Accept: ["application/vnd.github+json"],
+            Authorization: ["token #{github_api_key}"]
+          ]
+        )
+        Map.put(fetch, :response, response)
     end
   end
+
+  # Don't make requests to Github in test env
+  defp url(%Fetch{}, true), do: ""
+  defp url(%Fetch{} = fetch, false), do: fetch.url
+
+  defp env, do: Application.get_env(:notesclub, :env)
+
+  # We can mock this in tests
+  def check_github_api_key, do: true
 end
