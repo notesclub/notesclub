@@ -1,6 +1,8 @@
 defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
 
+  import Oban.Web.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -16,6 +18,8 @@ defmodule NotesclubWeb.Router do
 
   scope "/", NotesclubWeb do
     pipe_through :browser
+
+    oban_dashboard "/oban"
 
     get "/", PageController, :index, as: :index
     get "/all", PageController, :all, as: :all

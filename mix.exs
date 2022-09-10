@@ -54,7 +54,10 @@ defmodule Notesclub.MixProject do
       {:mock, "~> 0.3.7"},
       {:quantum, "~> 3.5.0"},
       {:appsignal, "~> 2.2.16"},
-      {:appsignal_phoenix, "~> 2.1.2"}
+      {:appsignal_phoenix, "~> 2.1.2"},
+      {:oban, "2.13.2"},
+      {:oban_pro, "~> 0.11", repo: "oban"},
+      {:oban_web, "~> 2.9.1", repo: "oban"},
     ]
   end
 

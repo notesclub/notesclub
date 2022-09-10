@@ -64,6 +64,22 @@ config :notesclub, Notesclub.Scheduler,
     ]
   ]
 
+config :notesclub, Oban,
+  engine: Oban.Pro.Queue.SmartEngine,
+  repo: Notesclub.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    Oban.Plugins.Gossip,
+    Oban.Web.Plugins.Stats,
+    Oban.Pro.Plugins.DynamicLifeline
+  ],
+  queues: [
+    default: 10,
+    # Github REST API has a rate limit of 5000 API requests/hour.
+    # We limit to 60*60=3600 because Notesclub.Populate calls Github Search API which has a different limit.
+    github_rest: [global_limit: 1, rate_limit: [allowed: 1, period: {60, :minute}]]
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

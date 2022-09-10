@@ -17,9 +17,9 @@ defmodule Notesclub.Application do
       # Start the Endpoint (http/https)
       NotesclubWeb.Endpoint,
       # Cron scheduler
-      Notesclub.Scheduler
-      # Start a worker by calling: Notesclub.Worker.start_link(arg)
-      # {Notesclub.Worker, arg}
+      Notesclub.Scheduler,
+      # Oban
+      {Oban, Application.fetch_env!(:notesclub, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
