@@ -16,6 +16,6 @@ defmodule Notesclub.Repos.Repo do
     repo
     |> cast(attrs, [:name, :user_id])
     |> validate_required([:name])
-    |> unique_constraint(:name)
+    |> unique_constraint([:name, :user_id])
   end
 end
