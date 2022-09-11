@@ -2,7 +2,6 @@ defmodule Notesclub.Searches.FetchTest do
   use Notesclub.DataCase
 
   alias Notesclub.Searches.Fetch
-  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Searches.Fetch.Options
 
   import Mock
