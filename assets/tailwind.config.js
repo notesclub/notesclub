@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'split-gray': "linear-gradient(to bottom, #f9fafb 60% , #1f2937 40%);"
+        'split-gray': "linear-gradient(to bottom, #f9fafb 50% , #1f2937 50%);"
       }
     },
   },
