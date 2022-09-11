@@ -7,13 +7,15 @@ defmodule Notesclub.NotebooksFixtures do
   @doc """
   Generate a unique notebook github_html_url.
   """
-  def unique_notebook_github_html_url, do: "some github_html_url#{System.unique_integer([:positive])}"
+  def unique_notebook_github_html_url,
+    do: "some github_html_url#{System.unique_integer([:positive])}"
 
   @doc """
   Generate a notebook.
   """
   def notebook_fixture(attrs \\ %{}) do
     repo = Notesclub.ReposFixtures.repo_fixture()
+
     {:ok, notebook} =
       attrs
       |> Enum.into(%{

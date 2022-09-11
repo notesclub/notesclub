@@ -37,19 +37,22 @@ defmodule Notesclub.Searches.Fetch do
     cond do
       errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
         {:error, fetch}
+
       true ->
         prepare_data(fetch, response.body["items"])
     end
   end
 
   defp prepare_data(%Fetch{response: response} = fetch, nil) do
-    Logger.error "Fetch.Search, response: " <> inspect(response)
+    Logger.error("Fetch.Search, response: " <> inspect(response))
     {:error, fetch}
   end
+
   defp prepare_data(%Fetch{response: response} = fetch, items) do
     notebooks_data =
       items
-      |> filter_private_repos(response) # This filter shouldn't be needed. See function for more info.
+      # This filter shouldn't be needed. See function for more info.
+      |> filter_private_repos(response)
       |> Enum.map(fn item ->
         repo = item["repository"]
         owner = repo["owner"]
@@ -59,22 +62,28 @@ defmodule Notesclub.Searches.Fetch do
           github_owner_login: owner["login"],
           github_repo_name: repo["name"],
           github_html_url: item["html_url"],
-          github_owner_avatar_url: owner["avatar_url"],
+          github_owner_avatar_url: owner["avatar_url"]
         }
-        end)
+      end)
+
     {:ok, Map.put(fetch, :notebooks_data, notebooks_data)}
   end
 
-  # We make sure we only store public repos/files
-  # Yet, our credentials should only be able to access public repos
+  #  We make sure we only store public repos/files
+  #  Yet, our credentials should only be able to access public repos
   # so this function shouldn't be needed
   defp filter_private_repos(items, response) do
     Enum.filter(items, fn i ->
       case i["repository"]["private"] do
         false ->
           i
+
         _ ->
-          Logger.error "Fetch.Search fetched a private repo.\nRepo:\n" <> inspect(i) <> "\nFull Fetch's response:\n" <> inspect(response)
+          Logger.error(
+            "Fetch.Search fetched a private repo.\nRepo:\n" <>
+              inspect(i) <> "\nFull Fetch's response:\n" <> inspect(response)
+          )
+
           false
       end
     end)
@@ -82,7 +91,8 @@ defmodule Notesclub.Searches.Fetch do
 
   defp build_url(%Options{per_page: per_page, page: page, order: order} = options) do
     %Fetch{
-      url: "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
+      url:
+        "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end
@@ -94,19 +104,22 @@ defmodule Notesclub.Searches.Fetch do
     cond do
       github_api_key == nil && __MODULE__.check_github_api_key() ->
         Map.put(fetch, :errors, %{github_api_key: ["is missing"]})
+
       true ->
-        response = Req.get!(
-          url(fetch, env == :test),
-          headers: [
-            Accept: ["application/vnd.github+json"],
-            Authorization: ["token #{github_api_key}"]
-          ]
-        )
+        response =
+          Req.get!(
+            url(fetch, env == :test),
+            headers: [
+              Accept: ["application/vnd.github+json"],
+              Authorization: ["token #{github_api_key}"]
+            ]
+          )
+
         Map.put(fetch, :response, response)
     end
   end
 
-  # Don't make requests to Github in test env
+  #  Don't make requests to Github in test env
   defp url(%Fetch{}, true), do: ""
   defp url(%Fetch{} = fetch, false), do: fetch.url
 
