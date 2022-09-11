@@ -9,6 +9,8 @@ defmodule Notesclub.Searches.Populate do
 
   alias Notesclub.Notebooks
   alias Notesclub.Searches
+  alias Notesclub.Accounts
+  alias Notesclub.Repos
   alias Notesclub.Searches.Search
   alias Notesclub.Searches.Fetch
   alias Notesclub.Searches.Fetch.Options
@@ -97,6 +99,8 @@ defmodule Notesclub.Searches.Populate do
     |> Enum.map(fn new_attributes ->
       new_attributes
       |> Map.put(:search_id, search.id)
+      |> get_or_create_user()
+      |> get_or_create_repo()
       |> create_or_update_notebook()
     end)
     |> Enum.frequencies()
@@ -125,6 +129,33 @@ defmodule Notesclub.Searches.Populate do
           Logger.error "Searches.Populate ERROR create_or_update_notebook while CREATING: " <> inspect(changeset.errors)
           :error
       end
+    end
+  end
+
+  defp get_or_create_user(attrs) do
+    case Accounts.get_by_username(attrs.github_owner_login) do
+      nil ->
+        case Accounts.create_user(%{username: attrs.github_owner_login, avatar_url: attrs.github_owner_avatar_url}) do
+          {:ok, user} ->
+            Map.put_new(attrs, :user_id, user.id)
+          {:error, error} ->
+            Logger.info("Error while creating user by name #{attrs.github_owner_login} details #{inspect error}")
+            attrs
+        end
+      user -> Map.put_new(attrs, :user_id, user.id)
+    end
+  end
+
+  defp get_or_create_repo(attrs) do
+    case Repos.get_by_name_and_user_id(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
+      nil ->
+        case Repos.create_repo(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
+          {:ok, repo} -> Map.put_new(attrs, :repo_id, repo.id)
+          {:error, error} ->
+            Logger.info("Error while creating repo by repo name #{attrs.github_repo_name} with user #{attrs.user_id} details #{inspect error}")
+            attrs
+        end
+      repo -> Map.put_new(attrs, :repo_id, repo.id)
     end
   end
 end

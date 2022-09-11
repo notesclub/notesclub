@@ -13,6 +13,7 @@ defmodule Notesclub.NotebooksFixtures do
   Generate a notebook.
   """
   def notebook_fixture(attrs \\ %{}) do
+    repo = Notesclub.ReposFixtures.repo_fixture()
     {:ok, notebook} =
       attrs
       |> Enum.into(%{
@@ -21,6 +22,8 @@ defmodule Notesclub.NotebooksFixtures do
         github_owner_avatar_url: "some github_owner_avatar_url",
         github_owner_login: "some github_owner_login",
         github_repo_name: "some github_repo_name",
+        repo_id: repo.id,
+        user_id: repo.user_id
       })
       |> Notesclub.Notebooks.create_notebook()
 
