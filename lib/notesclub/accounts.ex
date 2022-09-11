@@ -102,7 +102,7 @@ defmodule Notesclub.Accounts do
     User.changeset(user, attrs)
   end
 
-   @doc """
+  @doc """
   Returns an `{:ok, %Ecto.Changeset{}}` for user by name.
 
   ## Examples

@@ -47,19 +47,22 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :tailwind, version: "3.1.8", default: [
-  args: ~w(
+config :tailwind,
+  version: "3.1.8",
+  default: [
+    args: ~w(
     --config=tailwind.config.js
     --input=css/app.css
     --output=../priv/static/assets/app.css
   ),
-  cd: Path.expand("../assets", __DIR__)
-]
+    cd: Path.expand("../assets", __DIR__)
+  ]
 
 config :notesclub, Notesclub.Scheduler,
   jobs: [
     application_tags: [
-      schedule: "* * * * *", # Every minute
+      # Every minute
+      schedule: "* * * * *",
       task: {Notesclub.Searches.Populate, :next, []}
     ]
   ]
