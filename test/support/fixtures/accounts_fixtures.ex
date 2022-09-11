@@ -11,7 +11,7 @@ defmodule Notesclub.AccountsFixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        name: Faker.Person.En.first_name()
+        username: Faker.Internet.user_name()
       })
       |> Notesclub.Accounts.create_user()
 

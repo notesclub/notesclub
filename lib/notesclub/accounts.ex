@@ -107,11 +107,11 @@ defmodule Notesclub.Accounts do
 
   ## Examples
 
-      iex> get_by_name(username)
+      iex> get_by_username(username)
       {:ok, %User{}}
 
   """
-  def get_by_name(username) do
-    Repo.get_by(User, name: username)
+  def get_by_username(username) do
+    Repo.get_by(User, username: username)
   end
 end

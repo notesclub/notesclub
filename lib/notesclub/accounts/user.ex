@@ -3,7 +3,7 @@ defmodule Notesclub.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
-    field :name, :string
+    field :username, :string
 
     timestamps()
   end
@@ -11,8 +11,8 @@ defmodule Notesclub.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
-    |> unique_constraint(:name)
+    |> cast(attrs, [:username])
+    |> validate_required([:username])
+    |> unique_constraint(:username)
   end
 end
