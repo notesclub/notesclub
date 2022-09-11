@@ -11,7 +11,8 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     :ssl,
     :postgrex,
     :ecto,
-    :ecto_sql # If using Ecto 3.0 or higher
+    # If using Ecto 3.0 or higher
+    :ecto_sql
   ]
 
   @repos Application.get_env(:notesclub, :ecto_repos, [])
@@ -36,12 +37,17 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     stop_services()
   end
 
-
   defp find_or_create_user(%Notebook{} = notebook) do
     case Accounts.get_by_username(notebook.github_owner_login) do
       nil ->
-        {:ok, user} = Accounts.create_user(%{username: notebook.github_owner_login, avatar_url: notebook.github_owner_avatar_url})
+        {:ok, user} =
+          Accounts.create_user(%{
+            username: notebook.github_owner_login,
+            avatar_url: notebook.github_owner_avatar_url
+          })
+
         %{notebook: notebook, user: user}
+
       user ->
         %{notebook: notebook, user: user}
     end
@@ -52,6 +58,7 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
       nil ->
         {:ok, repo} = Repos.create_repo(%{name: notebook.github_repo_name, user_id: user.id})
         %{notebook: notebook, user: user, repo: repo}
+
       repo ->
         %{notebook: notebook, user: user, repo: repo}
     end

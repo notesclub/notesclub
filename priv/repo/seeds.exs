@@ -6,7 +6,12 @@ alias Notesclub.Notebooks
 alias Notesclub.Accounts
 alias Notesclub.Repos
 
-{:ok, user} = Accounts.create_user(%{username: "livebook-dev", avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "livebook-dev",
+    avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "livebook", user_id: user.id})
 
 {:ok, _} =
@@ -21,7 +26,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "DockYard-Academy", avatar_url: "https://avatars.githubusercontent.com/u/100445774?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "DockYard-Academy",
+    avatar_url: "https://avatars.githubusercontent.com/u/100445774?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "beta_curriculum", user_id: user.id})
 
 {:ok, _} =
@@ -36,7 +46,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "podium", avatar_url: "https://avatars.githubusercontent.com/u/7001675?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "podium",
+    avatar_url: "https://avatars.githubusercontent.com/u/7001675?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "elixir-secure-coding", user_id: user.id})
 
 {:ok, _} =
@@ -51,7 +66,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "elixir-nx", avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "elixir-nx",
+    avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "axon", user_id: user.id})
 
 {:ok, _} =
@@ -66,7 +86,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "BrooklinJazz", avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "BrooklinJazz",
+    avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "talks", user_id: user.id})
 
 {:ok, _} =
@@ -81,7 +106,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "hectorperez", avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "hectorperez",
+    avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "livebook-notebooks.livemd", user_id: user.id})
 
 {:ok, _} =
@@ -96,7 +126,12 @@ alias Notesclub.Repos
     repo_id: repo.id
   })
 
-{:ok, user} = Accounts.create_user(%{username: "fly-apps", avatar_url: "https://avatars.githubusercontent.com/u/59829569?v=4"})
+{:ok, user} =
+  Accounts.create_user(%{
+    username: "fly-apps",
+    avatar_url: "https://avatars.githubusercontent.com/u/59829569?v=4"
+  })
+
 {:ok, repo} = Repos.create_repo(%{name: "tictac", user_id: user.id})
 
 {:ok, _} =
