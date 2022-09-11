@@ -10,7 +10,7 @@ defmodule Notesclub.StringToolsTest do
       assert StringTools.truncate("0123456789abc", 10) == "0123456789..."
     end
 
-    test "truncate/1 returns whole string without ..."
+    test "truncate/1 returns whole string without ..." do
       assert StringTools.truncate("0123456789abc", 100) == "0123456789abc"
     end
   end

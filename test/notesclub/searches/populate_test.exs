@@ -16,20 +16,22 @@ defmodule Notesclub.Searches.PopulateTest do
       "items" => [
         %{
           "name" => "structs.livemd",
-          "html_url" => "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
+          "html_url" =>
+            "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
           "repository" => %{
             "name" => "elixir-notebooks",
             "private" => false,
             "fork" => false,
             "owner" => %{
               "avatar_url" => "https://avatars.githubusercontent.com/u/13981427?v=4",
-              "login" => "charlieroth",
-            },
-          },
+              "login" => "charlieroth"
+            }
+          }
         },
         %{
           "name" => "collections.livemd",
-          "html_url" => "https://github.com/charlieroth/elixir-notebooks/blob/48c66fbaac086bd98ea5891d8e47b20c49097d83/collections.livemd",
+          "html_url" =>
+            "https://github.com/charlieroth/elixir-notebooks/blob/48c66fbaac086bd98ea5891d8e47b20c49097d83/collections.livemd",
           "private" => false,
           "repository" => %{
             "name" => "elixir-notebooks",
@@ -37,9 +39,9 @@ defmodule Notesclub.Searches.PopulateTest do
             "fork" => false,
             "owner" => %{
               "login" => "charlieroth",
-              "avatar_url" => "https://avatars.githubusercontent.com/u/13981427?v=4",
-            },
-          },
+              "avatar_url" => "https://avatars.githubusercontent.com/u/13981427?v=4"
+            }
+          }
         }
       ],
       "total_count" => 2446
@@ -49,10 +51,10 @@ defmodule Notesclub.Searches.PopulateTest do
   describe "next/0" do
     test "downloads and saves notebooks — until we reach daily_page_limit" do
       with_mocks([
-        { Populate, [:passthrough], [default_per_page: fn -> 2 end]},
-        { Populate, [:passthrough], [daily_page_limit: fn -> 2 end]},
-        { Fetch, [:passthrough], [check_github_api_key: fn -> false end]},
-        { Req, [:passthrough], [get!: fn(_url, _options) -> @valid_response end]}
+        {Populate, [:passthrough], [default_per_page: fn -> 2 end]},
+        {Populate, [:passthrough], [daily_page_limit: fn -> 2 end]},
+        {Fetch, [:passthrough], [check_github_api_key: fn -> false end]},
+        {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]}
       ]) do
         # Check that there are no searches or notebooks
         assert [] = Notebooks.list_notebooks()
@@ -62,7 +64,9 @@ defmodule Notesclub.Searches.PopulateTest do
         assert %{created: 2, updated: 0, downloaded: 2} == Populate.next()
 
         # Now we have one search and two notebooks
-        [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] = Notebooks.list_notebooks(order: :desc)
+        [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] =
+          Notebooks.list_notebooks(order: :desc)
+
         [%Search{} = search1] = Searches.list_searches()
         [notebook1_downloaded, notebook2_downloaded] = @valid_response.body["items"]
         assert_attributes(notebook1_in_db, notebook1_downloaded, search1)
@@ -79,7 +83,7 @@ defmodule Notesclub.Searches.PopulateTest do
         assert n1.search_id == search2.id
         assert n2.search_id == search2.id
 
-        # From now on, we download 0 notebooks as we reached daily_page_limit()
+        #  From now on, we download 0 notebooks as we reached daily_page_limit()
         assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()
         assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()
         assert %{downloaded: 0, created: 0, updated: 0} == Populate.next()

@@ -7,7 +7,8 @@ defmodule Notesclub.NotebooksFixtures do
   @doc """
   Generate a unique notebook github_html_url.
   """
-  def unique_notebook_github_html_url, do: "some github_html_url#{System.unique_integer([:positive])}"
+  def unique_notebook_github_html_url,
+    do: "some github_html_url#{System.unique_integer([:positive])}"
 
   @doc """
   Generate a notebook.
@@ -20,7 +21,7 @@ defmodule Notesclub.NotebooksFixtures do
         github_html_url: unique_notebook_github_html_url(),
         github_owner_avatar_url: "some github_owner_avatar_url",
         github_owner_login: "some github_owner_login",
-        github_repo_name: "some github_repo_name",
+        github_repo_name: "some github_repo_name"
       })
       |> Notesclub.Notebooks.create_notebook()
 
