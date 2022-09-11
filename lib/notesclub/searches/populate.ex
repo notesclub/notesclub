@@ -135,7 +135,7 @@ defmodule Notesclub.Searches.Populate do
   defp get_or_create_user(attrs) do
     case Accounts.get_by_username(attrs.github_owner_login) do
       nil ->
-        case Accounts.create_user(%{username: attrs.github_owner_login}) do
+        case Accounts.create_user(%{username: attrs.github_owner_login, avatar_url: attrs.github_owner_avatar_url}) do
           {:ok, user} ->
             Map.put_new(attrs, :user_id, user.id)
           {:error, error} ->

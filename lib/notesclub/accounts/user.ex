@@ -4,6 +4,7 @@ defmodule Notesclub.Accounts.User do
 
   schema "users" do
     field :username, :string
+    field :avatar_url, :string
 
     timestamps()
   end
@@ -11,7 +12,7 @@ defmodule Notesclub.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:username])
+    |> cast(attrs, [:username, :avatar_url])
     |> validate_required([:username])
     |> unique_constraint(:username)
   end
