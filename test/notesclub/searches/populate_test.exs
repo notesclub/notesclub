@@ -62,7 +62,7 @@ defmodule Notesclub.Searches.PopulateTest do
         assert %{created: 2, updated: 0, downloaded: 2} == Populate.next()
 
         # Now we have one search and two notebooks
-        [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] = Notebooks.list_notebooks_desc()
+        [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] = Notebooks.list_notebooks(order: :desc)
         [%Search{} = search1] = Searches.list_searches()
         [notebook1_downloaded, notebook2_downloaded] = @valid_response.body["items"]
         assert_attributes(notebook1_in_db, notebook1_downloaded, search1)
@@ -73,7 +73,7 @@ defmodule Notesclub.Searches.PopulateTest do
 
         # Now we have one more search and the same notebooks — with the new search_id
         [^search1, search2] = Searches.list_searches()
-        [n2, n1] = Notebooks.list_notebooks_desc()
+        [n2, n1] = Notebooks.list_notebooks(order: :desc)
         assert n2.id == notebook2_in_db.id
         assert n1.id == notebook1_in_db.id
         assert n1.search_id == search2.id
