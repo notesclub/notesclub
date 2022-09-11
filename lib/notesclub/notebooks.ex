@@ -23,14 +23,16 @@ defmodule Notesclub.Notebooks do
 
   def list_notebooks_desc do
     from(n in Notebook,
-      order_by: -n.id)
+      order_by: -n.id
+    )
     |> Repo.all()
   end
 
   def list_notebooks_since(num_days_ago) when is_integer(num_days_ago) do
     from(n in Notebook,
-      where: n.inserted_at >= from_now(-^num_days_ago, "day"),
-      order_by: -n.id)
+      where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
+      order_by: -n.id
+    )
     |> Repo.all()
   end
 
@@ -46,7 +48,8 @@ defmodule Notesclub.Notebooks do
   def list_author_notebooks_desc(author) when is_binary(author) do
     from(n in Notebook,
       where: n.github_owner_login == ^author,
-      order_by: -n.id)
+      order_by: -n.id
+    )
     |> Repo.all()
   end
 
@@ -59,11 +62,13 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  def list_repo_author_notebooks_desc(repo_name, author_login) when is_binary(repo_name) and is_binary(author_login) do
+  def list_repo_author_notebooks_desc(repo_name, author_login)
+      when is_binary(repo_name) and is_binary(author_login) do
     from(n in Notebook,
       where: n.github_repo_name == ^repo_name,
       where: n.github_owner_login == ^author_login,
-      order_by: -n.id)
+      order_by: -n.id
+    )
     |> Repo.all()
   end
 
@@ -79,7 +84,8 @@ defmodule Notesclub.Notebooks do
   def list_random_notebooks(%{limit: limit}) do
     from(n in Notebook,
       order_by: fragment("RANDOM()"),
-      limit: ^limit)
+      limit: ^limit
+    )
     |> Repo.all()
   end
 
@@ -112,12 +118,13 @@ defmodule Notesclub.Notebooks do
         Then, we won't create new files but update
   """
   def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
-   when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
+      when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
     from(n in Notebook,
       where: n.github_filename == ^filename,
       where: n.github_owner_login == ^owner_login,
       where: n.github_repo_name == ^repo_name,
-      limit: 1)
+      limit: 1
+    )
     |> Repo.one()
   end
 
@@ -189,7 +196,8 @@ defmodule Notesclub.Notebooks do
   @spec count :: number
   def count() do
     from(n in Notebook,
-      select: count(n.id))
+      select: count(n.id)
+    )
     |> Repo.one()
   end
 end

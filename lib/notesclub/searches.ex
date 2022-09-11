@@ -41,7 +41,8 @@ defmodule Notesclub.Searches do
     from(s in Search,
       order_by: -s.id,
       limit: 1,
-      where: fragment("?::date", s.inserted_at) == ^Date.utc_today())
+      where: fragment("?::date", s.inserted_at) == ^Date.utc_today()
+    )
     |> Repo.one()
   end
 

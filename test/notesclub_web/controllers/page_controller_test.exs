@@ -16,11 +16,11 @@ defmodule NotesclubWeb.PageControllerTest do
     conn = get(conn, "/")
 
     assert notebooks_in_home_count ==
-      1..notebooks_count
-      |> Enum.filter(fn i ->
-        html_response(conn, 200) =~ "whatever#{i}.livemd"
-      end)
-      |> Enum.count
+             1..notebooks_count
+             |> Enum.filter(fn i ->
+               html_response(conn, 200) =~ "whatever#{i}.livemd"
+             end)
+             |> Enum.count()
   end
 
   test "GET /all returns all notebooks", %{conn: conn} do
@@ -34,18 +34,33 @@ defmodule NotesclubWeb.PageControllerTest do
     conn = get(conn, "/all")
 
     assert notebooks_count ==
-      1..notebooks_count
-      |> Enum.filter(fn i ->
-        html_response(conn, 200) =~ "whatever#{i}.livemd"
-      end)
-      |> Enum.count
+             1..notebooks_count
+             |> Enum.filter(fn i ->
+               html_response(conn, 200) =~ "whatever#{i}.livemd"
+             end)
+             |> Enum.count()
   end
 
   test "GET /:author filters notebooks", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone"})
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever1.livemd",
+      github_owner_login: "someone"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever2.livemd",
+      github_owner_login: "someone"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever3.livemd",
+      github_owner_login: "someone else"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever4.livemd",
+      github_owner_login: "someone"
+    })
 
     conn = get(conn, "/someone")
 
@@ -56,10 +71,29 @@ defmodule NotesclubWeb.PageControllerTest do
   end
 
   test "GET /:author/:repo filters notebooks", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever1.livemd", github_owner_login: "someone", github_repo_name: "one"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever2.livemd", github_owner_login: "someone", github_repo_name: "two"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever3.livemd", github_owner_login: "someone else", github_repo_name: "three"})
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever4.livemd", github_owner_login: "someone", github_repo_name: "one"})
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever1.livemd",
+      github_owner_login: "someone",
+      github_repo_name: "one"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever2.livemd",
+      github_owner_login: "someone",
+      github_repo_name: "two"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever3.livemd",
+      github_owner_login: "someone else",
+      github_repo_name: "three"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "whatever4.livemd",
+      github_owner_login: "someone",
+      github_repo_name: "one"
+    })
 
     conn = get(conn, "/someone/one")
 
@@ -70,7 +104,9 @@ defmodule NotesclubWeb.PageControllerTest do
   end
 
   test "GET /last_week returns last week's notebooks", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"}) # today
+    # today
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"})
+
     for day <- 1..10 do
       n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
       {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
