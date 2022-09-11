@@ -52,7 +52,7 @@ defmodule Notesclub.Repos do
   def create_repo(attrs \\ %{}) do
     %RepoSchema{}
     |> RepoSchema.changeset(attrs)
-    |> RepoSchema.insert()
+    |> Repo.insert()
   end
 
   @doc """
@@ -70,7 +70,7 @@ defmodule Notesclub.Repos do
   def update_repo(%RepoSchema{} = repo, attrs) do
     repo
     |> RepoSchema.changeset(attrs)
-    |> RepoSchema.update()
+    |> Repo.update()
   end
 
   @doc """

@@ -8,10 +8,13 @@ defmodule Notesclub.ReposFixtures do
   Generate a repo.
   """
   def repo_fixture(attrs \\ %{}) do
+    user = Notesclub.AccountsFixtures.user_fixture()
+
     {:ok, repo} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: Faker.Person.En.first_name(),
+        user_id: user.id
       })
       |> Notesclub.Repos.create_repo()
 

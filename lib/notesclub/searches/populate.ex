@@ -136,12 +136,13 @@ defmodule Notesclub.Searches.Populate do
     case Accounts.get_by_name(attrs.github_owner_login) do
       nil ->
         case Accounts.create_user(%{name: attrs.github_owner_login}) do
-          {:ok, user} -> %{attrs | user_id: user.id}
+          {:ok, user} ->
+            Map.put_new(attrs, :user_id, user.id)
           {:error, error} ->
             Logger.info("Error while creating user by name #{attrs.github_owner_login} details #{inspect error}")
             attrs
         end
-      user -> %{attrs | user_id: user.id}
+      user -> Map.put_new(attrs, :user_id, user.id)
     end
   end
 
@@ -149,12 +150,12 @@ defmodule Notesclub.Searches.Populate do
     case Repos.get_by_name_and_user_id(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
       nil ->
         case Repos.create_repo(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
-          {:ok, repo} -> %{attrs | repo_id: repo.id}
+          {:ok, repo} -> Map.put_new(attrs, :repo_id, repo.id)
           {:error, error} ->
             Logger.info("Error while creating repo by repo name #{attrs.github_repo_name} with user #{attrs.user_id} details #{inspect error}")
             attrs
         end
-      repo -> %{attrs | repo_id: repo.id}
+      repo -> Map.put_new(attrs, :repo_id, repo.id)
     end
   end
 end

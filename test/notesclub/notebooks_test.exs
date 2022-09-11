@@ -9,7 +9,7 @@ defmodule Notesclub.NotebooksTest do
 
     import Notesclub.NotebooksFixtures
 
-    @invalid_attrs %{github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, search: nil}
+    @invalid_attrs %{repo_id: nil, user_id: nil, github_filename: nil, github_html_url: nil, github_owner_avatar_url: nil, github_owner_login: nil, github_repo_name: nil, search: nil}
 
     test "list_notebooks/0 returns all notebooks" do
       notebook = notebook_fixture()
