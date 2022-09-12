@@ -34,11 +34,11 @@ defmodule NotesclubWeb.PageControllerTest do
     conn = get(conn, "/all")
 
     assert notebooks_count ==
-      1..notebooks_count
-      |> Enum.filter(fn i ->
-        html_response(conn, 200) =~ "whatever#{i}.livemd"
-      end)
-      |> Enum.count()
+             1..notebooks_count
+             |> Enum.filter(fn i ->
+               html_response(conn, 200) =~ "whatever#{i}.livemd"
+             end)
+             |> Enum.count()
   end
 
   test "GET /all with search returns filtered notebooks", %{conn: conn} do

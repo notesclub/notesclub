@@ -57,7 +57,13 @@ defmodule NotesclubWeb.PageController do
   def author(conn, %{"author" => author}) do
     notebooks = Notebooks.list_author_notebooks_desc(author)
     notebooks_count = Notebooks.count()
-    render(conn, "index.html", notebooks: notebooks, notebooks_count: notebooks_count, page: :author, filter: author)
+
+    render(conn, "index.html",
+      notebooks: notebooks,
+      notebooks_count: notebooks_count,
+      page: :author,
+      filter: author
+    )
   end
 
   def repo(conn, %{"repo" => repo, "author" => author}) do
