@@ -16,6 +16,8 @@ defmodule Notesclub.Searches.PopulateTest do
       "items" => [
         %{
           "name" => "structs.livemd",
+          "github_owner_login" => Faker.Internet.user_name(),
+          "github_repo_name" => Faker.Internet.user_name(),
           "html_url" =>
             "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
           "repository" => %{
@@ -30,6 +32,8 @@ defmodule Notesclub.Searches.PopulateTest do
         },
         %{
           "name" => "collections.livemd",
+          "github_owner_login" => Faker.Internet.user_name(),
+          "github_repo_name" => Faker.Internet.user_name(),
           "html_url" =>
             "https://github.com/charlieroth/elixir-notebooks/blob/48c66fbaac086bd98ea5891d8e47b20c49097d83/collections.livemd",
           "private" => false,

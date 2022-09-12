@@ -5,7 +5,7 @@ defmodule Notesclub.StringToolsTest do
 
   describe "StringTools" do
     test "truncate/1 truncates and adds ..." do
-      assert StringTools.truncate("0123456789abc", 3) == "0123..."
+      assert StringTools.truncate("0123456789abc", 3) == "012..."
       assert StringTools.truncate("0123456789abc", 5) == "01234..."
       assert StringTools.truncate("0123456789abc", 10) == "0123456789..."
     end
