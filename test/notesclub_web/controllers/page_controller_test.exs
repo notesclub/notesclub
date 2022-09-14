@@ -41,6 +41,16 @@ defmodule NotesclubWeb.PageControllerTest do
              |> Enum.count()
   end
 
+  test "GET /all with search returns filtered notebooks", %{conn: conn} do
+    NotebooksFixtures.notebook_fixture(%{github_filename: "found.livemd"})
+    NotebooksFixtures.notebook_fixture(%{github_filename: "not_present.livemd"})
+
+    conn = get(conn, "/all", search: "found")
+
+    assert html_response(conn, 200) =~ "found.livemd"
+    refute html_response(conn, 200) =~ "not_present.livemd"
+  end
+
   test "GET /:author filters notebooks", %{conn: conn} do
     NotebooksFixtures.notebook_fixture(%{
       github_filename: "whatever1.livemd",

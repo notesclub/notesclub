@@ -1,58 +1,55 @@
-<div class="bg-gray-50">
-  <div class="relative overflow-hidden">
-    <div class="absolute inset-y-0 h-full w-full" aria-hidden="true">
-      <div class="h-full">
-        <div class="pt-2 pl-4 tracking-thight text-gray-500 sm:text-xl sm:tracking-tight md:text-2xl md:tracking-tight">
-          <%= link "Notesclub", to: "/" %>
-        </div>
-      </div>
-    </div>
-    <div class="relative pb-4 sm:pb-8">
-      <div class="mt-16 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
-        <div class="text-center">
-          <h1 class="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl sm:tracking-tight md:text-6xl md:tracking-tight">
-            <span>Discover</span>
-            <span class="text-indigo-600">Livebook</span>
-            <span>notebooks</span>
-          </h1>
-          <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">Updated every day. <%= link("Contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %> and join the <%= link "conversation in the elixir forum", to: "https://elixirforum.com/t/notesclub-discover-livebook-notebooks/49698", class: "text-blue-600", target: "_blank" %>. </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="relative">
-      <div class="absolute inset-0 flex flex-col" aria-hidden="true">
-        <div class="flex-1"></div>
-        <div class="flex-1 w-full bg-gray-800"></div>
-      </div>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="relative rounded-lg">
-          <%= render "_notebooks_table.html", assigns %>
-          <div class="text-center p-6">
-            <%= case @page do %>
-              <% :all -> %>
-                <%= link "Less notebooks", to: "/", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-              <% :random -> %>
-                <%= link "More random", to: Routes.index_path(@conn, :index), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-                <%= link "Last week's", to: Routes.last_week_path(@conn, :last_week), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-                <%= link "All", to: Routes.all_path(@conn, :all), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-              <% :last_week -> %>
-                <%= link "Random notebooks", to: Routes.index_path(@conn, :index), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-                <%= link "All", to: Routes.all_path(@conn, :all), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-              <% _ -> %>
-                <%= link "Random notebooks", to: Routes.index_path(@conn, :index), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-                <%= link "Last week's", to: Routes.last_week_path(@conn, :last_week), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-                <%= link "All", to: Routes.all_path(@conn, :all), class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
+<section class="relative min-h-screen bg-split-gray">
+  <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl">
+    <%= link "Notesclub", to: "/" %>
+  </header>
+  <h1 class="text-4xl text-center mt-16 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks</h1>
+  <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
+    Updated every day. 
+    <%= link("Contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %> and join the <%= link "conversation in the elixir forum", to: "https://elixirforum.com/t/notesclub-discover-livebook-notebooks/49698", class: "text-blue-600", target: "_blank" %>.
+  </p>
+  <%= form_for @conn, Routes.all_path(@conn, :all), [method: :get, class: "flex justify-center my-12"], fn f -> %>
+    <%= text_input f, :search, class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mr-6" %>
+    <%= submit "Search", class: "inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" %>
+  <% end %>
+  <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+    <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
+      <thead class="bg-gray-100 font-semibold text-gray-900">
+        <td class="p-4" align="left" scope="col">Author/Repo</td>
+        <td align="left" scope="col">File</td>
+        <td align="left" scope="col">Mix libraries</td>
+        <td align="left" scope="col">Actions</td>
+      </thead>
+      <%= for notebook <- @notebooks do %>
+        <tbody class="h-20 bg-white">
+            <td>
+              <article class="flex w-min-max p-4 min-w-max">
+                <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+                <div class="flex flex-col ml-4">
+                  <%= link "@#{notebook.github_owner_login}", class: "font-medium whitespace-nowrap", to: Routes.author_path(@conn, :author, notebook.github_owner_login) %>
+                  <%= link Notesclub.StringTools.truncate(notebook.github_repo_name, 25), to: Routes.repo_path(@conn, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
+                </div>  
+              </article>
+            </td>
+            <td>
+              <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.github_html_url, target: "_blank" %>
+            </td>
+            <td>
+                <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"><%= link "To do", to: "https://github.com/notesclub/notesclub/issues/4", target: "_blank" %></span>  
+            </td>
+            <td>
+              <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
+            </td>
+        </tbody>
+      <% end %>
+    </table>
+  </section>
+  <div class="text-center p-6">
+      <%= link "Random", to: Routes.index_path(@conn, :index), class: ["px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
+      <%= link "Last week's", to: Routes.last_week_path(@conn, :last_week), class: [@page == :last_week && "hidden","px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
+      <%= link "All", to: Routes.all_path(@conn, :all), class: [@page == :all && "hidden", "px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
   </div>
-  <div class="bg-gray-800">
-    <div class="max-w-7xl mx-auto py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
-      <h2 class="text-center text-gray-400 text-base font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
-      <h2 class="pt-4 text-center text-gray-400 text-base font-semibold">Built by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
-    </div>
-  </div>
-</div>
+  <footer class="p-8 w-full">
+    <h2 class="text-center text-gray-400 font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
+    <h2 class="pt-4 text-center text-gray-400 font-semibold">Built by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
+  </footer>
+</section>

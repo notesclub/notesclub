@@ -10,8 +10,6 @@ defmodule Notesclub.NotebooksTest do
     import Notesclub.NotebooksFixtures
 
     @invalid_attrs %{
-      repo_id: nil,
-      user_id: nil,
       github_filename: nil,
       github_html_url: nil,
       github_owner_avatar_url: nil,
@@ -20,9 +18,43 @@ defmodule Notesclub.NotebooksTest do
       search: nil
     }
 
-    test "list_notebooks/0 returns all notebooks" do
-      notebook = notebook_fixture()
-      assert Notebooks.list_notebooks() == [notebook]
+    test "list_notebooks/0 ascending order" do
+      notebook1 = notebook_fixture()
+      notebook2 = notebook_fixture()
+      assert Notebooks.list_notebooks() == [notebook1, notebook2]
+      assert Notebooks.list_notebooks(order: :asc) == [notebook1, notebook2]
+    end
+
+    test "list_notebooks/0 descending order" do
+      notebook1 = notebook_fixture()
+      notebook2 = notebook_fixture()
+      assert Notebooks.list_notebooks(order: :desc) == [notebook2, notebook1]
+    end
+
+    test "list_notebooks/1 search by github_filename" do
+      notebook = notebook_fixture(%{github_filename: "found.livemd"})
+      _other_notebook = notebook_fixture(%{github_filename: "not_present.livemd"})
+
+      assert Notebooks.list_notebooks(github_filename: "found") == [notebook]
+      # case insensitive
+      assert Notebooks.list_notebooks(github_filename: "FOUND") == [notebook]
+    end
+
+    # Ensure all filters integrate correctly
+    test "list_notebooks/1 search by all filters" do
+      notebook1 = notebook_fixture(%{github_filename: "found.livemd"})
+      notebook2 = notebook_fixture(%{github_filename: "found.livemd"})
+      _other_notebook = notebook_fixture(%{github_filename: "not_present.livemd"})
+
+      assert Notebooks.list_notebooks(github_filename: "found", order: :desc) == [
+               notebook2,
+               notebook1
+             ]
+
+      assert Notebooks.list_notebooks(github_filename: "found", order: :asc) == [
+               notebook1,
+               notebook2
+             ]
     end
 
     test "list_notebooks_since/1 returns notebooks since n days ago" do
