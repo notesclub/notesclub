@@ -23,7 +23,9 @@
         <tbody class="h-20 bg-white">
             <td>
               <article class="flex w-min-max p-4 min-w-max">
-                <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+                <%= link to: Routes.author_path(@conn, :author, notebook.github_owner_login) do %>
+                  <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+                <% end %>
                 <div class="flex flex-col ml-4">
                   <%= link "@#{notebook.github_owner_login}", class: "font-medium whitespace-nowrap", to: Routes.author_path(@conn, :author, notebook.github_owner_login) %>
                   <%= link Notesclub.StringTools.truncate(notebook.github_repo_name, 25), to: Routes.repo_path(@conn, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
