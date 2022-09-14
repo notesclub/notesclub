@@ -4,7 +4,7 @@
   </header>
   <h1 class="text-4xl text-center mt-16 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks</h1>
   <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
-    Updated every day. 
+    Updated every day.
     <%= link("Contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %> and join the <%= link "conversation in the elixir forum", to: "https://elixirforum.com/t/notesclub-discover-livebook-notebooks/49698", class: "text-blue-600", target: "_blank" %>.
   </p>
   <%= form_for @conn, Routes.all_path(@conn, :all), [method: :get, class: "flex justify-center my-12"], fn f -> %>
@@ -29,14 +29,14 @@
                 <div class="flex flex-col ml-4">
                   <%= link "@#{notebook.github_owner_login}", class: "font-medium whitespace-nowrap", to: Routes.author_path(@conn, :author, notebook.github_owner_login) %>
                   <%= link Notesclub.StringTools.truncate(notebook.github_repo_name, 25), to: Routes.repo_path(@conn, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
-                </div>  
+                </div>
               </article>
             </td>
             <td>
               <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.github_html_url, target: "_blank" %>
             </td>
             <td>
-                <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"><%= link "To do", to: "https://github.com/notesclub/notesclub/issues/4", target: "_blank" %></span>  
+              <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"><%= link "To do", to: "https://github.com/notesclub/notesclub/issues/4", target: "_blank" %></span>
             </td>
             <td>
               <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
@@ -47,11 +47,11 @@
   </section>
   <div class="text-center p-6">
       <%= link "Random", to: Routes.index_path(@conn, :index), class: ["px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
-      <%= link "Last week's", to: Routes.last_week_path(@conn, :last_week), class: [@page == :last_week && "hidden","px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
+      <%= link "Last week", to: Routes.last_week_path(@conn, :last_week), class: [@page == :last_week && "hidden","px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
       <%= link "All", to: Routes.all_path(@conn, :all), class: [@page == :all && "hidden", "px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"] %>
   </div>
   <footer class="p-8 w-full">
     <h2 class="text-center text-gray-400 font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
-    <h2 class="pt-4 text-center text-gray-400 font-semibold">Built by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
+    <h2 class="pt-4 text-center text-gray-400 font-semibold">Founded by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
   </footer>
 </section>
