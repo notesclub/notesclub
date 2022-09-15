@@ -60,6 +60,7 @@ config :tailwind,
 
 config :notesclub, Notesclub.Scheduler,
   jobs: [
+    {"@daily", {Notesclub.Searches.Remove, :eliminate, []}},
     application_tags: [
       # Every minute
       schedule: "* * * * *",

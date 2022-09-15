@@ -110,4 +110,21 @@ defmodule Notesclub.Searches do
   def change_search(%Search{} = search, attrs \\ %{}) do
     Search.changeset(search, attrs)
   end
+
+  @doc """
+  Returns a tuple {integer, nil}, integer is the number of records
+  being deleted by this query.
+
+  ## Examples
+
+      iex> delete_by_date(timestamps)
+     {non_neg_integer, nil}
+
+  """
+  def delete_by_date(timestamps) do
+    from(s in Search,
+      where: s.inserted_at < ^timestamps
+    )
+    |> Repo.delete_all()
+  end
 end

@@ -55,7 +55,8 @@ defmodule Notesclub.MixProject do
       {:quantum, "~> 3.5.0"},
       {:appsignal, "~> 2.2.16"},
       {:appsignal_phoenix, "~> 2.1.2"},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:timex, "~> 3.0"}
     ]
   end
 
