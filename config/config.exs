@@ -66,7 +66,7 @@ config :notesclub, Notesclub.Scheduler,
       task: {Notesclub.Searches.Populate, :next, []}
     ]
   ]
-if System.get_env("IS_OBAN_WEB_PRO_ENABLED") do
+if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") do
   config :notesclub, Oban,
     engine: Oban.Pro.Queue.SmartEngine,
     repo: Notesclub.Repo,

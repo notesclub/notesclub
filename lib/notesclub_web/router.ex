@@ -20,6 +20,7 @@ defmodule NotesclubWeb.Router do
 
     scope "/", NotesclubWeb do
       pipe_through :browser
+
       Oban.Web.Router.oban_dashboard("/oban")
     end
   end
