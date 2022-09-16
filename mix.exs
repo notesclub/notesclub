@@ -57,11 +57,17 @@ defmodule Notesclub.MixProject do
       {:appsignal_phoenix, "~> 2.1.2"},
       {:faker, "~> 0.17", only: :test},
       {:oban, "2.13.2"},
-      {:oban_pro, "~> 0.11", repo: "oban"},
-      {:oban_web, "~> 2.9.1", repo: "oban"},
+      {:oban_pro, "~> 0.11", repo: "oban", only: oban_environments()},
+      {:oban_web, "~> 2.9.1", repo: "oban", only: oban_environments()},
     ]
   end
 
+  defp oban_environments() do
+    case System.get_env("IS_OBAN_WEB_PRO_ENABLED") do
+      "true" -> [:dev, :prod]
+      _ -> [:prod]
+    end
+  end
   # Aliases are shortcuts or tasks specific to the current project.
   # For example, to install project dependencies and perform other setup tasks, run:
   #

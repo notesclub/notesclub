@@ -66,20 +66,29 @@ config :notesclub, Notesclub.Scheduler,
       task: {Notesclub.Searches.Populate, :next, []}
     ]
   ]
-
-config :notesclub, Oban,
-  engine: Oban.Pro.Queue.SmartEngine,
-  repo: Notesclub.Repo,
-  plugins: [
-    Oban.Plugins.Pruner,
-    Oban.Plugins.Gossip,
-    Oban.Web.Plugins.Stats,
-    Oban.Pro.Plugins.DynamicLifeline
-  ],
-  queues: [
-    default: 10
-  ]
-
+if System.get_env("IS_OBAN_WEB_PRO_ENABLED") do
+  config :notesclub, Oban,
+    engine: Oban.Pro.Queue.SmartEngine,
+    repo: Notesclub.Repo,
+    plugins: [
+      Oban.Plugins.Pruner,
+      Oban.Plugins.Gossip,
+      Oban.Web.Plugins.Stats,
+      Oban.Pro.Plugins.DynamicLifeline
+    ],
+    queues: [
+      default: 10
+    ]
+else
+  config :notesclub, Oban,
+    repo: Notesclub.Repo,
+    plugins: [
+      Oban.Plugins.Pruner
+    ],
+    queues: [
+      default: 10
+    ]
+end
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

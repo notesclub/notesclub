@@ -1,7 +1,6 @@
 defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
-
-  import Oban.Web.Router
+  require Notesclub.Compile
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,10 +15,17 @@ defmodule NotesclubWeb.Router do
     plug :accepts, ["json"]
   end
 
+  Notesclub.Compile.only_if_loaded(:oban_web) do
+    require Oban.Web.Router
+
+    scope "/", NotesclubWeb do
+      pipe_through :browser
+      Oban.Web.Router.oban_dashboard("/oban")
+    end
+  end
+
   scope "/", NotesclubWeb do
     pipe_through :browser
-
-    oban_dashboard "/oban"
 
     get "/", PageController, :index, as: :index
     get "/all", PageController, :all, as: :all
