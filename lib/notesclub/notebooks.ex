@@ -17,14 +17,18 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  def list_notebooks() do
-    Repo.all(Notebook)
-  end
+  def list_notebooks(opts \\ []) do
+    Enum.reduce(opts, from(n in Notebook), fn
+      {:order, :desc}, query ->
+        order_by(query, [notebook], -notebook.id)
 
-  def list_notebooks_desc do
-    from(n in Notebook,
-      order_by: -n.id
-    )
+      {:github_filename, github_filename}, query ->
+        search = "%#{github_filename}%"
+        where(query, [notebook], ilike(notebook.github_filename, ^search))
+
+      _, query ->
+        query
+    end)
     |> Repo.all()
   end
 
