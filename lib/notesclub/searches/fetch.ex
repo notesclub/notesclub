@@ -123,8 +123,6 @@ defmodule Notesclub.Searches.Fetch do
   defp url(%Fetch{}, true), do: ""
   defp url(%Fetch{} = fetch, false), do: fetch.url
 
-  defp env, do: Application.get_env(:notesclub, :env)
-
   # We can mock this in tests
   def check_github_api_key, do: true
 end
