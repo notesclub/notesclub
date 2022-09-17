@@ -12,7 +12,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "livebook", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "livebook", full_name: "livebook-dev/livebook", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -32,7 +32,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/100445774?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "beta_curriculum", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "beta_curriculum", full_name: "DockYard-Academy/beta_curriculum", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -52,7 +52,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/7001675?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "elixir-secure-coding", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "elixir-secure-coding", full_name: "podium/elixir-secure-coding", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -72,7 +72,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "axon", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "axon", full_name: "axon/elixir-nx", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -92,7 +92,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "talks", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "talks", full_name: "BrooklinJazz/talks", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -112,7 +112,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "livebook-notebooks.livemd", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "livebook-notebooks.livemd", full_name: "hectorperez/livebook-notebooks", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -132,7 +132,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/59829569?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "tictac", user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "tictac", full_name: "fly-apps/tictac", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{

@@ -220,7 +220,12 @@ defmodule Notesclub.Searches.Populate do
   defp get_or_create_repo(attrs) do
     case Repos.get_by_name_and_user_id(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
       nil ->
-        case Repos.create_repo(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
+        repo_attrs = %{
+          name: attrs.github_repo_name,
+          full_name: attrs.github_repo_full_name,
+          fork: attrs.github_repo_fork,
+          user_id: attrs.user_id}
+        case Repos.create_repo(repo_attrs) do
           {:ok, repo} ->
             Map.put_new(attrs, :repo_id, repo.id)
 
