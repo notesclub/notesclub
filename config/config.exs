@@ -66,6 +66,7 @@ config :notesclub, Notesclub.Scheduler,
       task: {Notesclub.Searches.Populate, :next, []}
     ]
   ]
+
 if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
   config :notesclub, Oban,
     engine: Oban.Pro.Queue.SmartEngine,
@@ -89,6 +90,7 @@ else
       default: 10
     ]
 end
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

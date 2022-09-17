@@ -15,7 +15,7 @@ defmodule NotesclubWeb.Router do
     plug :accepts, ["json"]
   end
 
-  Notesclub.Compile.only_if_loaded(:oban_web) do
+  Notesclub.Compile.only_if_loaded :oban_web do
     require Oban.Web.Router
 
     scope "/", NotesclubWeb do

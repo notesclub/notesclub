@@ -68,7 +68,7 @@ defmodule Notesclub.MixProject do
     if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
       [
         {:oban_pro, "~> 0.11", repo: "oban"},
-        {:oban_web, "~> 2.9.1", repo: "oban"},
+        {:oban_web, "~> 2.9.1", repo: "oban"}
       ]
     else
       []
