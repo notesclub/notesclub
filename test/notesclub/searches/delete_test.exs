@@ -9,7 +9,6 @@ defmodule Notesclub.Searches.DeleteTest do
   import Notesclub.SearchesFixtures
   import Notesclub.NotebooksFixtures
 
-
   describe "delete/0" do
     test "function returns expected response" do
       _search = search_fixture()
@@ -24,7 +23,7 @@ defmodule Notesclub.Searches.DeleteTest do
 
       assert {:ok, 1} = Delete.eliminate()
       assert nil == Repo.get(Search, search_1.id)
-      assert %Search{"id": id} = Repo.get(Search, search_2.id)
+      assert %Search{id: id} = Repo.get(Search, search_2.id)
       assert id == search_2.id
     end
 

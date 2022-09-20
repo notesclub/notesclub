@@ -19,7 +19,15 @@ defmodule Notesclub.Searches.Search do
   @doc false
   def changeset(search, attrs) do
     search
-    |> cast(attrs, [:per_page, :page, :order, :url, :response_notebooks_count, :response_status, :inserted_at])
+    |> cast(attrs, [
+      :per_page,
+      :page,
+      :order,
+      :url,
+      :response_notebooks_count,
+      :response_status,
+      :inserted_at
+    ])
     |> validate_required([
       :per_page,
       :page,
