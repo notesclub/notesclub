@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1.2
+#
 # Find eligible builder and runner images on Docker Hub. We use Ubuntu/Debian instead of
 # Alpine to avoid DNS resolution issues in production.
 #
@@ -35,8 +37,8 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 
-RUN --mount=type=secret,id=oban_key_fingerprint \
-  --mount=type=secret,id=oban_license_key \
+RUN --mount=type=secret,id=oban_key_fingerprint,dst=/etc/secrets/oban_key_fingerprint \
+  --mount=type=secret,id=oban_license_key,dst=/etc/secrets/oban_license_key \
   mix hex.repo add oban https://getoban.pro/repo \
   --fetch-public-key "$(cat /etc/secrets/oban_key_fingerprint)" \
   --auth-key "$(cat /etc/secrets/oban_license_key)"
