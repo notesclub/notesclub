@@ -7,6 +7,8 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repo
 
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Repos
+  alias Notesclub.Repos.Repo, as: RepoSchema
 
   @doc """
   Returns the list of notebooks.
@@ -26,6 +28,9 @@ defmodule Notesclub.Notebooks do
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
 
+      {:repo_id, repo_id}, query ->
+        where(query, [notebook], notebook.repo_id == ^repo_id)
+
       _, query ->
         query
     end)
@@ -38,6 +43,26 @@ defmodule Notesclub.Notebooks do
       order_by: -n.id
     )
     |> Repo.all()
+  end
+
+  def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
+    %{repo_id: repo_id}
+    |> list_notebooks()
+    |> Enum.reduce(Ecto.Multi.new(), fn
+      %Notebook{} = notebook, query ->
+        url = url_from_github_html_url(notebook.github_html_url, default_branch)
+        changeset = Notebook.changeset(notebook, %{"url" => url})
+        Ecto.Multi.update(query, "notebook_#{notebook.id}", changeset)
+      _, query ->
+        query
+    end)
+    |> Repo.transaction()
+  end
+
+  defp url_from_github_html_url(nil, _), do: nil
+  defp url_from_github_html_url(_, nil), do: nil
+  defp url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
+    String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 
   @doc """
@@ -109,6 +134,13 @@ defmodule Notesclub.Notebooks do
   """
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
+  def get_notebook!(id, preload: tables) do
+    from(n in Notebook,
+      where: n.id == ^id,
+      preload: ^tables)
+    |> Repo.one!()
+  end
+
   @doc """
   Gets a notebook by its filename, owner and repo
   This allows us to override a file if the url has changed
@@ -146,9 +178,29 @@ defmodule Notesclub.Notebooks do
   """
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
-    |> Notebook.changeset(attrs)
+    |> Notebook.changeset(attrs |> add_fields() |> maybe_set_url())
     |> Repo.insert()
   end
+
+  defp add_fields(attrs) do
+    attrs
+    |> Enum.into(%{
+      repo_id: nil,
+      github_html_url: nil,
+      url: nil
+    })
+  end
+
+  defp maybe_set_url(%{repo_id: nil} = attrs), do: attrs
+  defp maybe_set_url(%{github_html_url: nil} = attrs), do: attrs
+
+  defp maybe_set_url(%{url: nil} = attrs) do
+    repo = Repos.get_repo!(attrs.repo_id)
+    url = url_from_github_html_url(attrs.github_html_url, repo.default_branch)
+    Map.put(attrs, :url, url)
+  end
+
+  defp maybe_set_url(attrs), do: attrs
 
   @doc """
   Updates a notebook.

@@ -23,7 +23,8 @@ alias Notesclub.Repos
       "https://github.com/livebook-dev/livebook/blob/e5a02ac97e96a0a5c371aafedad76a59a152ece5/lib/livebook/notebook/explore/intro_to_maplibre.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/livebook-dev/livebook/blob/main/lib/livebook/notebook/explore/intro_to_maplibre.livemd"
   })
 
 {:ok, user} =
@@ -43,7 +44,8 @@ alias Notesclub.Repos
       "https://github.com/DockYard-Academy/beta_curriculum/blob/dbeb07eaea47140c6b8bde868bde76e88121a7d7/reading/ranges.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/100445774?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/DockYard-Academy/beta_curriculum/blob/main/reading/ranges.livemd"
   })
 
 {:ok, user} =
@@ -63,7 +65,8 @@ alias Notesclub.Repos
       "https://github.com/podium/elixir-secure-coding/blob/ce52829b277f40b8d398d1d5ac1bd6b5c632800c/modules/7-anti-patterns.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/7001675?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/podium/elixir-secure-coding/blob/main/modules/7-anti-patterns.livemd"
   })
 
 {:ok, user} =
@@ -72,7 +75,7 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "axon", full_name: "axon/elixir-nx", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} = Repos.create_repo(%{name: "axon", full_name: "elixir-nx/axon", default_branch: "main", fork: false, user_id: user.id})
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -80,10 +83,11 @@ alias Notesclub.Repos
     github_repo_name: "axon",
     github_filename: "mnist.livemd",
     github_html_url:
-      "https://github.com/elixir-nx/axon/blob/878daa579e52ec813f174e7c504cf17999a57421/notebooks/mnist.livemd",
+      "https://github.com/elixir-nx/axon/blob/7f1d1ab2e6c8a35edf3f58eae9182c4a149cd8d5/notebooks/vision/mnist.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
   })
 
 {:ok, user} =
@@ -103,7 +107,8 @@ alias Notesclub.Repos
       "https://github.com/BrooklinJazz/talks/blob/6f4985a221ed0eeab438c0d0b3e9fe16934227c9/livebook-with-otp/ets.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/BrooklinJazz/talks/blob/main/livebook-with-otp/ets.livemd",
   })
 
 {:ok, user} =
@@ -123,7 +128,8 @@ alias Notesclub.Repos
       "https://github.com/hectorperez/livebook-notebooks/blob/e8eb7d08d984a306beae32477bc009ccf0b5f3e7/notebooks/chat_with_openai_and_kino.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/hectorperez/livebook-notebooks/blob/main/notebooks/chat_with_openai_and_kino.livemd"
   })
 
 {:ok, user} =
@@ -143,5 +149,6 @@ alias Notesclub.Repos
       "https://github.com/fly-apps/tictac/blob/fffbcc8d163c2ba0ad254d96351a7cf953226d67/notebook/game_state.livemd",
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/59829569?v=4",
     user_id: user.id,
-    repo_id: repo.id
+    repo_id: repo.id,
+    url: "https://github.com/fly-apps/tictac/blob/main/notebook/game_state.livemd"
   })

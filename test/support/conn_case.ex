@@ -16,6 +16,7 @@ defmodule NotesclubWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
+  use Oban.Testing, repo: Notesclub.Repo
 
   using do
     quote do

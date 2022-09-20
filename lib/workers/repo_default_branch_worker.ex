@@ -1,0 +1,75 @@
+defmodule Notesclub.Workers.RepoDefaultBranchWorker do
+  @moduledoc """
+    We fetch extra repo attributes not provided by Github Search API in fetch.ex
+    Afterwards, we enqueue another job to update the url of all notebooks of this repo
+  """
+
+  require Logger
+
+  use Oban.Worker,
+    queue: :github_rest,
+    unique: [period: 300, states: [:available, :scheduled, :executing]]
+
+  alias Notesclub.Repos
+  alias Notesclub.Workers.NotebooksUrlWorker
+
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
+    repo = Repos.get_repo!(repo_id)
+
+    repo.full_name
+    |> fetch_repo()
+    |> prepare_attrs()
+    |> update_repo(repo)
+  end
+
+  defp fetch_repo(nil), do: {:error, "full_name is nil"}
+  defp fetch_repo(""), do: {:error, "full_name is blank"}
+
+  defp fetch_repo(full_name) do
+    github_api_key = Application.get_env(:notesclub, :github_api_key)
+    Req.get!("https://api.github.com/repos/" <> full_name,
+      headers: [
+        Accept: ["application/vnd.github+json"],
+        Authorization: ["token #{github_api_key}"]
+      ]
+    )
+  end
+
+  defp prepare_attrs(%Req.Response{status: 200} = result) do
+
+    body = result.body
+    %{
+      default_branch: body["default_branch"],
+      fork: body["fork"],
+      name: body["name"],
+      full_name: body["full_name"]
+    }
+  end
+
+  defp prepare_attrs(%Req.Response{status: status} = response), do: {:error, "response status: #{status}, msg: #{response.body["message"]}"}
+
+  defp update_repo({:error, error}), do: {:error, error}
+  defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}
+  defp update_repo(%{default_branch: ""}, _), do: {:error, "default_branch is empty"}
+  defp update_repo(%{fork: nil}, _), do: {:error, "fork is nil"}
+  defp update_repo(%{fork: ""}, _), do: {:error, "fork is empty"}
+  defp update_repo(%{name: nil}, _), do: {:error, "name is nil"}
+  defp update_repo(%{name: ""}, _), do: {:error, "name is empty"}
+  defp update_repo(%{full_name: nil}, _), do: {:error, "full_name is nil"}
+  defp update_repo(%{full_name: ""}, _), do: {:error, "full_name is empty"}
+
+  defp update_repo(attrs, repo) do
+    case Repos.update_repo(repo, attrs) do
+      {:ok, repo} ->
+
+
+        {:ok, _job} =
+          %{repo_id: repo.id}
+          |> NotebooksUrlWorker.new()
+          |> Oban.insert()
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+end

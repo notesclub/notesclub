@@ -72,13 +72,15 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     engine: Oban.Pro.Queue.SmartEngine,
     repo: Notesclub.Repo,
     plugins: [
-      Oban.Plugins.Pruner,
+      {Oban.Plugins.Pruner, max_age: 300}, # seconds
       Oban.Plugins.Gossip,
       Oban.Web.Plugins.Stats,
       Oban.Pro.Plugins.DynamicLifeline
     ],
     queues: [
-      default: 10
+      default: 10,
+      # Github rest allows 5000/h = 83/min. We limit to 30 so retries & requests with more priority still work
+      github_rest: [global_limit: 1, rate_limit: [allowed: 30, period: {1, :minute}]]
     ]
 else
   config :notesclub, Oban,
