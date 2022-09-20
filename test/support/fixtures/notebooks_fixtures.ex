@@ -20,7 +20,8 @@ defmodule Notesclub.NotebooksFixtures do
         github_owner_login: Faker.Internet.user_name(),
         github_repo_name: Faker.Internet.user_name(),
         repo_id: repo.id,
-        user_id: repo.user_id
+        user_id: repo.user_id,
+        search_id: nil
       })
       |> Notesclub.Notebooks.create_notebook()
 
