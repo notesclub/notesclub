@@ -63,10 +63,17 @@ defmodule Notesclub.Repos do
     |> create_repo_and_enqueue_sync_if_necessary()
   end
 
-  defp create_repo_and_enqueue_sync_if_necessary(%{default_branch: nil} = attrs), do: create_repo_and_enqueue_sync(attrs)
-  defp create_repo_and_enqueue_sync_if_necessary(%{name: nil} = attrs), do: create_repo_and_enqueue_sync(attrs)
-  defp create_repo_and_enqueue_sync_if_necessary(%{full_name: nil} = attrs), do: create_repo_and_enqueue_sync(attrs)
-  defp create_repo_and_enqueue_sync_if_necessary(%{fork: nil} = attrs), do: create_repo_and_enqueue_sync(attrs)
+  defp create_repo_and_enqueue_sync_if_necessary(%{default_branch: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{name: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{full_name: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{fork: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
 
   defp create_repo_and_enqueue_sync_if_necessary(attrs) do
     # All fields — no need to enqueue sync
@@ -83,22 +90,28 @@ defmodule Notesclub.Repos do
     |> Ecto.Multi.insert(
       :repo_default_branch_worker,
       fn %{
-        repo: %RepoSchema{
-          id: repo_id
-        }
-      } ->
+           repo: %RepoSchema{
+             id: repo_id
+           }
+         } ->
         RepoSyncWorker.new(%{repo_id: repo_id})
-      end)
+      end
+    )
     |> Repo.transaction()
     |> case do
       {:ok, %{repo: repo}} ->
         {:ok, repo}
+
       {:error, :repo, changeset, _} ->
         {:error, changeset}
+
       {:error, :repo_default_branch_worker, changeset, _} ->
-        Logger.error "create_repo failed in repo_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
+        Logger.error(
+          "create_repo failed in repo_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
+        )
+
         {:error, changeset}
-      end
+    end
   end
 
   @doc """

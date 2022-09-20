@@ -12,6 +12,7 @@ defmodule Notesclub.ReposFixtures do
 
     username = Faker.Internet.user_name()
     repo_name = Faker.Internet.user_name()
+
     {:ok, repo} =
       attrs
       |> Enum.into(%{

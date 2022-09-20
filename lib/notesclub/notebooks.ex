@@ -53,6 +53,7 @@ defmodule Notesclub.Notebooks do
         url = url_from_github_html_url(notebook.github_html_url, default_branch)
         changeset = Notebook.changeset(notebook, %{"url" => url})
         Ecto.Multi.update(query, "notebook_#{notebook.id}", changeset)
+
       _, query ->
         query
     end)
@@ -61,6 +62,7 @@ defmodule Notesclub.Notebooks do
 
   defp url_from_github_html_url(nil, _), do: nil
   defp url_from_github_html_url(_, nil), do: nil
+
   defp url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
     String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
@@ -137,7 +139,8 @@ defmodule Notesclub.Notebooks do
   def get_notebook!(id, preload: tables) do
     from(n in Notebook,
       where: n.id == ^id,
-      preload: ^tables)
+      preload: ^tables
+    )
     |> Repo.one!()
   end
 

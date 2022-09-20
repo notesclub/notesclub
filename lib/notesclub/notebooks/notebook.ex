@@ -14,8 +14,10 @@ defmodule Notesclub.Notebooks.Notebook do
     field :github_owner_login, :string
     field :github_repo_name, :string
     field :github_html_url, :string
-    field :url, :string # url to default branch
-    field :github_owner_avatar_url, :string # url to commit — provided by Github Search API
+    # url to default branch
+    field :url, :string
+    # url to commit — provided by Github Search API
+    field :github_owner_avatar_url, :string
 
     belongs_to :search, Search
     belongs_to :user, User

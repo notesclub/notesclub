@@ -24,7 +24,7 @@ defmodule Notesclub.ReposTest do
     test "create_repo/1 with valid data creates a repo & enqueues worker" do
       assert {:ok, %Repo{} = repo} = Repos.create_repo(@valid_attrs)
       assert repo.name == @valid_attrs.name
-      assert_enqueued [worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id}]
+      assert_enqueued(worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id})
     end
 
     test "create_repo/1 with invalid data returns error changeset" do

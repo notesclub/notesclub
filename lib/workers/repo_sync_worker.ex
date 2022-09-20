@@ -28,6 +28,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
 
   defp fetch_repo(full_name) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
+
     Req.get!("https://api.github.com/repos/" <> full_name,
       headers: [
         Accept: ["application/vnd.github+json"],
@@ -37,8 +38,8 @@ defmodule Notesclub.Workers.RepoSyncWorker do
   end
 
   defp prepare_attrs(%Req.Response{status: 200} = result) do
-
     body = result.body
+
     %{
       default_branch: body["default_branch"],
       fork: body["fork"],
@@ -47,7 +48,8 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     }
   end
 
-  defp prepare_attrs(%Req.Response{status: status} = response), do: {:error, "response status: #{status}, msg: #{response.body["message"]}"}
+  defp prepare_attrs(%Req.Response{status: status} = response),
+    do: {:error, "response status: #{status}, msg: #{response.body["message"]}"}
 
   defp update_repo({:error, error}), do: {:error, error}
   defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}
@@ -62,12 +64,11 @@ defmodule Notesclub.Workers.RepoSyncWorker do
   defp update_repo(attrs, repo) do
     case Repos.update_repo(repo, attrs) do
       {:ok, repo} ->
-
-
         {:ok, _job} =
           %{repo_id: repo.id}
           |> NotebooksUrlWorker.new()
           |> Oban.insert()
+
       {:error, error} ->
         {:error, error}
     end

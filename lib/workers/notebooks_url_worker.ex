@@ -6,7 +6,6 @@ defmodule Notesclub.Workers.NotebooksUrlWorker do
     queue: :default,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
-
   alias Notesclub.Notebooks
   alias Notesclub.Repos
 

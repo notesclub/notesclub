@@ -73,7 +73,8 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     engine: Oban.Pro.Queue.SmartEngine,
     repo: Notesclub.Repo,
     plugins: [
-      {Oban.Plugins.Pruner, max_age: 300}, # seconds
+      # seconds
+      {Oban.Plugins.Pruner, max_age: 300},
       Oban.Plugins.Gossip,
       Oban.Web.Plugins.Stats,
       Oban.Pro.Plugins.DynamicLifeline

@@ -12,7 +12,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "livebook", full_name: "livebook-dev/livebook", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "livebook",
+    full_name: "livebook-dev/livebook",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -24,7 +31,8 @@ alias Notesclub.Repos
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/87464290?v=4",
     user_id: user.id,
     repo_id: repo.id,
-    url: "https://github.com/livebook-dev/livebook/blob/main/lib/livebook/notebook/explore/intro_to_maplibre.livemd"
+    url:
+      "https://github.com/livebook-dev/livebook/blob/main/lib/livebook/notebook/explore/intro_to_maplibre.livemd"
   })
 
 {:ok, user} =
@@ -33,7 +41,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/100445774?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "beta_curriculum", full_name: "DockYard-Academy/beta_curriculum", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "beta_curriculum",
+    full_name: "DockYard-Academy/beta_curriculum",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -54,7 +69,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/7001675?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "elixir-secure-coding", full_name: "podium/elixir-secure-coding", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "elixir-secure-coding",
+    full_name: "podium/elixir-secure-coding",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -75,7 +97,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/74903619?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "axon", full_name: "elixir-nx/axon", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "axon",
+    full_name: "elixir-nx/axon",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -96,7 +125,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "talks", full_name: "BrooklinJazz/talks", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "talks",
+    full_name: "BrooklinJazz/talks",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -108,7 +144,7 @@ alias Notesclub.Repos
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/14877564?v=4",
     user_id: user.id,
     repo_id: repo.id,
-    url: "https://github.com/BrooklinJazz/talks/blob/main/livebook-with-otp/ets.livemd",
+    url: "https://github.com/BrooklinJazz/talks/blob/main/livebook-with-otp/ets.livemd"
   })
 
 {:ok, user} =
@@ -117,7 +153,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "livebook-notebooks.livemd", full_name: "hectorperez/livebook-notebooks", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "livebook-notebooks.livemd",
+    full_name: "hectorperez/livebook-notebooks",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{
@@ -129,7 +172,8 @@ alias Notesclub.Repos
     github_owner_avatar_url: "https://avatars.githubusercontent.com/u/9378?v=4",
     user_id: user.id,
     repo_id: repo.id,
-    url: "https://github.com/hectorperez/livebook-notebooks/blob/main/notebooks/chat_with_openai_and_kino.livemd"
+    url:
+      "https://github.com/hectorperez/livebook-notebooks/blob/main/notebooks/chat_with_openai_and_kino.livemd"
   })
 
 {:ok, user} =
@@ -138,7 +182,14 @@ alias Notesclub.Repos
     avatar_url: "https://avatars.githubusercontent.com/u/59829569?v=4"
   })
 
-{:ok, repo} = Repos.create_repo(%{name: "tictac", full_name: "fly-apps/tictac", default_branch: "main", fork: false, user_id: user.id})
+{:ok, repo} =
+  Repos.create_repo(%{
+    name: "tictac",
+    full_name: "fly-apps/tictac",
+    default_branch: "main",
+    fork: false,
+    user_id: user.id
+  })
 
 {:ok, _} =
   Notebooks.create_notebook(%{

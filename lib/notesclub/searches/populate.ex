@@ -224,7 +224,9 @@ defmodule Notesclub.Searches.Populate do
           name: attrs.github_repo_name,
           full_name: attrs.github_repo_full_name,
           fork: attrs.github_repo_fork,
-          user_id: attrs.user_id}
+          user_id: attrs.user_id
+        }
+
         case Repos.create_repo(repo_attrs) do
           {:ok, repo} ->
             Map.put_new(attrs, :repo_id, repo.id)

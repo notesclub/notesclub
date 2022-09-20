@@ -31,7 +31,7 @@ defmodule RepoSyncWorkerTest do
           {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
           # It should have enqueued an Url Worker:
-          assert_enqueued [worker: Notesclub.Workers.NotebooksUrlWorker, args: %{repo_id: repo.id}]
+          assert_enqueued(worker: Notesclub.Workers.NotebooksUrlWorker, args: %{repo_id: repo.id})
 
           # It should have updated repo:
           repo = Repos.get_repo!(repo.id)
