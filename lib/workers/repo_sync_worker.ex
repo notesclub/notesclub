@@ -1,4 +1,4 @@
-defmodule Notesclub.Workers.RepoDefaultBranchWorker do
+defmodule Notesclub.Workers.RepoSyncWorker do
   @moduledoc """
     We fetch extra repo attributes not provided by Github Search API in fetch.ex
     Afterwards, we enqueue another job to update the url of all notebooks of this repo

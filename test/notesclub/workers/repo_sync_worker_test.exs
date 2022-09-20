@@ -1,9 +1,9 @@
-defmodule RepoDefaultBranchWorkerTest do
+defmodule RepoSyncWorkerTest do
   use Notesclub.DataCase
 
   import Mock
 
-  alias Notesclub.Workers.RepoDefaultBranchWorker
+  alias Notesclub.Workers.RepoSyncWorker
   alias Notesclub.ReposFixtures
   alias Notesclub.Repos
 
@@ -17,7 +17,7 @@ defmodule RepoDefaultBranchWorkerTest do
     }
   }
 
-  describe "RepoDefaultBranchWorker" do
+  describe "RepoSyncWorker" do
     test "perform/1 downloads default_branch, name, full_name, fork" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @github_repo_response end]}
@@ -28,7 +28,7 @@ defmodule RepoDefaultBranchWorkerTest do
 
         Oban.Testing.with_testing_mode(:manual, fn ->
           # Run worker:
-          {:ok, _job} = perform_job(RepoDefaultBranchWorker, %{repo_id: repo.id})
+          {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
           # It should have enqueued an Url Worker:
           assert_enqueued [worker: Notesclub.Workers.NotebooksUrlWorker, args: %{repo_id: repo.id}]

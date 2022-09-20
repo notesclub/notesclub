@@ -7,7 +7,7 @@ defmodule Notesclub.Repos do
   alias Notesclub.Repo
 
   alias Notesclub.Repos.Repo, as: RepoSchema
-  alias Notesclub.Workers.RepoDefaultBranchWorker
+  alias Notesclub.Workers.RepoSyncWorker
 
   require Logger
 
@@ -87,7 +87,7 @@ defmodule Notesclub.Repos do
           id: repo_id
         }
       } ->
-        RepoDefaultBranchWorker.new(%{repo_id: repo_id})
+        RepoSyncWorker.new(%{repo_id: repo_id})
       end)
     |> Repo.transaction()
     |> case do

@@ -6,7 +6,7 @@ defmodule NotebooksUrlWorkerTest do
   alias Notesclub.NotebooksFixtures
   alias Notesclub.Notebooks
 
-  describe "RepoDefaultBranchWorker" do
+  describe "RepoSyncWorker" do
     test "perform/1 downloads default_branch, name, full_name, fork" do
       repo = ReposFixtures.repo_fixture()
       # Three notebooks within the repo
