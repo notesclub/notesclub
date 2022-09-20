@@ -96,7 +96,7 @@ defmodule Notesclub.Repos do
       {:error, :repo, changeset, _} ->
         {:error, changeset}
       {:error, :repo_default_branch_worker, changeset, _} ->
-        Logger.error "create_repo failed in repo_default_branch_worker. This should never happen."
+        Logger.error "create_repo failed in repo_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
         {:error, changeset}
       end
   end
