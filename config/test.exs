@@ -29,4 +29,4 @@ config :logger, level: :warn
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :notesclub, Oban, testing: :inline
+config :notesclub, Oban, crontab: false, queues: false, plugins: false
