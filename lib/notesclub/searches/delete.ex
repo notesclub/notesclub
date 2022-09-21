@@ -12,10 +12,11 @@ defmodule Notesclub.Searches.Delete do
 
   @spec eliminate :: {:ok, integer}
   def eliminate() do
-    {count, nil} = Timex.now()
-    |> Timex.beginning_of_day()
-    |> Timex.shift(days: -@number_of_days_to_keep_search_results)
-    |> Searches.delete_by_date()
+    {count, nil} =
+      Timex.now()
+      |> Timex.beginning_of_day()
+      |> Timex.shift(days: -@number_of_days_to_keep_search_results)
+      |> Searches.delete_by_date()
 
     Logger.info("#{count} search records deleted.")
     {:ok, count}

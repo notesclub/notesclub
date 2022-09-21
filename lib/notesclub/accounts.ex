@@ -70,7 +70,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec update_user(%User{}, map) ::  {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec update_user(%User{}, map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def update_user(%User{} = user, attrs) do
     user
     |> User.changeset(attrs)
@@ -89,7 +89,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec delete_user(%User{}) ::  {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec delete_user(%User{}) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def delete_user(%User{} = user) do
     Repo.delete(user)
   end
