@@ -19,6 +19,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_notebooks(any) :: [%Notebook{}]
   def list_notebooks(opts \\ []) do
     Enum.reduce(opts, from(n in Notebook), fn
       {:order, :desc}, query ->
@@ -37,6 +38,7 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
+  @spec list_notebooks_since(integer()) :: [%Notebook{}]
   def list_notebooks_since(num_days_ago) when is_integer(num_days_ago) do
     from(n in Notebook,
       where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
@@ -76,6 +78,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_author_notebooks_desc(binary) :: [%Notebook{}] | nil
   def list_author_notebooks_desc(author) when is_binary(author) do
     from(n in Notebook,
       where: n.github_owner_login == ^author,
@@ -93,6 +96,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_repo_author_notebooks_desc(binary, binary) :: [%Notebook{}]
   def list_repo_author_notebooks_desc(repo_name, author_login)
       when is_binary(repo_name) and is_binary(author_login) do
     from(n in Notebook,
@@ -134,6 +138,7 @@ defmodule Notesclub.Notebooks do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_notebook!(number) :: Notebook
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
   def get_notebook!(id, preload: tables) do
@@ -156,6 +161,7 @@ defmodule Notesclub.Notebooks do
         each repo's default branch and their history of blobs.
         Then, we won't create new files but update
   """
+  @spec get_by_filename_owner_and_repo(binary, binary, binary) :: Notebook
   def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
       when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
     from(n in Notebook,
@@ -179,6 +185,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
     |> Notebook.changeset(attrs |> add_fields() |> maybe_set_url())
@@ -217,6 +224,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_notebook(%Notebook{}, map()) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def update_notebook(%Notebook{} = notebook, attrs) do
     notebook
     |> Notebook.changeset(attrs)
@@ -235,6 +243,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_notebook(%Notebook{}) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def delete_notebook(%Notebook{} = notebook) do
     Repo.delete(notebook)
   end
@@ -248,6 +257,7 @@ defmodule Notesclub.Notebooks do
       %Ecto.Changeset{data: %Notebook{}}
 
   """
+  @spec change_notebook(%Notebook{}, map()) :: %Ecto.Changeset{}
   def change_notebook(%Notebook{} = notebook, attrs \\ %{}) do
     Notebook.changeset(notebook, attrs)
   end

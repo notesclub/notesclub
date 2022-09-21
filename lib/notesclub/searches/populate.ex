@@ -24,6 +24,7 @@ defmodule Notesclub.Searches.Populate do
 
   When cron uses next(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
+  @spec next :: map
   def next() do
     Logger.info("Populate.next() start. Downloading new notebooks.")
 
@@ -52,6 +53,7 @@ defmodule Notesclub.Searches.Populate do
 
   When cron uses next_loop(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
+  @spec next_loop :: map
   def next_loop() do
     Logger.info("Populate.next_loop() start. Downloading new notebooks.")
 
