@@ -17,6 +17,7 @@ defmodule Notesclub.Repos do
       [%RepoSchema{}, ...]
 
   """
+  @spec list_repos() :: [%RepoSchema{}]
   def list_repos do
     Repo.all(RepoSchema)
   end
@@ -35,6 +36,7 @@ defmodule Notesclub.Repos do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_repo!(integer) :: %RepoSchema{}
   def get_repo!(id), do: Repo.get!(RepoSchema, id)
 
   @doc """
@@ -49,6 +51,7 @@ defmodule Notesclub.Repos do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_repo(map()) :: {:ok, %RepoSchema{}} | {:error, %Ecto.Changeset{}}
   def create_repo(attrs \\ %{}) do
     %RepoSchema{}
     |> RepoSchema.changeset(attrs)
@@ -67,6 +70,7 @@ defmodule Notesclub.Repos do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_repo(%RepoSchema{}, map()) :: {:ok, %RepoSchema{}} | {:error, %Ecto.Changeset{}}
   def update_repo(%RepoSchema{} = repo, attrs) do
     repo
     |> RepoSchema.changeset(attrs)
@@ -85,6 +89,7 @@ defmodule Notesclub.Repos do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_repo(%RepoSchema{}) :: {:ok, %RepoSchema{}} | {:error, %Ecto.Changeset{}}
   def delete_repo(%RepoSchema{} = repo) do
     Repo.delete(repo)
   end
@@ -98,6 +103,7 @@ defmodule Notesclub.Repos do
       %Ecto.Changeset{data: %Repo{}}
 
   """
+  @spec change_repo(%RepoSchema{}, map) :: %Ecto.Changeset{}
   def change_repo(%RepoSchema{} = repo, attrs \\ %{}) do
     RepoSchema.changeset(repo, attrs)
   end
@@ -111,6 +117,7 @@ defmodule Notesclub.Repos do
       {:ok, %RepoSchema{}}
 
   """
+  @spec get_by_name_and_user_id(%{name: binary, user_id: integer}) :: %RepoSchema{} | nil
   def get_by_name_and_user_id(attrs) do
     Repo.get_by(RepoSchema, attrs)
   end
