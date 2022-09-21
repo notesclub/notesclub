@@ -47,6 +47,16 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
+  @doc """
+  Resets the repo's notebooks url depending on notebook.github_html_url and repo.default_branch
+
+  ## Examples
+
+      iex> reset_notebooks_url(%Repo{id: 1, default_branch: "main"})
+      {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
+
+  """
+  @spec reset_notebooks_url(%RepoSchema{}) :: {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
   def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
     %{repo_id: repo_id}
     |> list_notebooks()
