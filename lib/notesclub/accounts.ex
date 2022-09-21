@@ -17,6 +17,7 @@ defmodule Notesclub.Accounts do
       [%User{}, ...]
 
   """
+  @spec list_users :: [%User{}]
   def list_users do
     Repo.all(User)
   end
@@ -35,6 +36,7 @@ defmodule Notesclub.Accounts do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_user!(integer) :: %User{}
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
@@ -49,6 +51,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_user(map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def create_user(attrs \\ %{}) do
     %User{}
     |> User.changeset(attrs)
@@ -67,6 +70,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_user(%User{}, map) ::  {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def update_user(%User{} = user, attrs) do
     user
     |> User.changeset(attrs)
@@ -85,6 +89,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_user(%User{}) ::  {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def delete_user(%User{} = user) do
     Repo.delete(user)
   end
@@ -98,6 +103,8 @@ defmodule Notesclub.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
+
+  @spec change_user(%User{}, map) :: %Ecto.Changeset{}
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
@@ -111,6 +118,7 @@ defmodule Notesclub.Accounts do
       {:ok, %User{}}
 
   """
+  @spec get_by_username(binary) :: {:ok, %User{}}
   def get_by_username(username) do
     Repo.get_by(User, username: username)
   end
