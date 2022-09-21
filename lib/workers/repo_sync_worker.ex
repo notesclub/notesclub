@@ -15,16 +15,16 @@ defmodule Notesclub.Workers.RepoSyncWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
-    repo = Repos.get_repo!(repo_id)
-
-    repo.full_name
-    |> fetch_repo()
-    |> prepare_attrs()
-    |> update_repo(repo)
+    case Repos.get_repo(repo_id, preload: :user) do
+      nil ->
+        {:ok, "repo doesn't exist anymore. Skipping"}
+      repo ->
+        "#{repo.user.username}/#{repo.name}"
+        |> fetch_repo()
+        |> prepare_attrs()
+        |> update_repo(repo)
+    end
   end
-
-  defp fetch_repo(nil), do: {:error, "full_name is nil"}
-  defp fetch_repo(""), do: {:error, "full_name is blank"}
 
   defp fetch_repo(full_name) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
@@ -37,8 +37,8 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     )
   end
 
-  defp prepare_attrs(%Req.Response{status: 200} = result) do
-    body = result.body
+  defp prepare_attrs(%Req.Response{status: 200} = response) do
+    body = response.body
 
     %{
       default_branch: body["default_branch"],
@@ -48,8 +48,9 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     }
   end
 
-  defp prepare_attrs(%Req.Response{status: status} = response),
-    do: {:error, "response status: #{status}, msg: #{response.body["message"]}"}
+  defp prepare_attrs(%Req.Response{status: status} = response) do
+    {:error, "response status: #{status}, msg: #{response.body["message"]}"}
+  end
 
   defp update_repo({:error, error}), do: {:error, error}
   defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}

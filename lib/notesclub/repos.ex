@@ -40,6 +40,24 @@ defmodule Notesclub.Repos do
   """
   def get_repo!(id), do: Repo.get!(RepoSchema, id)
 
+  def get_repo!(id, preload: tables) do
+    from(r in RepoSchema,
+      where: r.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one!()
+  end
+
+  def get_repo(id), do: Repo.get(RepoSchema, id)
+
+  def get_repo(id, preload: tables) do
+    from(r in RepoSchema,
+      where: r.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one()
+  end
+
   @doc """
   Creates a repo.
 
