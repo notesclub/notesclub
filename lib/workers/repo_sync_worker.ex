@@ -1,7 +1,7 @@
 defmodule Notesclub.Workers.RepoSyncWorker do
   @moduledoc """
     We fetch extra repo attributes not provided by Github Search API in fetch.ex
-    Afterwards, we enqueue another job to update the url of all notebooks of this repo
+    Afterwards, we update the url of all notebooks of this repo
   """
 
   require Logger
@@ -11,7 +11,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
   alias Notesclub.Repos
-  alias Notesclub.Workers.NotebooksUrlWorker
+  alias Notesclub.Notebooks
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
@@ -65,11 +65,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
   defp update_repo(attrs, repo) do
     case Repos.update_repo(repo, attrs) do
       {:ok, repo} ->
-        {:ok, _job} =
-          %{repo_id: repo.id}
-          |> NotebooksUrlWorker.new()
-          |> Oban.insert()
-
+        Notebooks.reset_notebooks_url(repo)
       {:error, error} ->
         {:error, error}
     end
