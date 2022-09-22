@@ -35,11 +35,11 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 
-RUN --mount=type=secret,id=oban_key_fingerprint,dst=/etc/secrets/oban_key_fingerprint \
-  --mount=type=secret,id=oban_license_key,dst=/etc/secrets/oban_license_key \
+RUN --mount=type=secret,id=OBAN_KEY_FINGERPRINT \
+  --mount=type=secret,id=OBAN_LICENSE_KEY \
   mix hex.repo add oban https://getoban.pro/repo \
-  --fetch-public-key "$(cat /etc/secrets/oban_key_fingerprint)" \
-  --auth-key "$(cat /etc/secrets/oban_license_key)"
+  --fetch-public-key "$(cat /run/secrets/OBAN_KEY_FINGERPRINT)" \
+  --auth-key "$(cat /run/secrets/OBAN_LICENSE_KEY)"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -96,3 +96,7 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/notesclub ./
 USER nobody
 
 CMD ["sh", "-c", "/app/bin/notesclub eval Notesclub.Release.migrate && exec /app/bin/server"]
+
+# Appended by flyctl
+ENV ECTO_IPV6 true
+ENV ERL_AFLAGS "-proto_dist inet6_tcp"
