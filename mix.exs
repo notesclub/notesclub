@@ -20,7 +20,7 @@ defmodule Notesclub.MixProject do
   def application do
     [
       mod: {Notesclub.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :ssl]
     ]
   end
 
