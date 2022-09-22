@@ -64,7 +64,8 @@ COPY assets assets
 RUN mix assets.deploy
 
 # Compile the release
-RUN mix compile
+RUN --mount=type=secret,id=NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED \
+  mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
