@@ -1,4 +1,4 @@
-defmodule MyApp.Repo.Migrations.AddObanJobsTable do
+defmodule Notesclub.Repo.Migrations.AddObanJobsTable do
   use Ecto.Migration
 
   def up do
