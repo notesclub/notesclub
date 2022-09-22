@@ -26,6 +26,7 @@ defmodule Notesclub.Searches.Fetch do
   A common error happens when we reach Fetch's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
+  @spec get(%Options{}) :: {:ok, %Fetch{}} | {:error, %Fetch{}}
   def get(%Options{} = options) do
     options
     |> build_url()
@@ -60,9 +61,11 @@ defmodule Notesclub.Searches.Fetch do
         %{
           github_filename: item["name"],
           github_owner_login: owner["login"],
+          github_owner_avatar_url: owner["avatar_url"],
           github_repo_name: repo["name"],
-          github_html_url: item["html_url"],
-          github_owner_avatar_url: owner["avatar_url"]
+          github_repo_full_name: repo["full_name"],
+          github_repo_fork: repo["fork"],
+          github_html_url: item["html_url"]
         }
       end)
 
@@ -124,5 +127,6 @@ defmodule Notesclub.Searches.Fetch do
   defp url(%Fetch{} = fetch, false), do: fetch.url
 
   # We can mock this in tests
+  @spec check_github_api_key :: true
   def check_github_api_key, do: true
 end

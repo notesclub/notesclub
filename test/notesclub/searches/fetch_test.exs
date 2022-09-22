@@ -16,6 +16,7 @@ defmodule Notesclub.Searches.FetchTest do
             "https://github.com/charlieroth/elixir-notebooks/blob/68716ab303da9b98e21be9c04a3c86770ab7c819/structs.livemd",
           "repository" => %{
             "name" => "elixir-notebooks",
+            "full_name" => "charlieroth/elixir-notebooks",
             "private" => false,
             "fork" => false,
             "owner" => %{
@@ -31,6 +32,7 @@ defmodule Notesclub.Searches.FetchTest do
           "private" => false,
           "repository" => %{
             "name" => "elixir-notebooks",
+            "full_name" => "charlieroth/elixir-notebooks",
             "private" => false,
             "fork" => false,
             "owner" => %{
@@ -61,7 +63,9 @@ defmodule Notesclub.Searches.FetchTest do
                        github_owner_avatar_url:
                          "https://avatars.githubusercontent.com/u/13981427?v=4",
                        github_owner_login: "charlieroth",
-                       github_repo_name: "elixir-notebooks"
+                       github_repo_name: "elixir-notebooks",
+                       github_repo_full_name: "charlieroth/elixir-notebooks",
+                       github_repo_fork: false
                      },
                      %{
                        github_filename: "collections.livemd",
@@ -70,7 +74,9 @@ defmodule Notesclub.Searches.FetchTest do
                        github_owner_avatar_url:
                          "https://avatars.githubusercontent.com/u/13981427?v=4",
                        github_owner_login: "charlieroth",
-                       github_repo_name: "elixir-notebooks"
+                       github_repo_name: "elixir-notebooks",
+                       github_repo_full_name: "charlieroth/elixir-notebooks",
+                       github_repo_fork: false
                      }
                    ],
                    response: @valid_reponse,

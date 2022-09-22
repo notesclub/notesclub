@@ -8,6 +8,7 @@ defmodule Notesclub.ReposTest do
 
     import Notesclub.ReposFixtures
 
+    @valid_attrs %{name: "myrepo", full_name: "myuser/myrepo"}
     @invalid_attrs %{name: nil}
 
     test "list_repos/0 returns all repos" do
@@ -20,11 +21,10 @@ defmodule Notesclub.ReposTest do
       assert Repos.get_repo!(repo.id) == repo
     end
 
-    test "create_repo/1 with valid data creates a repo" do
-      valid_attrs = %{name: "some name"}
-
-      assert {:ok, %Repo{} = repo} = Repos.create_repo(valid_attrs)
-      assert repo.name == "some name"
+    test "create_repo/1 with valid data creates a repo & enqueues worker" do
+      assert {:ok, %Repo{} = repo} = Repos.create_repo(@valid_attrs)
+      assert repo.name == @valid_attrs.name
+      assert_enqueued(worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id})
     end
 
     test "create_repo/1 with invalid data returns error changeset" do

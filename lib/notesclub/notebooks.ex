@@ -7,6 +7,8 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repo
 
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Repos
+  alias Notesclub.Repos.Repo, as: RepoSchema
 
   @doc """
   Returns the list of notebooks.
@@ -17,6 +19,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_notebooks(any) :: [%Notebook{}]
   def list_notebooks(opts \\ []) do
     Enum.reduce(opts, from(n in Notebook), fn
       {:order, :desc}, query ->
@@ -26,18 +29,54 @@ defmodule Notesclub.Notebooks do
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
 
+      {:repo_id, repo_id}, query ->
+        where(query, [notebook], notebook.repo_id == ^repo_id)
+
       _, query ->
         query
     end)
     |> Repo.all()
   end
 
+  @spec list_notebooks_since(integer()) :: [%Notebook{}]
   def list_notebooks_since(num_days_ago) when is_integer(num_days_ago) do
     from(n in Notebook,
       where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
       order_by: -n.id
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Resets the repo's notebooks url depending on notebook.github_html_url and repo.default_branch
+
+  ## Examples
+
+      iex> reset_notebooks_url(%Repo{id: 1, default_branch: "main"})
+      {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
+
+  """
+  @spec reset_notebooks_url(%RepoSchema{}) :: {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
+  def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
+    %{repo_id: repo_id}
+    |> list_notebooks()
+    |> Enum.reduce(Ecto.Multi.new(), fn
+      %Notebook{} = notebook, query ->
+        url = url_from_github_html_url(notebook.github_html_url, default_branch)
+        changeset = Notebook.changeset(notebook, %{"url" => url})
+        Ecto.Multi.update(query, "notebook_#{notebook.id}", changeset)
+
+      _, query ->
+        query
+    end)
+    |> Repo.transaction()
+  end
+
+  defp url_from_github_html_url(nil, _), do: nil
+  defp url_from_github_html_url(_, nil), do: nil
+
+  defp url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
+    String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 
   @doc """
@@ -49,6 +88,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_author_notebooks_desc(binary) :: [%Notebook{}] | nil
   def list_author_notebooks_desc(author) when is_binary(author) do
     from(n in Notebook,
       where: n.github_owner_login == ^author,
@@ -66,6 +106,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
+  @spec list_repo_author_notebooks_desc(binary, binary) :: [%Notebook{}]
   def list_repo_author_notebooks_desc(repo_name, author_login)
       when is_binary(repo_name) and is_binary(author_login) do
     from(n in Notebook,
@@ -107,7 +148,16 @@ defmodule Notesclub.Notebooks do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_notebook!(number) :: Notebook
   def get_notebook!(id), do: Repo.get!(Notebook, id)
+
+  def get_notebook!(id, preload: tables) do
+    from(n in Notebook,
+      where: n.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one!()
+  end
 
   @doc """
   Gets a notebook by its filename, owner and repo
@@ -121,6 +171,7 @@ defmodule Notesclub.Notebooks do
         each repo's default branch and their history of blobs.
         Then, we won't create new files but update
   """
+  @spec get_by_filename_owner_and_repo(binary, binary, binary) :: Notebook
   def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
       when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
     from(n in Notebook,
@@ -144,11 +195,32 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
-    |> Notebook.changeset(attrs)
+    |> Notebook.changeset(attrs |> add_fields() |> maybe_set_url())
     |> Repo.insert()
   end
+
+  defp add_fields(attrs) do
+    attrs
+    |> Enum.into(%{
+      repo_id: nil,
+      github_html_url: nil,
+      url: nil
+    })
+  end
+
+  defp maybe_set_url(%{repo_id: nil} = attrs), do: attrs
+  defp maybe_set_url(%{github_html_url: nil} = attrs), do: attrs
+
+  defp maybe_set_url(%{url: nil} = attrs) do
+    repo = Repos.get_repo!(attrs.repo_id)
+    url = url_from_github_html_url(attrs.github_html_url, repo.default_branch)
+    Map.put(attrs, :url, url)
+  end
+
+  defp maybe_set_url(attrs), do: attrs
 
   @doc """
   Updates a notebook.
@@ -162,6 +234,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_notebook(%Notebook{}, map()) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def update_notebook(%Notebook{} = notebook, attrs) do
     notebook
     |> Notebook.changeset(attrs)
@@ -180,6 +253,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_notebook(%Notebook{}) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def delete_notebook(%Notebook{} = notebook) do
     Repo.delete(notebook)
   end
@@ -193,6 +267,7 @@ defmodule Notesclub.Notebooks do
       %Ecto.Changeset{data: %Notebook{}}
 
   """
+  @spec change_notebook(%Notebook{}, map()) :: %Ecto.Changeset{}
   def change_notebook(%Notebook{} = notebook, attrs \\ %{}) do
     Notebook.changeset(notebook, attrs)
   end
