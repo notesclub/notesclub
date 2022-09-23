@@ -35,24 +35,26 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 
+# install mix dependencies
+COPY mix.exs mix.lock ./
+
+ENV NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED="true"
+
 RUN --mount=type=secret,id=OBAN_KEY_FINGERPRINT \
   --mount=type=secret,id=OBAN_LICENSE_KEY \
   mix hex.repo add oban https://getoban.pro/repo \
   --fetch-public-key "$(cat /run/secrets/OBAN_KEY_FINGERPRINT)" \
   --auth-key "$(cat /run/secrets/OBAN_LICENSE_KEY)"
 
-# install mix dependencies
-COPY mix.exs mix.lock ./
-RUN --mount=type=secret,id=NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED \
-  mix deps.get --only $MIX_ENV
+RUN mix deps.get --only $MIX_ENV
+
 RUN mkdir config
 
 # copy compile-time config files before we compile dependencies
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/config.exs config/${MIX_ENV}.exs config/
-RUN --mount=type=secret,id=NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED \
-  mix deps.compile
+RUN mix deps.compile
 
 COPY priv priv
 
@@ -64,8 +66,7 @@ COPY assets assets
 RUN mix assets.deploy
 
 # Compile the release
-RUN --mount=type=secret,id=NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED \
-  mix compile
+RUN mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
