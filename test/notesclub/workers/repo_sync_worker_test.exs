@@ -74,13 +74,13 @@ defmodule RepoSyncWorkerTest do
 
         # It should have changed the first three notebooks
         assert Notebooks.get_notebook!(notebook1.id).url ==
-                "https://github.com/user/repo/blob/#{repo.default_branch}/whatever1.livemd"
+                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever1.livemd"
 
         assert Notebooks.get_notebook!(notebook2.id).url ==
-                "https://github.com/user/repo/blob/#{repo.default_branch}/whatever2.livemd"
+                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever2.livemd"
 
         assert Notebooks.get_notebook!(notebook3.id).url ==
-                "https://github.com/user/repo/blob/#{repo.default_branch}/whatever3.livemd"
+                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever3.livemd"
 
         # And should have NOT changed the last notebook url
         assert Notebooks.get_notebook!(notebook4.id).url == "https://whatever.com"

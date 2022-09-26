@@ -17,6 +17,7 @@ defmodule Notesclub.NotebooksFixtures do
         # We need a unique url
         github_html_url: "#{Faker.Internet.url()}/#{System.unique_integer([:positive])}",
         url: Faker.Internet.url(),
+        content: Faker.Lorem.Shakespeare.hamlet(),
         github_owner_avatar_url: Faker.Internet.url(),
         github_owner_login: Faker.Internet.user_name(),
         github_repo_name: Faker.Internet.user_name(),

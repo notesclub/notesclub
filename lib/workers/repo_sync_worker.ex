@@ -18,6 +18,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     case Repos.get_repo(repo_id, preload: :user) do
       nil ->
         {:ok, "repo doesn't exist anymore. Skipping"}
+
       repo ->
         "#{repo.user.username}/#{repo.name}"
         |> fetch_repo()
@@ -66,6 +67,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     case Repos.update_repo(repo, attrs) do
       {:ok, repo} ->
         Notebooks.reset_notebooks_url(repo)
+
       {:error, error} ->
         {:error, error}
     end

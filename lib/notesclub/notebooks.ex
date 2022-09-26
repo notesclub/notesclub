@@ -56,7 +56,8 @@ defmodule Notesclub.Notebooks do
       {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
 
   """
-  @spec reset_notebooks_url(%RepoSchema{}) :: {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
+  @spec reset_notebooks_url(%RepoSchema{}) ::
+          {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
   def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
     %{repo_id: repo_id}
     |> list_notebooks()
@@ -137,6 +138,32 @@ defmodule Notesclub.Notebooks do
   @doc """
   Gets a single notebook.
 
+  Returns nil if the Notebook does not exist.
+
+  ## Examples
+
+      iex> get_notebook(123)
+      %Notebook{}
+
+      iex> get_notebook(456)
+      nil
+
+  """
+  @spec get_notebook(number) :: Notebook
+  def get_notebook(id), do: Repo.get(Notebook, id)
+
+  @spec get_notebook!(number, [{:preload, [binary]}]) :: Notebook
+  def get_notebook(id, preload: tables) do
+    from(n in Notebook,
+      where: n.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Gets a single notebook.
+
   Raises `Ecto.NoResultsError` if the Notebook does not exist.
 
   ## Examples
@@ -151,6 +178,7 @@ defmodule Notesclub.Notebooks do
   @spec get_notebook!(number) :: Notebook
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
+  @spec get_notebook!(number, [{:preload, [binary]}]) :: Notebook
   def get_notebook!(id, preload: tables) do
     from(n in Notebook,
       where: n.id == ^id,
