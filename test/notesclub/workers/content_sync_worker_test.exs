@@ -22,6 +22,7 @@ defmodule ContentSyncWorkerTest do
   describe "ContentSyncWorker" do
     test "perform/1 downloads url content and updates notebook" do
       with_mocks([
+        {Notesclub.Workers.ContentSyncWorker, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough], [get!: fn _ -> @github_repo_response end]}
       ]) do
         user = AccountsFixtures.user_fixture(%{username: "elixir-nx"})

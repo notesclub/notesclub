@@ -12,12 +12,12 @@ defmodule Notesclub.Workers.ContentSyncWorker do
 
     notebook
     |> raw_url()
-    |> Req.get!()
+    |> make_request()
     |> save_content(notebook)
   end
 
   # Notebook doesn't exists, skipping
-  def raw_url(nil), do: :ok
+  def raw_url(nil), do: nil
 
   def raw_url(%Notebook{} = notebook) do
     raw_url(%{
@@ -35,7 +35,31 @@ defmodule Notesclub.Workers.ContentSyncWorker do
     )
   end
 
+  defp make_request(nil), do: nil
+  defp make_request(url) do
+    case __MODULE__.requests_enabled?() do
+      true ->
+        Req.get!(url)
+      _ ->
+        %Req.Response{
+          status: 200,
+          body: "whatever txt"
+        }
+    end
+  end
+
+  # Notebook doesn't exists, skipping
+  defp save_content(nil, _), do: :ok
+
   defp save_content(response, %Notebook{} = notebook) do
     Notebooks.update_notebook(notebook, %{content: response.body})
+  end
+
+  # Public function so it can be mocked
+  def requests_enabled?() do
+    case Mix.env() do
+      :test -> false
+      _ -> true
+    end
   end
 end
