@@ -2,6 +2,8 @@ defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
   require Notesclub.Compile
 
+  import Plug.BasicAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -18,8 +20,13 @@ defmodule NotesclubWeb.Router do
   Notesclub.Compile.only_if_loaded :oban_web do
     require Oban.Web.Router
 
+    pipeline :oban_web_auth do
+      plug :basic_auth, Application.compile_env(:notesclub, :basic_auth)
+    end
+
     scope "/", NotesclubWeb do
       pipe_through :browser
+      pipe_through :oban_web_auth
 
       Oban.Web.Router.oban_dashboard("/oban")
     end
