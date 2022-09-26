@@ -5,12 +5,6 @@ defmodule Notesclub.NotebooksFixtures do
   """
 
   @doc """
-  Generate a unique notebook github_html_url.
-  """
-  def unique_notebook_github_html_url,
-    do: "some github_html_url#{System.unique_integer([:positive])}"
-
-  @doc """
   Generate a notebook.
   """
   def notebook_fixture(attrs \\ %{}) do
@@ -19,11 +13,13 @@ defmodule Notesclub.NotebooksFixtures do
     {:ok, notebook} =
       attrs
       |> Enum.into(%{
-        github_filename: "some github_filename",
-        github_html_url: unique_notebook_github_html_url(),
-        github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: "some github_owner_login",
-        github_repo_name: "some github_repo_name",
+        github_filename: Faker.File.file_name(),
+        # We need a unique url
+        github_html_url: "#{Faker.Internet.url()}/#{System.unique_integer([:positive])}",
+        url: Faker.Internet.url(),
+        github_owner_avatar_url: Faker.Internet.url(),
+        github_owner_login: Faker.Internet.user_name(),
+        github_repo_name: Faker.Internet.user_name(),
         repo_id: repo.id,
         user_id: repo.user_id,
         search_id: nil

@@ -33,7 +33,7 @@
               </article>
             </td>
             <td>
-              <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.github_html_url, target: "_blank" %>
+              <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
             </td>
             <td>
               <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"><%= link "To do", to: "https://github.com/notesclub/notesclub/issues/4", target: "_blank" %></span>

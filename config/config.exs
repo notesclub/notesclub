@@ -73,13 +73,16 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     engine: Oban.Pro.Queue.SmartEngine,
     repo: Notesclub.Repo,
     plugins: [
-      Oban.Plugins.Pruner,
+      # seconds
+      {Oban.Plugins.Pruner, max_age: 300},
       Oban.Plugins.Gossip,
       Oban.Web.Plugins.Stats,
       Oban.Pro.Plugins.DynamicLifeline
     ],
     queues: [
-      default: 10
+      default: 10,
+      # Github allows us to make 5000 req/h. We limit to 2000 as we make requests outside of this queue (populate.ex)
+      github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]]
     ]
 else
   config :notesclub, Oban,

@@ -7,6 +7,9 @@ defmodule Notesclub.Repos do
   alias Notesclub.Repo
 
   alias Notesclub.Repos.Repo, as: RepoSchema
+  alias Notesclub.Workers.RepoSyncWorker
+
+  require Logger
 
   @doc """
   Returns the list of repos.
@@ -39,6 +42,24 @@ defmodule Notesclub.Repos do
   @spec get_repo!(integer) :: %RepoSchema{}
   def get_repo!(id), do: Repo.get!(RepoSchema, id)
 
+  def get_repo!(id, preload: tables) do
+    from(r in RepoSchema,
+      where: r.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one!()
+  end
+
+  def get_repo(id), do: Repo.get(RepoSchema, id)
+
+  def get_repo(id, preload: tables) do
+    from(r in RepoSchema,
+      where: r.id == ^id,
+      preload: ^tables
+    )
+    |> Repo.one()
+  end
+
   @doc """
   Creates a repo.
 
@@ -53,9 +74,65 @@ defmodule Notesclub.Repos do
   """
   @spec create_repo(map()) :: {:ok, %RepoSchema{}} | {:error, %Ecto.Changeset{}}
   def create_repo(attrs \\ %{}) do
+    attrs
+    |> Enum.into(%{
+      default_branch: nil,
+      name: nil,
+      full_name: nil,
+      fork: nil
+    })
+    |> create_repo_and_enqueue_sync_if_necessary()
+  end
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{default_branch: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{name: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{full_name: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(%{fork: nil} = attrs),
+    do: create_repo_and_enqueue_sync(attrs)
+
+  defp create_repo_and_enqueue_sync_if_necessary(attrs) do
+    # All fields — no need to enqueue sync
     %RepoSchema{}
     |> RepoSchema.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp create_repo_and_enqueue_sync(attrs) do
+    changeset = RepoSchema.changeset(%RepoSchema{}, attrs)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:repo, changeset)
+    |> Ecto.Multi.insert(
+      :repo_default_branch_worker,
+      fn %{
+           repo: %RepoSchema{
+             id: repo_id
+           }
+         } ->
+        RepoSyncWorker.new(%{repo_id: repo_id})
+      end
+    )
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{repo: repo}} ->
+        {:ok, repo}
+
+      {:error, :repo, changeset, _} ->
+        {:error, changeset}
+
+      {:error, :repo_default_branch_worker, changeset, _} ->
+        Logger.error(
+          "create_repo failed in repo_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
+        )
+
+        {:error, changeset}
+    end
   end
 
   @doc """
