@@ -57,7 +57,7 @@ defmodule Notesclub.Workers.ContentSyncWorker do
 
   # Public function so it can be mocked
   def requests_enabled?() do
-    case Mix.env() do
+    case Application.get_env(:notesclub, :env) do
       :test -> false
       _ -> true
     end
