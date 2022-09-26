@@ -2,8 +2,6 @@ defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
   require Notesclub.Compile
 
-  import Plug.BasicAuth
-
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -21,12 +19,17 @@ defmodule NotesclubWeb.Router do
     require Oban.Web.Router
 
     pipeline :oban_web_auth do
-      plug :basic_auth, Application.compile_env(:notesclub, :basic_auth)
+      plug :auth
+
+      defp auth(conn, _opts) do
+        username = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
+        password = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_PASSWORD")
+        Plug.BasicAuth.basic_auth(conn, username: username, password: password)
+      end
     end
 
     scope "/", NotesclubWeb do
-      pipe_through :browser
-      pipe_through :oban_web_auth
+      pipe_through [:browser, :oban_web_auth]
 
       Oban.Web.Router.oban_dashboard("/oban")
     end

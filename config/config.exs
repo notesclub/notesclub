@@ -95,10 +95,6 @@ else
     ]
 end
 
-username = System.get_env("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
-password = System.get_env("NOTESCLUB_OBAN_WEB_DASHBOARD_PASSWORD")
-config :notesclub, :basic_auth, username: username, password: password
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
