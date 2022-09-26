@@ -15,6 +15,18 @@ config :notesclub, NotesclubWeb.Endpoint, cache_static_manifest: "priv/static/ca
 # config :logger, level: :info
 config :logger, level: :debug
 
+config :notesclub, NotesclubWeb.Endpoint,
+  server: true, # Without this line, your app will not start the web server!
+  load_from_system_env: true, # Needed for Phoenix 1.3. Doesn't hurt for other versions
+  http: [port: {:system, "PORT"}], # Needed for Phoenix 1.2 and 1.4. Doesn't hurt for 1.3.
+  secret_key_base: "${SECRET_KEY_BASE}",
+  check_origin: ["//notes.club", "//staging.notes.club"],
+  url: [host: {:system, "HOST"}, port: 443],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  version: Mix.Project.config[:version], # To bust cache during hot upgrades
+  force_ssl: [rewrite_on: [:x_forwarded_proto]]
+
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
