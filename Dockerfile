@@ -35,15 +35,19 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 
-RUN --mount=type=secret,id=oban_key_fingerprint \
-  --mount=type=secret,id=oban_license_key \
-  mix hex.repo add oban https://getoban.pro/repo \
-  --fetch-public-key "$(cat /etc/secrets/oban_key_fingerprint)" \
-  --auth-key "$(cat /etc/secrets/oban_license_key)"
-
 # install mix dependencies
 COPY mix.exs mix.lock ./
+
+ENV NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED="true"
+
+RUN --mount=type=secret,id=OBAN_KEY_FINGERPRINT \
+  --mount=type=secret,id=OBAN_LICENSE_KEY \
+  mix hex.repo add oban https://getoban.pro/repo \
+  --fetch-public-key "$(cat /run/secrets/OBAN_KEY_FINGERPRINT)" \
+  --auth-key "$(cat /run/secrets/OBAN_LICENSE_KEY)"
+
 RUN mix deps.get --only $MIX_ENV
+
 RUN mkdir config
 
 # copy compile-time config files before we compile dependencies

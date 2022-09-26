@@ -24,5 +24,6 @@ defmodule Notesclub.Release do
 
   defp load_app do
     Application.load(@app)
+    Application.ensure_all_started(@app)
   end
 end
