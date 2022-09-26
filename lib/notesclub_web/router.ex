@@ -41,6 +41,7 @@ defmodule NotesclubWeb.Router do
     get "/", PageController, :index, as: :index
     get "/all", PageController, :all, as: :all
     get "/last_week", PageController, :last_week, as: :last_week
+    get "/last_month", PageController, :last_month, as: :last_month
     # Used for uptime monitoring and zero-downtime deploys
     get "/ok", StatusController, :ok
     get "/:author", PageController, :author, as: :author

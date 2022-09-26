@@ -132,4 +132,23 @@ defmodule NotesclubWeb.PageControllerTest do
     refute html_response(conn, 200) =~ "whatever9.livemd"
     refute html_response(conn, 200) =~ "whatever10.livemd"
   end
+
+  test "GET /last_month returns last month's notebooks", %{conn: conn} do
+    # today
+    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"})
+
+    for day <- 1..32 do
+      n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
+      {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
+    end
+
+    conn = get(conn, "/last_month")
+
+    for day <- 0..29 do
+      assert html_response(conn, 200) =~ "whatever#{day}.livemd"
+    end
+
+    refute html_response(conn, 200) =~ "whatever30.livemd"
+    refute html_response(conn, 200) =~ "whatever31.livemd"
+  end
 end

@@ -54,6 +54,18 @@ defmodule NotesclubWeb.PageController do
     )
   end
 
+  def last_month(conn, _params) do
+    notebooks = Notebooks.list_notebooks_since(30)
+    notebooks_count = Notebooks.count()
+
+    render(conn, "index.html",
+      notebooks: notebooks,
+      notebooks_count: notebooks_count,
+      page: :last_month,
+      filter: nil
+    )
+  end
+
   def author(conn, %{"author" => author}) do
     notebooks = Notebooks.list_author_notebooks_desc(author)
     notebooks_count = Notebooks.count()
