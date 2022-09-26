@@ -10,6 +10,8 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
 
+  alias Notesclub.Workers.ContentSyncWorker
+
   @doc """
   Returns the list of notebooks.
 
@@ -66,6 +68,7 @@ defmodule Notesclub.Notebooks do
         url = url_from_github_html_url(notebook.github_html_url, default_branch)
         changeset = Notebook.changeset(notebook, %{"url" => url})
         Ecto.Multi.update(query, "notebook_#{notebook.id}", changeset)
+        |> Oban.insert("content_sync_worker_#{notebook.id}", ContentSyncWorker.new(%{notebook_id: notebook.id}))
 
       _, query ->
         query
