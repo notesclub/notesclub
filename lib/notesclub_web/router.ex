@@ -1,5 +1,6 @@
 defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
+  require Notesclub.Compile
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -12,6 +13,26 @@ defmodule NotesclubWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  Notesclub.Compile.only_if_loaded :oban_web do
+    require Oban.Web.Router
+
+    pipeline :oban_web_auth do
+      plug :auth
+
+      defp auth(conn, _opts) do
+        username = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
+        password = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_PASSWORD")
+        Plug.BasicAuth.basic_auth(conn, username: username, password: password)
+      end
+    end
+
+    scope "/", NotesclubWeb do
+      pipe_through [:browser, :oban_web_auth]
+
+      Oban.Web.Router.oban_dashboard("/oban")
+    end
   end
 
   scope "/", NotesclubWeb do
