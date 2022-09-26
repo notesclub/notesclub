@@ -56,7 +56,8 @@ defmodule Notesclub.Notebooks do
       {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
 
   """
-  @spec reset_notebooks_url(%RepoSchema{}) :: {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
+  @spec reset_notebooks_url(%RepoSchema{}) ::
+          {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
   def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
     %{repo_id: repo_id}
     |> list_notebooks()
