@@ -92,6 +92,8 @@ defmodule Notesclub.NotebooksTest do
       search = SearchesFixtures.search_fixture()
 
       valid_attrs = %{
+        url: "some url",
+        content: "whatever",
         github_filename: "some github_filename",
         github_html_url: "some github_html_url",
         github_owner_avatar_url: "some github_owner_avatar_url",
@@ -101,6 +103,8 @@ defmodule Notesclub.NotebooksTest do
       }
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
+      assert notebook.url == "some url"
+      assert notebook.content == "whatever"
       assert notebook.github_filename == "some github_filename"
       assert notebook.github_html_url == "some github_html_url"
       assert notebook.github_owner_avatar_url == "some github_owner_avatar_url"
