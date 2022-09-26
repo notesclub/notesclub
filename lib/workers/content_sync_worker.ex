@@ -1,6 +1,6 @@
 defmodule Notesclub.Workers.ContentSyncWorker do
   use Oban.Worker,
-    queue: :github_rest,
+    queue: :default,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
   alias Notesclub.Notebooks
