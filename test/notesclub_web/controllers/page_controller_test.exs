@@ -41,7 +41,7 @@ defmodule NotesclubWeb.PageControllerTest do
              |> Enum.count()
   end
 
-  test "GET /all with search returns notebooks that match filename or content", %{conn: conn} do
+  test "GET /all with search returns notebooks that match filename", %{conn: conn} do
     NotebooksFixtures.notebook_fixture(%{github_filename: "found.livemd"})
 
     NotebooksFixtures.notebook_fixture(%{
@@ -52,6 +52,23 @@ defmodule NotesclubWeb.PageControllerTest do
     NotebooksFixtures.notebook_fixture(%{github_filename: "not_present.livemd"})
 
     conn = get(conn, "/all", search: "found")
+
+    assert html_response(conn, 200) =~ "found.livemd"
+    refute html_response(conn, 200) =~ "any-name.livemd"
+    refute html_response(conn, 200) =~ "not_present.livemd"
+  end
+
+  test "GET /all with content:search returns notebooks that match filename or content", %{conn: conn} do
+    NotebooksFixtures.notebook_fixture(%{github_filename: "found.livemd"})
+
+    NotebooksFixtures.notebook_fixture(%{
+      github_filename: "any-name.livemd",
+      content: "abc found xyz"
+    })
+
+    NotebooksFixtures.notebook_fixture(%{github_filename: "not_present.livemd"})
+
+    conn = get(conn, "/all", search: "content:found")
 
     assert html_response(conn, 200) =~ "found.livemd"
     assert html_response(conn, 200) =~ "any-name.livemd"

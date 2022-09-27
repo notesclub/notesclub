@@ -18,7 +18,7 @@ defmodule NotesclubWeb.PageController do
     )
   end
 
-  def all(conn, %{"search" => search}) do
+  def all(conn, %{"search" => "content:" <> search}) do
     notebooks = Notebooks.list_notebooks(github_filename: search)
 
     notebooks2 =
@@ -32,6 +32,19 @@ defmodule NotesclubWeb.PageController do
       page: :all,
       filter: nil,
       search: search
+    )
+  end
+
+  def all(conn, %{"search" => search}) do
+    notebooks = Notebooks.list_notebooks(github_filename: search)
+
+    notebooks_count = Notebooks.count()
+
+    render(conn, "index.html",
+      notebooks: notebooks,
+      notebooks_count: notebooks_count,
+      page: :all,
+      filter: nil
     )
   end
 
