@@ -20,13 +20,18 @@ defmodule NotesclubWeb.PageController do
 
   def all(conn, %{"search" => search}) do
     notebooks = Notebooks.list_notebooks(github_filename: search)
+
+    notebooks2 =
+      Notebooks.list_notebooks(content: search, exclude_ids: notebooks |> Enum.map(& &1.id))
+
     notebooks_count = Notebooks.count()
 
     render(conn, "index.html",
-      notebooks: notebooks,
+      notebooks: notebooks ++ notebooks2,
       notebooks_count: notebooks_count,
       page: :all,
-      filter: nil
+      filter: nil,
+      search: search
     )
   end
 

@@ -15,7 +15,12 @@
     <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
       <thead class="bg-gray-100 font-semibold text-gray-900">
         <td class="p-4" align="left" scope="col">Author/Repo</td>
-        <td align="left" scope="col">File</td>
+        <td align="left" scope="col">
+          File
+          <%= if assigns[:search] do %>
+            / Search
+          <% end %>
+        </td>
         <td align="left" scope="col">Actions</td>
       </thead>
       <%= for notebook <- @notebooks do %>
@@ -32,7 +37,14 @@
               </article>
             </td>
             <td>
-              <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+              <p>
+                <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+              </p>
+              <%= if assigns[:search] && !Regex.match?(~r/#{@search}/i, notebook.github_filename)  do %>
+                <p class="text-gray-400">
+                  <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
+                </p>
+              <% end %>
             </td>
             <td>
               <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
