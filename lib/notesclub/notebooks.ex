@@ -31,6 +31,13 @@ defmodule Notesclub.Notebooks do
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
 
+      {:content, content}, query ->
+        search = "%#{content}%"
+        where(query, [notebook], ilike(notebook.content, ^search))
+
+      {:exclude_ids, exclude_ids}, query ->
+        where(query, [notebook], notebook.id not in ^exclude_ids)
+
       {:repo_id, repo_id}, query ->
         where(query, [notebook], notebook.repo_id == ^repo_id)
 
@@ -310,5 +317,18 @@ defmodule Notesclub.Notebooks do
       select: count(n.id)
     )
     |> Repo.one()
+  end
+
+  def content_fragment(%Notebook{content: nil}, _search), do: nil
+  def content_fragment(_notebook, nil), do: nil
+
+  def content_fragment(%Notebook{content: content}, search) do
+    case Regex.run(~r/[^\n]{0,15}#{search}[^\n]{0,15}/i, content) do
+      nil ->
+        nil
+
+      list ->
+        "..." <> List.first(list) <> "..."
+    end
   end
 end
