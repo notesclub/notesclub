@@ -10,7 +10,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
 
-  alias Notesclub.Workers.ContentSyncWorker
+  alias Notesclub.Workers.UrlContentSyncWorker
 
   @doc """
   Returns the list of notebooks.
@@ -54,21 +54,22 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-      iex> reset_notebooks_url(%Repo{id: 1, default_branch: "main"})
+      iex> enqueue_url_and_content_sync(%Repo{id: 1, default_branch: "main"})
       {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
 
   """
-  @spec reset_notebooks_url(%RepoSchema{}) ::
+  @spec enqueue_url_and_content_sync(%RepoSchema{}) ::
           {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
-  def reset_notebooks_url(%RepoSchema{id: repo_id, default_branch: default_branch}) do
+  def enqueue_url_and_content_sync(%RepoSchema{id: repo_id, default_branch: default_branch}) do
     %{repo_id: repo_id}
     |> list_notebooks()
     |> Enum.reduce(Ecto.Multi.new(), fn
       %Notebook{} = notebook, query ->
-        url = url_from_github_html_url(notebook.github_html_url, default_branch)
-        changeset = Notebook.changeset(notebook, %{"url" => url})
-        Ecto.Multi.update(query, "notebook_#{notebook.id}", changeset)
-        |> Oban.insert("content_sync_worker_#{notebook.id}", ContentSyncWorker.new(%{notebook_id: notebook.id}))
+        Oban.insert(
+          query,
+          "content_sync_worker_#{notebook.id}",
+          UrlContentSyncWorker.new(%{notebook_id: notebook.id})
+        )
 
       _, query ->
         query
@@ -76,10 +77,10 @@ defmodule Notesclub.Notebooks do
     |> Repo.transaction()
   end
 
-  defp url_from_github_html_url(nil, _), do: nil
-  defp url_from_github_html_url(_, nil), do: nil
+  def url_from_github_html_url(nil, _), do: nil
+  def url_from_github_html_url(_, nil), do: nil
 
-  defp url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
+  def url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
     String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 

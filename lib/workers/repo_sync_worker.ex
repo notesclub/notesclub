@@ -66,7 +66,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
   defp update_repo(attrs, repo) do
     case Repos.update_repo(repo, attrs) do
       {:ok, repo} ->
-        Notebooks.reset_notebooks_url(repo)
+        Notebooks.enqueue_url_and_content_sync(repo)
 
       {:error, error} ->
         {:error, error}

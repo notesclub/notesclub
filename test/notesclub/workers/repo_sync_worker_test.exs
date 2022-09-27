@@ -38,7 +38,7 @@ defmodule RepoSyncWorkerTest do
       end
     end
 
-    test "perform/1 reset_notebooks_url" do
+    test "perform/1 enqueue_url_and_content_sync" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @github_repo_response end]}
       ]) do
