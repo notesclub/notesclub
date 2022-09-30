@@ -8,7 +8,6 @@ defmodule Notesclub.Notebooks do
 
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
-  alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
 
   alias Notesclub.Workers.UrlContentSyncWorker
@@ -62,13 +61,13 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-      iex> enqueue_url_and_content_sync(%Repo{id: 1, default_branch: "main"})
+      iex> enqueue_url_and_content_sync(%Repo{id: 1})
       {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
 
   """
   @spec enqueue_url_and_content_sync(%RepoSchema{}) ::
           {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
-  def enqueue_url_and_content_sync(%RepoSchema{id: repo_id, default_branch: default_branch}) do
+  def enqueue_url_and_content_sync(%RepoSchema{id: repo_id}) do
     %{repo_id: repo_id}
     |> list_notebooks()
     |> Enum.reduce(Ecto.Multi.new(), fn

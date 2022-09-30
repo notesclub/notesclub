@@ -2,7 +2,6 @@ defmodule Notesclub.NotebooksTest do
   use Notesclub.DataCase
 
   alias Notesclub.Notebooks
-  alias Notesclub.ReposFixtures
   alias Notesclub.SearchesFixtures
 
   describe "notebooks" do
