@@ -27,7 +27,7 @@ defmodule Notesclub.Notebooks.UrlsTest do
 
   describe "Notebooks.Urls" do
     test "get_urls/1 generates urls", %{notebook: notebook} do
-      urls = Urls.get_urls(notebook)
+      {:ok, urls} = Urls.get_urls(notebook)
 
       assert urls.commit_url ==
                "https://github.com/elixir-nx/axon/blob/7f1d1ab2e6c8a35edf3f58eae9182c4a149cd8d5/notebooks/vision/mnist.livemd"

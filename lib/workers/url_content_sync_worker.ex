@@ -1,8 +1,11 @@
 defmodule Notesclub.Workers.UrlContentSyncWorker do
   @moduledoc """
-  Make one or to requests to Github and update:
+  Make one or two requests to Github and update:
   - notebooks.url
   - notebooks.content
+
+  We try first to get the content from the notebook default branch url
+  If it doesn't exist, then we settle for the notebook commit branch url
   """
   use Oban.Worker,
     queue: :default,
@@ -16,6 +19,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defstruct notebook: nil, urls: %Urls{}, default_branch_content: nil, commit_content: nil
 
   require Logger
+
+  @spec perform(%Oban.Job{}) :: {:ok, :synced} | {:error, binary()} | {:cancel, binary()}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
@@ -34,7 +39,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp get_urls(%Sync{notebook: nil} = data), do: data
 
   defp get_urls(%Sync{} = data) do
-    Map.put(data, :urls, data.notebook |> Urls.get_urls())
+    {:ok, urls} = Urls.get_urls(data.notebook)
+    Map.put(data, :urls, urls)
   end
 
   defp get_content(%Sync{notebook: nil} = data), do: data
@@ -64,7 +70,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
   defp maybe_make_commit_request(%Sync{urls: %Urls{raw_commit_url: nil}} = data), do: data
 
-  # Make the second request when content == nil
+  # Make the second request when default_branch_content == nil
+  # Then, we'll need to settle for the commit_branch
   defp maybe_make_commit_request(%Sync{default_branch_content: nil} = data) do
     case ReqTools.make_request(data.urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
@@ -80,7 +87,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
     end
   end
 
-  # Do NOT make the second request when content != nil
+  # Do NOT make the second request when default_branch_content != nil
+  #  Because we prefer the content of the default branch!
   defp maybe_make_commit_request(%Sync{} = data), do: data
 
   # Notebook doesn't exists, skipping
@@ -95,7 +103,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
     case Notebooks.update_notebook(data.notebook, attrs) do
       {:ok, _notebook} ->
-        :ok
+        {:ok, :synced}
 
       _ ->
         Logger.error(

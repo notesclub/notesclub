@@ -46,7 +46,7 @@ defmodule UrlContentSyncWorkerTest do
           })
 
         # Run job
-        :ok = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+        {:ok, :synced} = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
 
         # It should have updated content and url
         notebook = Notebooks.get_notebook!(notebook.id)
@@ -84,7 +84,7 @@ defmodule UrlContentSyncWorkerTest do
         {:ok, notebook} = Notebooks.update_notebook(notebook, %{url: nil})
 
         # Run job
-        :ok = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+        {:ok, :synced} = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
 
         # It should have updated content
         notebook = Notebooks.get_notebook!(notebook.id)

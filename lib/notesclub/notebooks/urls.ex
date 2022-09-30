@@ -13,6 +13,8 @@ defmodule Notesclub.Notebooks.Urls do
             default_branch_url: nil,
             raw_default_branch_url: nil
 
+  @spec get_urls(%Notebook{}) :: {:ok, %Urls{}} | {:error, binary()}
+
   def get_urls(nil), do: {:error, "notebook can't be nil"}
   def get_urls(%Notebook{user: nil}), do: {:error, "user can't be nil. It needs to be preloaded."}
   def get_urls(%Notebook{repo: nil}), do: {:error, "repo can't be nil. It needs to be preloaded."}
@@ -55,7 +57,8 @@ defmodule Notesclub.Notebooks.Urls do
 
   defp get_raw_default_branch_url(%Urls{} = urls) do
     url = raw_url(urls.default_branch_url, urls.notebook)
-    Map.put(urls, :raw_default_branch_url, url)
+    urls = Map.put(urls, :raw_default_branch_url, url)
+    {:ok, urls}
   end
 
   defp raw_url(nil, _), do: nil
