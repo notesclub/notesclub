@@ -1,106 +1,120 @@
 defmodule Notesclub.Workers.UrlContentSyncWorker do
   @moduledoc """
-  1. Regenerates url from github_html_url
-  2. Fetches its content
-  3. Updates notebooks.content and notebooks.url
+  Make one or to requests to Github and update:
+  - notebooks.url
+  - notebooks.content
   """
   use Oban.Worker,
     queue: :default,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
+  alias Notesclub.Workers.UrlContentSyncWorker, as: Sync
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Repos.Repo
-  alias Notesclub.Accounts.User
+  alias Notesclub.Notebooks.Urls
+  alias Notesclub.ReqTools
+
+  defstruct notebook: nil, urls: %Urls{}, default_branch_content: nil, commit_content: nil
+
+  require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
+    notebook_id
+    |> get_notebook()
+    |> get_urls()
+    |> get_content()
+    |> update_content_and_maybe_url()
+  end
+
+  defp get_notebook(notebook_id) do
     notebook = Notebooks.get_notebook(notebook_id, preload: [:user, :repo])
-
-    url =
-      Notebooks.url_from_github_html_url(notebook.github_html_url, notebook.repo.default_branch)
-
-    url
-    |> raw_url(notebook.user, notebook.repo)
-    |> make_request(notebook)
-    |> make_request_and_save_content(notebook, url)
+    %Sync{notebook: notebook}
   end
 
-  # Notebook doesn't exists, skipping
-  @spec raw_url(
-          nil | binary,
-          %User{},
-          %Repo{}
-        ) :: nil | binary
-  def raw_url(nil, _, _), do: nil
+  defp get_urls(%Sync{notebook: nil} = data), do: data
 
-  def raw_url(url, %User{} = user, %Repo{} = repo) do
-    raw_url(%{
-      url: url,
-      username: user.username,
-      repo_name: repo.name
-    })
+  defp get_urls(%Sync{} = data) do
+    Map.put(data, :urls, data.notebook |> Urls.get_urls())
   end
 
-  def raw_url(%{url: url, username: username, repo_name: repo_name}) do
-    url
-    |> String.replace(
-      ~r/^https:\/\/github\.com\/#{username}\/#{repo_name}\/blob/,
-      "https://raw.githubusercontent.com/#{username}/#{repo_name}"
-    )
+  defp get_content(%Sync{notebook: nil} = data), do: data
+
+  defp get_content(data) do
+    data
+    |> make_default_branch_request()
+    |> maybe_make_commit_request()
   end
 
-  defp make_request(_url, nil), do: nil
+  defp make_default_branch_request(%Sync{urls: %Urls{raw_default_branch_url: nil}} = data),
+    do: data
 
-  defp make_request(url, _notebook) do
-    case __MODULE__.requests_enabled?() do
-      true ->
-        Req.get!(url)
+  defp make_default_branch_request(%Sync{} = data) do
+    case ReqTools.make_request(data.urls.raw_default_branch_url) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        Map.put(data, :default_branch_content, body)
+
+      {:ok, %Req.Response{status: 404}} ->
+        data
 
       _ ->
-        %Req.Response{
-          status: 200,
-          body: "whatever txt"
-        }
+        # Retry several times
+        {:error, "request to notebook default branch url failed"}
     end
   end
 
-  # Notebook doesn't exists, skipping
-  defp make_request_and_save_content(_, nil, _), do: :ok
+  defp maybe_make_commit_request(%Sync{urls: %Urls{raw_commit_url: nil}} = data), do: data
 
-  defp make_request_and_save_content(
-         %Req.Response{status: 200} = response,
-         %Notebook{} = notebook,
-         url
-       ) do
-    Notebooks.update_notebook(notebook, %{content: response.body, url: url})
-  end
+  # Make the second request when content == nil
+  defp maybe_make_commit_request(%Sync{default_branch_content: nil} = data) do
+    case ReqTools.make_request(data.urls.raw_commit_url) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        Map.put(data, :commit_content, body)
 
-  # The file exists in github_html_url but not in the default branch
-  #  Make another request to github_html_url instead of url
-  # And save content
-  defp make_request_and_save_content(%Req.Response{status: 404}, %Notebook{} = notebook, _url) do
-    raw_github_html_url =
-      raw_url(%{
-        url: notebook.github_html_url,
-        username: notebook.user.username,
-        repo_name: notebook.repo.name
-      })
-
-    case make_request(raw_github_html_url, notebook) do
-      %Req.Response{status: 200} = response ->
-        Notebooks.update_notebook(notebook, %{content: response.body, url: nil})
+      {:ok, %Req.Response{status: 404}} ->
+        Logger.error("Notebook (id: #{data.notebook.id}) deleted or moved on Github")
+        {:cancel, "neither notebook default branch url or commit url"}
 
       _ ->
-        Notebooks.update_notebook(notebook, %{content: nil, url: nil})
+        # Retry job several times
+        {:error, "request to notebook commit url failed"}
     end
   end
 
-  # Public function so it can be mocked
-  def requests_enabled?() do
-    case Application.get_env(:notesclub, :env) do
-      :test -> false
-      _ -> true
+  # Do NOT make the second request when content != nil
+  defp maybe_make_commit_request(%Sync{} = data), do: data
+
+  # Notebook doesn't exists, skipping
+  defp update_content_and_maybe_url(%Sync{notebook: nil}), do: {:cancel, "No notebook, skipping."}
+
+  defp update_content_and_maybe_url({:error, msg}), do: {:error, msg}
+  defp update_content_and_maybe_url({:cancel, msg}), do: {:cancel, msg}
+
+  # Save content and url even if they are nil
+  defp update_content_and_maybe_url(%Sync{} = data) do
+    attrs = attributes_to_update(data)
+
+    case Notebooks.update_notebook(data.notebook, attrs) do
+      {:ok, _notebook} ->
+        :ok
+
+      _ ->
+        Logger.error(
+          "update_content_and_maybe_url/1 error updating notebook id #{data.notebook.id}, attrs: #{inspect(attrs)}"
+        )
+
+        #  Retry job several times
+        {:error, "Error saving the notebook"}
     end
+  end
+
+  defp attributes_to_update(%Sync{default_branch_content: nil} = data) do
+    %{content: data.commit_content, url: nil}
+  end
+
+  defp attributes_to_update(%Sync{} = data) do
+    %{
+      content: data.default_branch_content,
+      url: data.urls.default_branch_url
+    }
   end
 end

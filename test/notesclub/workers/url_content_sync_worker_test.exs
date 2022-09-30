@@ -8,6 +8,7 @@ defmodule UrlContentSyncWorkerTest do
   alias Notesclub.ReposFixtures
   alias Notesclub.NotebooksFixtures
   alias Notesclub.Notebooks
+  alias Notesclub.ReqTools
 
   @valid_response %Req.Response{
     status: 200,
@@ -27,13 +28,12 @@ defmodule UrlContentSyncWorkerTest do
   describe "UrlContentSyncWorker" do
     test "perform/1 downloads url content and updates notebook" do
       with_mocks([
-        {Notesclub.Workers.UrlContentSyncWorker, [:passthrough],
-         [requests_enabled?: fn -> true end]},
+        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
-           get!:
+           get:
              fn "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd" ->
-               @valid_response
+               {:ok, @valid_response}
              end
          ]}
       ]) do
@@ -45,10 +45,10 @@ defmodule UrlContentSyncWorkerTest do
             repo_id: ReposFixtures.repo_fixture(%{name: "axon", default_branch: "main"}).id
           })
 
-        # Run worker:
-        {:ok, _job} = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+        # Run job
+        :ok = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
 
-        # It should have updated repo:
+        # It should have updated content and url
         notebook = Notebooks.get_notebook!(notebook.id)
         assert notebook.content == @valid_response.body
 
@@ -57,19 +57,18 @@ defmodule UrlContentSyncWorkerTest do
       end
     end
 
-    test "perform/1 when url returns 404, fetch github_html_url and set url=nil" do
+    test "perform/1 when request to default_branch_url returns 404, request github_html_url and set url=nil" do
       with_mocks([
-        {Notesclub.Workers.UrlContentSyncWorker, [:passthrough],
-         [requests_enabled?: fn -> true end]},
+        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
-           get!: fn url ->
+           get: fn url ->
              case url do
                "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd" ->
-                 @not_found_404_response
+                 {:ok, @not_found_404_response}
 
                "https://raw.githubusercontent.com/elixir-nx/axon/432e3ed23232424/notebooks/vision/mnist.livemd" ->
-                 @valid_response
+                 {:ok, @valid_response}
              end
            end
          ]}
@@ -82,28 +81,18 @@ defmodule UrlContentSyncWorkerTest do
             repo_id: ReposFixtures.repo_fixture(%{name: "axon", default_branch: "main"}).id
           })
 
-        # Run worker:
-        {:ok, _job} = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+        {:ok, notebook} = Notebooks.update_notebook(notebook, %{url: nil})
 
-        # It should have updated repo:
+        # Run job
+        :ok = perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+
+        # It should have updated content
         notebook = Notebooks.get_notebook!(notebook.id)
         assert notebook.content == @valid_response.body
+
+        # But url should be nil
         assert notebook.url == nil
       end
-    end
-
-    test "raw_url/4 generates raw url from url" do
-      url = "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
-
-      raw_url =
-        UrlContentSyncWorker.raw_url(%{
-          url: url,
-          username: "elixir-nx",
-          repo_name: "axon"
-        })
-
-      assert raw_url ==
-               "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
     end
   end
 end

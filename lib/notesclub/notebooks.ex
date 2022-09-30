@@ -7,6 +7,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repo
 
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
 
@@ -82,13 +83,6 @@ defmodule Notesclub.Notebooks do
         query
     end)
     |> Repo.transaction()
-  end
-
-  def url_from_github_html_url(nil, _), do: nil
-  def url_from_github_html_url(_, nil), do: nil
-
-  def url_from_github_html_url(github_html_url, default_branch) when is_binary(default_branch) do
-    String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 
   @doc """
@@ -237,29 +231,9 @@ defmodule Notesclub.Notebooks do
   @spec create_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
-    |> Notebook.changeset(attrs |> add_fields() |> maybe_set_url())
+    |> Notebook.changeset(attrs)
     |> Repo.insert()
   end
-
-  defp add_fields(attrs) do
-    attrs
-    |> Enum.into(%{
-      repo_id: nil,
-      github_html_url: nil,
-      url: nil
-    })
-  end
-
-  defp maybe_set_url(%{repo_id: nil} = attrs), do: attrs
-  defp maybe_set_url(%{github_html_url: nil} = attrs), do: attrs
-
-  defp maybe_set_url(%{url: nil} = attrs) do
-    repo = Repos.get_repo!(attrs.repo_id)
-    url = url_from_github_html_url(attrs.github_html_url, repo.default_branch)
-    Map.put(attrs, :url, url)
-  end
-
-  defp maybe_set_url(attrs), do: attrs
 
   @doc """
   Updates a notebook.
