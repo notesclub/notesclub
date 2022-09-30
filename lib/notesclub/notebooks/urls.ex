@@ -13,8 +13,21 @@ defmodule Notesclub.Notebooks.Urls do
             default_branch_url: nil,
             raw_default_branch_url: nil
 
-  @spec get_urls(%Notebook{}) :: {:ok, %Urls{}} | {:error, binary()}
+  @doc """
+  Generate the four notebook urls that we need
 
+  ## Examples
+
+      iex> get_urls(%Notebook{id: 1})
+      {:ok, %{
+        commit_url: "https://github.com/elixir-nx/axon/blob/7f1d1ab2e6c8a35edf3f58eae9182c4a149cd8d5/notebooks/vision/mnist.livemd",
+        raw_commit_url: "https://raw.githubusercontent.com/elixir-nx/axon/7f1d1ab2e6c8a35edf3f58eae9182c4a149cd8d5/notebooks/vision/mnist.livemd",
+        default_branch_url: "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd",
+        raw_default_branch_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
+      }}
+
+  """
+  @spec get_urls(%Notebook{}) :: {:ok, %Urls{}} | {:error, binary()}
   def get_urls(nil), do: {:error, "notebook can't be nil"}
   def get_urls(%Notebook{user: nil}), do: {:error, "user can't be nil. It needs to be preloaded."}
   def get_urls(%Notebook{repo: nil}), do: {:error, "repo can't be nil. It needs to be preloaded."}

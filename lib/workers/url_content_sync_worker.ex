@@ -20,6 +20,21 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
   require Logger
 
+  @doc """
+  Sync url and content depending on notebook's urls
+
+  ## Examples
+
+      iex> perform((%Oban.Job{args: %{"notebook_id" => 1}})
+      {:ok, :synced}
+
+      iex> perform((%Oban.Job{args: %{"notebook_id" => 2}})
+      {:error, "..."}
+
+      iex> perform((%Oban.Job{args: %{"notebook_id" => 3}})
+      {:cancel, "..."}
+
+  """
   @spec perform(%Oban.Job{}) :: {:ok, :synced} | {:error, binary()} | {:cancel, binary()}
 
   @impl Oban.Worker
