@@ -46,7 +46,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   # github_html_url is the url that returns Github Search API
-  #  It points to the sha/commit
+  # It points to the sha/commit
   defp get_commit_url(%Notebook{} = notebook) do
     %Urls{
       notebook: notebook,
