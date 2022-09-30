@@ -7,11 +7,13 @@ defmodule Notesclub.Notebooks.Urls do
   alias Notesclub.Repos.Repo
   alias Notesclub.Accounts.User
 
-  defstruct notebook: %Notebook{},
-            commit_url: nil,
-            raw_commit_url: nil,
-            default_branch_url: nil,
-            raw_default_branch_url: nil
+  defstruct [
+    :notebook,
+    :commit_url,
+    :raw_commit_url,
+    :default_branch_url,
+    :raw_default_branch_url
+  ]
 
   @doc """
   Generate the four notebook urls that we need

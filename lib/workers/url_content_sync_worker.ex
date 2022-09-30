@@ -16,7 +16,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.ReqTools
 
-  defstruct notebook: nil, urls: %Urls{}, default_branch_content: nil, commit_content: nil
+  defstruct [:notebook, :urls, :default_branch_content, :commit_content, :error, :cancel]
 
   require Logger
 
@@ -54,11 +54,18 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp get_urls(%Sync{notebook: nil} = data), do: data
 
   defp get_urls(%Sync{} = data) do
-    {:ok, urls} = Urls.get_urls(data.notebook)
-    Map.put(data, :urls, urls)
+    case Urls.get_urls(data.notebook) do
+      {:ok, %Urls{} = urls} ->
+        Map.put(data, :urls, urls)
+
+      {:error, error} ->
+        Logger.error("get_urls/1 returned {:error, #{error}}; notebook.id=#{data.notebook.id}")
+        Map.put(data, :cancel, error)
+    end
   end
 
   defp get_content(%Sync{notebook: nil} = data), do: data
+  defp get_content(%Sync{cancel: error} = data) when is_binary(error), do: data
 
   defp get_content(data) do
     data
@@ -94,11 +101,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
       {:ok, %Req.Response{status: 404}} ->
         Logger.error("Notebook (id: #{data.notebook.id}) deleted or moved on Github")
-        {:cancel, "neither notebook default branch url or commit url"}
+        Map.put(data, :cancel, "neither notebook default branch url or commit url exists")
 
       _ ->
         # Retry job several times
-        {:error, "request to notebook commit url failed"}
+        Map.put(data, :error, "request to notebook commit url failed")
     end
   end
 
@@ -109,8 +116,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   # Notebook doesn't exists, skipping
   defp update_content_and_maybe_url(%Sync{notebook: nil}), do: {:cancel, "No notebook, skipping."}
 
-  defp update_content_and_maybe_url({:error, msg}), do: {:error, msg}
-  defp update_content_and_maybe_url({:cancel, msg}), do: {:cancel, msg}
+  defp update_content_and_maybe_url(%Sync{error: error}) when is_binary(error),
+    do: {:error, error}
+
+  defp update_content_and_maybe_url(%Sync{cancel: error}) when is_binary(error),
+    do: {:cancel, error}
 
   # Save content and url even if they are nil
   defp update_content_and_maybe_url(%Sync{} = data) do
