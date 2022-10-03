@@ -2,7 +2,6 @@ defmodule Notesclub.NotebooksTest do
   use Notesclub.DataCase
 
   alias Notesclub.Notebooks
-  alias Notesclub.ReposFixtures
   alias Notesclub.SearchesFixtures
 
   describe "notebooks" do
@@ -123,45 +122,6 @@ defmodule Notesclub.NotebooksTest do
         repo_id: repo_id,
         url: nil
       }
-    end
-
-    test "create_notebook/1 sets url from github_html_url" do
-      repo = ReposFixtures.repo_fixture(%{default_branch: "main"})
-
-      # Set url when it's nil:
-      assert {:ok, %Notebook{} = notebook} =
-               %{
-                 github_html_url:
-                   "https://github.com/user/repo/blob/#{System.unique_integer([:positive])}/whatever.livemd",
-                 repo_id: repo.id
-               }
-               |> get_attrs()
-               |> Notebooks.create_notebook()
-
-      assert notebook.url == "https://github.com/user/repo/blob/main/whatever.livemd"
-
-      # Do not fail if NO repo_id:
-      assert {:ok, %Notebook{url: nil}} =
-               %{
-                 github_html_url:
-                   "https://github.com/user/repo/blob/#{System.unique_integer([:positive])}/whatever.livemd",
-                 repo_id: nil
-               }
-               |> get_attrs()
-               |> Notebooks.create_notebook()
-
-      # Do not fail if repo doesn't have default_branch:
-      repo = ReposFixtures.repo_fixture(%{default_branch: nil})
-      assert repo.default_branch == nil
-
-      assert {:ok, %Notebook{url: nil}} =
-               %{
-                 github_html_url:
-                   "https://github.com/user/repo/blob/#{System.unique_integer([:positive])}/whatever.livemd",
-                 repo_id: nil
-               }
-               |> get_attrs()
-               |> Notebooks.create_notebook()
     end
 
     test "create_notebook/1 with invalid data returns error changeset" do

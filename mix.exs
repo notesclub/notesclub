@@ -54,7 +54,7 @@ defmodule Notesclub.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:req, "~> 0.3.0"},
+      {:req, "~> 0.3.1"},
       {:mock, "~> 0.3.7"},
       {:quantum, "~> 3.5.0"},
       {:appsignal, "~> 2.2.16"},
