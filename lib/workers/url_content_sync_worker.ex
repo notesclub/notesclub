@@ -51,36 +51,30 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp get_notebook(notebook_id) do
-    case Notebooks.get_notebook(notebook_id, preload: [:user, :repo]) do
-      nil ->
-        #  Cancel. Don't retry.
-        %Sync{cancel: "No notebook. Skipping."}
-
-      notebook ->
-        %Sync{notebook: notebook}
+    with %Notebook{} = notebook <- Notebooks.get_notebook(notebook_id, preload: [:user, :repo]) do
+      %Sync{notebook: notebook}
+    else
+      nil -> %Sync{cancel: "No notebook. Skipping."}
     end
   end
 
-  defp enqueue_sync_repo_if_no_default_branch(%Sync{
-         notebook: %Notebook{repo: %Repo{default_branch: nil} = repo}
-       }) do
-    {:ok, _job} =
-      %{repo_id: repo.id}
-      |> RepoSyncWorker.new()
-      |> Oban.insert()
+  defp enqueue_sync_repo_if_no_default_branch(%Sync{} = data) do
+    with %{notebook: %Notebook{repo: %Repo{default_branch: nil} = repo}} <- data do
+      {:ok, _job} =
+        %{repo_id: repo.id}
+        |> RepoSyncWorker.new()
+        |> Oban.insert()
 
-    %Sync{cancel: "No default branch. Enqueueing RepoSyncWorker."}
+      %Sync{cancel: "No default branch. Enqueueing RepoSyncWorker."}
+    end
   end
-
-  defp enqueue_sync_repo_if_no_default_branch(data), do: data
 
   defp get_urls(%Sync{cancel: error} = data) when is_binary(error), do: data
 
   defp get_urls(%Sync{} = data) do
-    case Urls.get_urls(data.notebook) do
-      {:ok, %Urls{} = urls} ->
-        Map.put(data, :urls, urls)
-
+    with {:ok, %Urls{} = urls} <- Urls.get_urls(data.notebook) do
+      Map.put(data, :urls, urls)
+    else
       {:error, error} ->
         Logger.error("get_urls/1 returned {:error, #{error}}; notebook.id=#{data.notebook.id}")
         Map.put(data, :cancel, error)
@@ -90,13 +84,10 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp get_content(%Sync{cancel: error} = data) when is_binary(error), do: data
 
   defp get_content(data) do
-    data
-    |> make_default_branch_request()
-    |> maybe_make_commit_request()
+    with %Sync{default_branch_content: nil} <- make_default_branch_request(data) do
+      maybe_make_commit_request(data)
+    end
   end
-
-  defp make_default_branch_request(%Sync{urls: %Urls{raw_default_branch_url: nil}} = data),
-    do: data
 
   defp make_default_branch_request(%Sync{} = data) do
     case ReqTools.make_request(data.urls.raw_default_branch_url) do
@@ -114,9 +105,9 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
   defp maybe_make_commit_request(%Sync{urls: %Urls{raw_commit_url: nil}} = data), do: data
 
-  # Make the second request when default_branch_content == nil
+  # Make the second request when default_branch_content is nil
   # Then, we'll need to settle for the commit_branch
-  defp maybe_make_commit_request(%Sync{default_branch_content: nil} = data) do
+  defp maybe_make_commit_request(%Sync{} = data) do
     case ReqTools.make_request(data.urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         Map.put(data, :commit_content, body)
@@ -131,10 +122,6 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
     end
   end
 
-  # Do NOT make the second request when default_branch_content != nil
-  #  Because we prefer the content of the default branch!
-  defp maybe_make_commit_request(%Sync{} = data), do: data
-
   defp update_content_and_maybe_url(%Sync{cancel: error}) when is_binary(error),
     do: {:cancel, error}
 
@@ -142,11 +129,10 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp update_content_and_maybe_url(%Sync{} = data) do
     attrs = attributes_to_update(data)
 
-    case Notebooks.update_notebook(data.notebook, attrs) do
-      {:ok, _notebook} ->
-        {:ok, :synced}
-
-      _ ->
+    with {:ok, _notebook} <- Notebooks.update_notebook(data.notebook, attrs) do
+      {:ok, :synced}
+    else
+      {:error, _} ->
         Logger.error(
           "update_content_and_maybe_url/1 error updating notebook id #{data.notebook.id}, attrs: #{inspect(attrs)}"
         )
