@@ -81,10 +81,14 @@ defmodule Notesclub.Notebooks.Urls do
   defp raw_url(nil, _), do: nil
 
   defp raw_url(url, %Notebook{user: user, repo: repo}) do
-    String.replace(
-      url,
-      ~r/^https:\/\/github\.com\/#{user.username}\/#{repo.name}\/blob/,
+    username = Regex.escape(user.username)
+    repo_name = Regex.escape(repo.name)
+
+    url
+    |> String.replace(
+      ~r|^https://github.com/#{username}/#{repo_name}/blob|,
       "https://raw.githubusercontent.com/#{user.username}/#{repo.name}"
     )
+    |> URI.encode()
   end
 end
