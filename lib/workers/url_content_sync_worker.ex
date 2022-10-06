@@ -12,8 +12,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
   alias Notesclub.Workers.UrlContentSyncWorker, as: Sync
+  alias Notesclub.Workers.RepoSyncWorker
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
+  alias Notesclub.Repos.Repo
   alias Notesclub.ReqTools
 
   defstruct [:notebook, :urls, :default_branch_content, :commit_content, :cancel]
@@ -41,6 +44,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
     notebook_id
     |> get_notebook()
+    |> enqueue_sync_repo_if_no_default_branch()
     |> get_urls()
     |> get_content()
     |> update_content_and_maybe_url()
@@ -56,6 +60,19 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
         %Sync{notebook: notebook}
     end
   end
+
+  defp enqueue_sync_repo_if_no_default_branch(%Sync{
+         notebook: %Notebook{repo: %Repo{default_branch: nil} = repo}
+       }) do
+    {:ok, _job} =
+      %{repo_id: repo.id}
+      |> RepoSyncWorker.new()
+      |> Oban.insert()
+
+    %Sync{cancel: "No default branch. Enqueueing RepoSyncWorker."}
+  end
+
+  defp enqueue_sync_repo_if_no_default_branch(data), do: data
 
   defp get_urls(%Sync{cancel: error} = data) when is_binary(error), do: data
 

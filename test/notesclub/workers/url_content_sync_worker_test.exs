@@ -28,7 +28,7 @@ defmodule UrlContentSyncWorkerTest do
 
   setup do
     user = AccountsFixtures.user_fixture(%{username: "elixir-nx"})
-    repo = ReposFixtures.repo_fixture(%{name: "axon", default_branch: "main"})
+    repo = ReposFixtures.repo_fixture(%{name: "axon", default_branch: "main", user_id: user.id})
 
     notebook =
       NotebooksFixtures.notebook_fixture(%{
@@ -40,7 +40,7 @@ defmodule UrlContentSyncWorkerTest do
         url: "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
       })
 
-    %{notebook: notebook}
+    %{notebook: notebook, user: user, repo: repo}
   end
 
   describe "UrlContentSyncWorker" do
@@ -101,6 +101,23 @@ defmodule UrlContentSyncWorkerTest do
 
       assert notebook.url ==
                "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+    end
+
+    test "performs/1 enqueues RepoSyncWorker when repo default branch is nil" do
+      repo = ReposFixtures.repo_fixture(%{default_branch: nil})
+
+      notebook =
+        NotebooksFixtures.notebook_fixture(%{
+          user_id: repo.user_id,
+          repo_id: repo.id
+        })
+
+      Oban.Testing.with_testing_mode(:manual, fn ->
+        {:cancel, "No default branch. Enqueueing RepoSyncWorker."} =
+          perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+
+        assert_enqueued(worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id})
+      end)
     end
 
     test "perform/1 when request to default_branch_url returns 404, request github_html_url and set url=nil",
