@@ -16,7 +16,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.ReqTools
 
-  defstruct [:notebook, :urls, :default_branch_content, :commit_content, :error, :cancel]
+  defstruct [:notebook, :urls, :default_branch_content, :commit_content, :cancel]
 
   require Logger
 
@@ -47,11 +47,17 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp get_notebook(notebook_id) do
-    notebook = Notebooks.get_notebook(notebook_id, preload: [:user, :repo])
-    %Sync{notebook: notebook}
+    case Notebooks.get_notebook(notebook_id, preload: [:user, :repo]) do
+      nil ->
+        #  Cancel. Don't retry.
+        %Sync{cancel: "No notebook. Skipping."}
+
+      notebook ->
+        %Sync{notebook: notebook}
+    end
   end
 
-  defp get_urls(%Sync{notebook: nil} = data), do: data
+  defp get_urls(%Sync{cancel: error} = data) when is_binary(error), do: data
 
   defp get_urls(%Sync{} = data) do
     case Urls.get_urls(data.notebook) do
@@ -64,7 +70,6 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
     end
   end
 
-  defp get_content(%Sync{notebook: nil} = data), do: data
   defp get_content(%Sync{cancel: error} = data) when is_binary(error), do: data
 
   defp get_content(data) do
@@ -86,7 +91,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
       _ ->
         # Retry several times
-        {:error, "request to notebook default branch url failed"}
+        raise "request to notebook default branch url failed"
     end
   end
 
@@ -105,19 +110,13 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
       _ ->
         # Retry job several times
-        Map.put(data, :error, "request to notebook commit url failed")
+        raise "request to notebook commit url failed"
     end
   end
 
   # Do NOT make the second request when default_branch_content != nil
   #  Because we prefer the content of the default branch!
   defp maybe_make_commit_request(%Sync{} = data), do: data
-
-  # Notebook doesn't exists, skipping
-  defp update_content_and_maybe_url(%Sync{notebook: nil}), do: {:cancel, "No notebook, skipping."}
-
-  defp update_content_and_maybe_url(%Sync{error: error}) when is_binary(error),
-    do: {:error, error}
 
   defp update_content_and_maybe_url(%Sync{cancel: error}) when is_binary(error),
     do: {:cancel, error}
