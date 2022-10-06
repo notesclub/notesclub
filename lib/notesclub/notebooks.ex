@@ -182,7 +182,6 @@ defmodule Notesclub.Notebooks do
   @spec get_notebook!(number) :: Notebook
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
-  @spec get_notebook!(number, [{:preload, [binary]}]) :: Notebook
   def get_notebook!(id, preload: tables) do
     from(n in Notebook,
       where: n.id == ^id,
