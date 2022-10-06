@@ -72,10 +72,10 @@ defmodule UrlContentSyncWorkerTest do
 
       # Run job
       assert capture_log(fn ->
-               {:cancel, "user can't be nil. It needs to be preloaded."} =
+               {:cancel, "notebook must include user and repo preloaded."} =
                  perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
              end) =~
-               "get_urls/1 returned {:error, user can't be nil. It needs to be preloaded.}; notebook.id=#{notebook.id}"
+               "get_urls/1 returned {:error, notebook must include user and repo preloaded.}; notebook.id=#{notebook.id}"
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)
@@ -90,10 +90,10 @@ defmodule UrlContentSyncWorkerTest do
 
       # Run job
       assert capture_log(fn ->
-               {:cancel, "repo can't be nil. It needs to be preloaded."} =
+               {:cancel, "notebook must include user and repo preloaded."} =
                  perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
              end) =~
-               "get_urls/1 returned {:error, repo can't be nil. It needs to be preloaded.}; notebook.id=#{notebook.id}"
+               "get_urls/1 returned {:error, notebook must include user and repo preloaded.}; notebook.id=#{notebook.id}"
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)

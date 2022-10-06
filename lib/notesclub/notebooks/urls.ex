@@ -31,21 +31,21 @@ defmodule Notesclub.Notebooks.Urls do
   """
   @spec get_urls(%Notebook{}) :: {:ok, %Urls{}} | {:error, binary()}
   def get_urls(nil), do: {:error, "notebook can't be nil"}
-  def get_urls(%Notebook{user: nil}), do: {:error, "user can't be nil. It needs to be preloaded."}
-  def get_urls(%Notebook{repo: nil}), do: {:error, "repo can't be nil. It needs to be preloaded."}
 
   def get_urls(%Notebook{repo: %Repo{default_branch: nil}}),
     do: {:error, "repo.default_branch can't be nil"}
 
   def get_urls(%Notebook{repo: %User{username: nil}}), do: {:error, "user.username can't be nil"}
 
-  def get_urls(%Notebook{} = notebook) do
+  def get_urls(%Notebook{user: %User{}, repo: %Repo{}} = notebook) do
     notebook
     |> get_commit_url()
     |> get_raw_commit_url()
     |> get_default_branch_url()
     |> get_raw_default_branch_url()
   end
+
+  def get_urls(%Notebook{}), do: {:error, "notebook must include user and repo preloaded."}
 
   # github_html_url is the url that returns Github Search API
   # It points to the sha/commit
