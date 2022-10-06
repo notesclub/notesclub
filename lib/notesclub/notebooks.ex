@@ -153,10 +153,9 @@ defmodule Notesclub.Notebooks do
       nil
 
   """
-  @spec get_notebook(number) :: Notebook
+  @spec get_notebook(any) :: %Notebook{}
   def get_notebook(id), do: Repo.get(Notebook, id)
 
-  @spec get_notebook!(number, [{:preload, [binary]}]) :: Notebook
   def get_notebook(id, preload: tables) do
     from(n in Notebook,
       where: n.id == ^id,
@@ -179,7 +178,7 @@ defmodule Notesclub.Notebooks do
       ** (Ecto.NoResultsError)
 
   """
-  @spec get_notebook!(number) :: Notebook
+  @spec get_notebook!(number) :: %Notebook{}
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
   @spec get_notebook!(number, [{:preload, [binary]}]) :: Notebook
@@ -203,7 +202,7 @@ defmodule Notesclub.Notebooks do
         each repo's default branch and their history of blobs.
         Then, we won't create new files but update
   """
-  @spec get_by_filename_owner_and_repo(binary, binary, binary) :: Notebook
+  @spec get_by_filename_owner_and_repo(binary, binary, binary) :: %Notebook{}
   def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
       when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
     from(n in Notebook,

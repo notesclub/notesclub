@@ -62,7 +62,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   defp get_default_branch_url(%Urls{commit_url: nil}), do: nil
-  defp get_default_branch_url(%Urls{notebook: %Repo{default_branch: nil}}), do: nil
+  defp get_default_branch_url(%Urls{notebook: %Notebook{repo: %Repo{default_branch: nil}}}), do: nil
 
   defp get_default_branch_url(%Urls{} = urls) do
     default_branch = urls.notebook.repo.default_branch
