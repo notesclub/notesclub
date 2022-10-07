@@ -73,11 +73,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
   defp get_urls(%Sync{} = data) do
     with {:ok, %Urls{} = urls} <- Urls.get_urls(data.notebook) do
-      Map.put(data, :urls, urls)
+      %{data | urls: urls}
     else
       {:error, error} ->
         Logger.error("get_urls/1 returned {:error, #{error}}; notebook.id=#{data.notebook.id}")
-        Map.put(data, :cancel, error)
+        %{data | cancel: error}
     end
   end
 
@@ -92,7 +92,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp make_default_branch_request(%Sync{} = data) do
     case ReqTools.make_request(data.urls.raw_default_branch_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        Map.put(data, :default_branch_content, body)
+        %{data | default_branch_content: body}
 
       {:ok, %Req.Response{status: 404}} ->
         data
@@ -110,11 +110,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp maybe_make_commit_request(%Sync{} = data) do
     case ReqTools.make_request(data.urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        Map.put(data, :commit_content, body)
+        %{data | commit_content: body}
 
       {:ok, %Req.Response{status: 404}} ->
         Logger.error("Notebook (id: #{data.notebook.id}) deleted or moved on Github")
-        Map.put(data, :cancel, "neither notebook default branch url or commit url exists")
+        %{data | cancel: "neither notebook default branch url or commit url exists"}
 
       _ ->
         # Retry job several times
