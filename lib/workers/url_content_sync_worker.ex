@@ -18,8 +18,6 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Repos.Repo
   alias Notesclub.ReqTools
 
-  require Logger
-
   @doc """
   Sync url and content depending on notebook's urls
 
@@ -38,11 +36,25 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
     notebook_id
     |> Notebooks.get_notebook!(preload: [:user, :repo])
+    |> cancel_if_no_user_or_repo()
     |> enqueue_sync_repo_if_no_default_branch()
     |> get_urls()
     |> get_content()
     |> update_content_and_maybe_url()
   end
+
+  defp cancel_if_no_user_or_repo(notebook) do
+    case notebook do
+      %Notebook{user: nil} ->
+        {:cancel, "user is nil"}
+      %Notebook{repo: nil} ->
+        {:cancel, "repo is nil"}
+      _ ->
+        notebook
+    end
+  end
+
+  defp enqueue_sync_repo_if_no_default_branch({:cancel, error}), do: {:cancel, error}
 
   defp enqueue_sync_repo_if_no_default_branch(%Notebook{repo: %Repo{default_branch: nil} = repo}) do
     {:ok, _job} =
@@ -62,8 +74,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
       Map.put(data, :urls, urls)
     else
       {:error, error} ->
-        Logger.error("get_urls/1 returned {:error, #{error}}; notebook.id=#{data.notebook.id}")
-        {:cancel, error}
+        {:cancel, "get_urls/1 returned '#{error}'; notebook id: #{data.notebook.id}"}
     end
   end
 
@@ -102,8 +113,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
         Map.put(data, :commit_content, body)
 
       {:ok, %Req.Response{status: 404}} ->
-        Logger.error("Notebook (id: #{data.notebook.id}) deleted or moved on Github")
-        {:cancel, "neither notebook default branch url or commit url exists"}
+        {:cancel, "Neither notebook default branch url or commit url exists. The notebook id: #{data.notebook.id} was deleted or moved on Github"}
 
       _ ->
         # Retry job several times
@@ -121,12 +131,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
       {:ok, :synced}
     else
       {:error, _} ->
-        Logger.error(
-          "update_content_and_maybe_url/1 error updating notebook id #{data.notebook.id}, attrs: #{inspect(attrs)}"
-        )
-
         #  Retry job several times
-        {:error, "Error saving the notebook"}
+        {:error, "Error saving the notebook id #{data.notebook.id}, attrs: #{inspect(attrs)}"}
     end
   end
 

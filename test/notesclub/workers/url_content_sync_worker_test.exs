@@ -1,7 +1,6 @@
 defmodule UrlContentSyncWorkerTest do
   use Notesclub.DataCase
 
-  import ExUnit.CaptureLog
   import Mock
 
   alias Notesclub.Workers.UrlContentSyncWorker
@@ -71,11 +70,8 @@ defmodule UrlContentSyncWorkerTest do
       {:ok, notebook} = Notebooks.update_notebook(notebook, %{user_id: nil})
 
       # Run job
-      assert capture_log(fn ->
-               {:cancel, "notebook must include user and repo preloaded."} =
-                 perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
-             end) =~
-               "get_urls/1 returned {:error, notebook must include user and repo preloaded.}; notebook.id=#{notebook.id}"
+      assert perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id}) ==
+        {:cancel, "user is nil"}
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)
@@ -88,12 +84,8 @@ defmodule UrlContentSyncWorkerTest do
     test "perform/1 cancels when repo is nil", %{notebook: notebook} do
       {:ok, notebook} = Notebooks.update_notebook(notebook, %{repo_id: nil})
 
-      # Run job
-      assert capture_log(fn ->
-               {:cancel, "notebook must include user and repo preloaded."} =
-                 perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
-             end) =~
-               "get_urls/1 returned {:error, notebook must include user and repo preloaded.}; notebook.id=#{notebook.id}"
+      assert perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id}) ==
+        {:cancel, "repo is nil"}
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)
