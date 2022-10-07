@@ -37,31 +37,23 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
     notebook_id
-    |> get_notebook()
+    |> Notebooks.get_notebook!(preload: [:user, :repo])
     |> enqueue_sync_repo_if_no_default_branch()
     |> get_urls()
     |> get_content()
     |> update_content_and_maybe_url()
   end
 
-  defp get_notebook(notebook_id) do
-    with %Notebook{} = notebook <- Notebooks.get_notebook(notebook_id, preload: [:user, :repo]) do
-      %{notebook: notebook}
-    else
-      nil -> {:cancel, "No notebook. Skipping."}
-    end
+  defp enqueue_sync_repo_if_no_default_branch(%Notebook{repo: %Repo{default_branch: nil} = repo}) do
+    {:ok, _job} =
+      %{repo_id: repo.id}
+      |> RepoSyncWorker.new()
+      |> Oban.insert()
+
+    {:cancel, "No default branch. Enqueueing RepoSyncWorker."}
   end
 
-  defp enqueue_sync_repo_if_no_default_branch(data) do
-    with %{notebook: %Notebook{repo: %Repo{default_branch: nil} = repo}} <- data do
-      {:ok, _job} =
-        %{repo_id: repo.id}
-        |> RepoSyncWorker.new()
-        |> Oban.insert()
-
-      {:cancel, "No default branch. Enqueueing RepoSyncWorker."}
-    end
-  end
+  defp enqueue_sync_repo_if_no_default_branch(%Notebook{} = notebook), do: %{notebook: notebook}
 
   defp get_urls({:cancel, error}), do: {:cancel, error}
 
