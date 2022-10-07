@@ -35,46 +35,46 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
     notebook_id
-    |> Notebooks.get_notebook!(preload: [:user, :repo])
-    |> cancel_if_no_user_or_repo()
-    |> enqueue_sync_repo_if_no_default_branch()
+    |> Notebooks.get_notebook(preload: [:user, :repo])
+    |> cancel_if_missing_data()
     |> get_urls()
     |> get_content()
     |> update_content_and_maybe_url()
   end
 
-  defp cancel_if_no_user_or_repo(notebook) do
+  #  We don't want the job to be retried in these cases
+  defp cancel_if_missing_data(notebook) do
     case notebook do
+      nil ->
+        {:cancel, "notebook does NOT exist"}
+
       %Notebook{user: nil} ->
         {:cancel, "user is nil"}
+
       %Notebook{repo: nil} ->
         {:cancel, "repo is nil"}
+
+      %Notebook{repo: %Repo{default_branch: nil} = repo} ->
+        {:ok, _job} =
+          %{repo_id: repo.id}
+          |> RepoSyncWorker.new()
+          |> Oban.insert()
+
+        {:cancel, "No default branch. Enqueueing RepoSyncWorker."}
+
       _ ->
         notebook
     end
   end
 
-  defp enqueue_sync_repo_if_no_default_branch({:cancel, error}), do: {:cancel, error}
-
-  defp enqueue_sync_repo_if_no_default_branch(%Notebook{repo: %Repo{default_branch: nil} = repo}) do
-    {:ok, _job} =
-      %{repo_id: repo.id}
-      |> RepoSyncWorker.new()
-      |> Oban.insert()
-
-    {:cancel, "No default branch. Enqueueing RepoSyncWorker."}
-  end
-
-  defp enqueue_sync_repo_if_no_default_branch(%Notebook{} = notebook), do: %{notebook: notebook}
-
   defp get_urls({:cancel, error}), do: {:cancel, error}
 
-  defp get_urls(data) do
-    with {:ok, %Urls{} = urls} <- Urls.get_urls(data.notebook) do
-      Map.put(data, :urls, urls)
+  defp get_urls(%Notebook{} = notebook) do
+    with {:ok, %Urls{} = urls} <- Urls.get_urls(notebook) do
+      %{notebook: notebook, urls: urls}
     else
       {:error, error} ->
-        {:cancel, "get_urls/1 returned '#{error}'; notebook id: #{data.notebook.id}"}
+        {:cancel, "get_urls/1 returned '#{error}'; notebook id: #{notebook.id}"}
     end
   end
 
@@ -113,7 +113,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
         Map.put(data, :commit_content, body)
 
       {:ok, %Req.Response{status: 404}} ->
-        {:cancel, "Neither notebook default branch url or commit url exists. The notebook id: #{data.notebook.id} was deleted or moved on Github"}
+        {:cancel,
+         "Neither notebook default branch url or commit url exists. The notebook id: #{data.notebook.id} was deleted or moved on Github"}
 
       _ ->
         # Retry job several times
