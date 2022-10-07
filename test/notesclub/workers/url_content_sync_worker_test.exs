@@ -71,7 +71,7 @@ defmodule UrlContentSyncWorkerTest do
 
       # Run job
       assert perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id}) ==
-        {:cancel, "user is nil"}
+               {:cancel, "user is nil"}
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)
@@ -85,7 +85,7 @@ defmodule UrlContentSyncWorkerTest do
       {:ok, notebook} = Notebooks.update_notebook(notebook, %{repo_id: nil})
 
       assert perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id}) ==
-        {:cancel, "repo is nil"}
+               {:cancel, "repo is nil"}
 
       # content and url should have NOT changed:
       notebook = Notebooks.get_notebook!(notebook.id)
