@@ -69,21 +69,23 @@ defmodule RepoSyncWorkerTest do
             github_html_url: "https://github.com/user/repo/blob/4f1d1ab2e6c8a3/whatever4.livemd"
           })
 
-        # Sync & update urls from repo:
-        {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
+        Oban.Testing.with_testing_mode(:inline, fn ->
+          # Sync & update urls from repo:
+          {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
-        # It should have changed the first three notebooks
-        assert Notebooks.get_notebook!(notebook1.id).url ==
-                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever1.livemd"
+          # It should have changed the first three notebooks
+          assert Notebooks.get_notebook!(notebook1.id).url ==
+                  "https://github.com/user/repo/blob/#{repo.default_branch}/whatever1.livemd"
 
-        assert Notebooks.get_notebook!(notebook2.id).url ==
-                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever2.livemd"
+          assert Notebooks.get_notebook!(notebook2.id).url ==
+                  "https://github.com/user/repo/blob/#{repo.default_branch}/whatever2.livemd"
 
-        assert Notebooks.get_notebook!(notebook3.id).url ==
-                 "https://github.com/user/repo/blob/#{repo.default_branch}/whatever3.livemd"
+          assert Notebooks.get_notebook!(notebook3.id).url ==
+                  "https://github.com/user/repo/blob/#{repo.default_branch}/whatever3.livemd"
 
-        # And should have NOT changed the last notebook url
-        assert Notebooks.get_notebook!(notebook4.id).url == "https://whatever.com"
+          # And should have NOT changed the last notebook url
+          assert Notebooks.get_notebook!(notebook4.id).url == "https://whatever.com"
+        end)
       end
     end
   end
