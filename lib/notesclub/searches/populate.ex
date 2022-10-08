@@ -170,24 +170,31 @@ defmodule Notesclub.Searches.Populate do
           {:updated, notebook}
 
         {:error, changeset} ->
-          {:error, "Searches.Populate ERROR create_or_update_notebook while UPDATING: " <> inspect(changeset.errors)}
+          {:error,
+           "Searches.Populate ERROR create_or_update_notebook while UPDATING: " <>
+             inspect(changeset.errors)}
       end
     else
       case Notebooks.create_notebook(new_attributes) do
         {:ok, notebook} ->
           {:created, notebook}
+
         {:error, changeset} ->
-          {:error, "Searches.Populate ERROR create_or_update_notebook while CREATING: " <> inspect(changeset.errors)}
+          {:error,
+           "Searches.Populate ERROR create_or_update_notebook while CREATING: " <>
+             inspect(changeset.errors)}
       end
     end
   end
 
   defp enqueue_url_content_sync({:error, error}), do: {:error, error}
+
   defp enqueue_url_content_sync({_, %Notebook{} = notebook} = data) do
     {:ok, _job} =
       %{notebook_id: notebook.id}
       |> Notesclub.Workers.UrlContentSyncWorker.new()
       |> Oban.insert()
+
     data
   end
 
@@ -197,11 +204,15 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp log_info_and_errors({created_or_updated, notebook}) do
-    Logger.info("Searches.Populate Notebook #{created_or_updated}. id: #{notebook.id}, filename: #{notebook.github_filename}")
+    Logger.info(
+      "Searches.Populate Notebook #{created_or_updated}. id: #{notebook.id}, filename: #{notebook.github_filename}"
+    )
+
     {created_or_updated, notebook}
   end
 
-  defp return_created_or_updated_or_error({created_or_updated_or_error, _}), do: created_or_updated_or_error
+  defp return_created_or_updated_or_error({created_or_updated_or_error, _}),
+    do: created_or_updated_or_error
 
   defp get_or_create_user(attrs) do
     case Accounts.get_by_username(attrs.github_owner_login) do
