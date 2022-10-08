@@ -71,6 +71,9 @@ defmodule Notesclub.Searches.PopulateTest do
         [%Notebook{} = notebook2_in_db, %Notebook{} = notebook1_in_db] =
           Notebooks.list_notebooks(order: :desc)
 
+        assert_enqueued(worker: Notesclub.Workers.UrlContentSyncWorker, args: %{notebook_id: notebook1_in_db.id})
+        assert_enqueued(worker: Notesclub.Workers.UrlContentSyncWorker, args: %{notebook_id: notebook2_in_db.id})
+
         [%Search{} = search1] = Searches.list_searches()
         [notebook1_downloaded, notebook2_downloaded] = @valid_response.body["items"]
         assert_attributes(notebook1_in_db, notebook1_downloaded, search1)
