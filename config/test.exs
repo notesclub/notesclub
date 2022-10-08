@@ -30,3 +30,7 @@ config :logger, level: :warn
 config :phoenix, :plug_init_mode, :runtime
 
 config :notesclub, Oban, testing: :manual
+
+if File.exists?("config/secret.exs") do
+  import_config "secret.exs"
+end

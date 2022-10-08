@@ -27,6 +27,21 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Secrets
+
+To use tests with the `:github_api` tag, and to interact with the GitHub API key the project requires a GitHub API key.
+Create a `config/secret.exs` file using the `config/secret` template file.
+
+Replace **GITHUB_API_KEY** with a GitHub API Key.
+
+```elixir
+# Create a secret.exs file with the following content.
+# Replace GITHUB_API_KEY with your github api key.
+import Config
+
+config :notesclub, :github_api_key, "GITHUB_API_KEY"
+
+```
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/

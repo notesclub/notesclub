@@ -33,3 +33,5 @@ npm-debug.log
 /assets/node_modules/
 
 mix.lock
+
+config/*secret.exs

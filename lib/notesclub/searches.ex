@@ -127,4 +127,8 @@ defmodule Notesclub.Searches do
     )
     |> Repo.delete_all()
   end
+
+  def notebooks_by_user(user) do
+    {:ok, ""}
+  end
 end

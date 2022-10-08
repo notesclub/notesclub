@@ -7,6 +7,7 @@ defmodule Notesclub.SearchesTest do
     alias Notesclub.Searches.Search
 
     import Notesclub.SearchesFixtures
+    import Notesclub.AccountsFixtures
 
     @invalid_attrs %{
       order: nil,
@@ -86,6 +87,13 @@ defmodule Notesclub.SearchesTest do
     test "change_search/1 returns a search changeset" do
       search = search_fixture()
       assert %Ecto.Changeset{} = Searches.change_search(search)
+    end
+
+    test "notebooks_by_user/1 inserts new notebooks" do
+      # don't pass a user
+      # api endpoint fails
+      user = user_fixture()
+      {:ok, notebooks} = Searches.notebooks_by_user(user)
     end
   end
 end

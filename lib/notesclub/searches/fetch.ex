@@ -92,10 +92,20 @@ defmodule Notesclub.Searches.Fetch do
     end)
   end
 
-  defp build_url(%Options{per_page: per_page, page: page, order: order} = options) do
+  defp build_url(%Options{per_page: per_page, page: page, order: order, username: nil} = options) do
     %Fetch{
       url:
         "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
+      options: options
+    }
+  end
+
+  defp build_url(
+         %Options{per_page: per_page, page: page, order: order, username: username} = options
+       ) do
+    %Fetch{
+      url:
+        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end
@@ -111,7 +121,7 @@ defmodule Notesclub.Searches.Fetch do
       true ->
         response =
           Req.get!(
-            url(fetch, env == :test),
+            fetch.url,
             headers: [
               Accept: ["application/vnd.github+json"],
               Authorization: ["token #{github_api_key}"]

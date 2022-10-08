@@ -86,23 +86,28 @@ defmodule Notesclub.Searches.FetchTest do
       end
     end
 
-    test "get/3 complains about missing github_api_key" do
-      with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]}
-      ]) do
-        options = %Options{per_page: 2, page: 1, order: :asc}
+    #     test "GithubAPI Key Exists" do
+    # assert Application.get_env(:notesclub, :github_api_key), "There is no :github_api_key"
+    #     end
 
-        assert {
-                 :error,
-                 %Notesclub.Searches.Fetch{
-                   errors: %{github_api_key: ["is missing"]},
-                   notebooks_data: nil,
-                   options: ^options,
-                   response: nil,
-                   url: _
-                 }
-               } = Fetch.get(options)
-      end
+    @tag :github_api
+    test "get/1 it returns the notebooks from the user" do
+      {:ok, %Notesclub.Searches.Fetch{notebooks_data: notebook_data} = response} =
+        Fetch.get(%Options{username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC"})
+        |> IO.inspect(label: "DATA")
+
+      Enum.each(notebook_data, fn item ->
+        assert item.github_owner_login == "DockYard-Academy"
+      end)
+    end
+
+    @tag :github_api
+    test "get/1 it returns two notebooks when no username is passed" do
+      {:ok, %Notesclub.Searches.Fetch{notebooks_data: notebook_data} = response} =
+        Fetch.get(%Options{per_page: 2, page: 1, order: "ASC"})
+        |> IO.inspect(label: "DATA")
+
+      assert length(notebook_data) == 2
     end
   end
 end
