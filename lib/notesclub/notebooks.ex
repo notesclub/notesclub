@@ -7,7 +7,6 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repo
 
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo, as: RepoSchema
 
   alias Notesclub.Workers.UrlContentSyncWorker
