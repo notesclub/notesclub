@@ -104,12 +104,10 @@ defmodule UrlContentSyncWorkerTest do
           repo_id: repo.id
         })
 
-      Oban.Testing.with_testing_mode(:manual, fn ->
-        {:cancel, "No default branch. Enqueueing RepoSyncWorker."} =
-          perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
+      {:cancel, "No default branch. Enqueueing RepoSyncWorker."} =
+        perform_job(UrlContentSyncWorker, %{notebook_id: notebook.id})
 
-        assert_enqueued(worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id})
-      end)
+      assert_enqueued(worker: Notesclub.Workers.RepoSyncWorker, args: %{repo_id: repo.id})
     end
 
     test "perform/1 when request to default_branch_url returns 404, request github_html_url and set url=nil",

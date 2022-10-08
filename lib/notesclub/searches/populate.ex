@@ -1,8 +1,9 @@
+# This is going to be shortened and refactored after we do https://github.com/notesclub/notesclub/issues/40
 defmodule Notesclub.Searches.Populate do
   require Logger
 
-  #  max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"
-  @daily_page_limit 50
+  #  max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"
+  @daily_page_limit 100
   @default_per_page 5
 
   # public function so we can mock it in tests
@@ -11,6 +12,7 @@ defmodule Notesclub.Searches.Populate do
   def daily_page_limit, do: @daily_page_limit
 
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Searches
   alias Notesclub.Accounts
   alias Notesclub.Repos
@@ -128,7 +130,7 @@ defmodule Notesclub.Searches.Populate do
   # Github only returns the last 1000 records indexed, So when per_page=5, the page 201 returns error
   defp next_page(%Search{page: 200, per_page: 5, response_notebooks_count: 5}), do: 1
   # We repeat the page when last search per_page doesn't match the returned data
-  #  When this happens, sometimes the returned results are not from the page
+  #  When this happens, sometimes the returned results are not from the page
   # This happens especially for per_page > 5
   defp next_page(%Search{per_page: same, response_notebooks_count: same} = last_search),
     do: last_search.page + 1
@@ -143,6 +145,9 @@ defmodule Notesclub.Searches.Populate do
       |> get_or_create_user()
       |> get_or_create_repo()
       |> create_or_update_notebook()
+      |> enqueue_url_content_sync()
+      |> log_info_and_errors()
+      |> return_created_or_updated_or_error()
     end)
     |> Enum.frequencies()
     |> Map.put(:downloaded, length(notebooks_data))
@@ -162,39 +167,52 @@ defmodule Notesclub.Searches.Populate do
     if existent_notebook do
       case Notebooks.update_notebook(existent_notebook, new_attributes) do
         {:ok, notebook} ->
-          Logger.info(
-            "Searches.Populate Notebook UPDATED. id: #{notebook.id}, filename: #{notebook.github_filename}"
-          )
-
-          :updated
+          {:updated, notebook}
 
         {:error, changeset} ->
-          Logger.error(
-            "Searches.Populate ERROR create_or_update_notebook while UPDATING: " <>
-              inspect(changeset.errors)
-          )
-
-          :error
+          {:error,
+           "Searches.Populate ERROR create_or_update_notebook while UPDATING: " <>
+             inspect(changeset.errors)}
       end
     else
       case Notebooks.create_notebook(new_attributes) do
         {:ok, notebook} ->
-          Logger.info(
-            "Searches.Populate Notebook CREATED. id: #{notebook.id}, filename: #{notebook.github_filename}"
-          )
-
-          :created
+          {:created, notebook}
 
         {:error, changeset} ->
-          Logger.error(
-            "Searches.Populate ERROR create_or_update_notebook while CREATING: " <>
-              inspect(changeset.errors)
-          )
-
-          :error
+          {:error,
+           "Searches.Populate ERROR create_or_update_notebook while CREATING: " <>
+             inspect(changeset.errors)}
       end
     end
   end
+
+  defp enqueue_url_content_sync({:error, error}), do: {:error, error}
+
+  defp enqueue_url_content_sync({_, %Notebook{} = notebook} = data) do
+    {:ok, _job} =
+      %{notebook_id: notebook.id}
+      |> Notesclub.Workers.UrlContentSyncWorker.new()
+      |> Oban.insert()
+
+    data
+  end
+
+  defp log_info_and_errors({:error, error}) do
+    Logger.error(error)
+    {:error, error}
+  end
+
+  defp log_info_and_errors({created_or_updated, notebook}) do
+    Logger.info(
+      "Searches.Populate Notebook #{created_or_updated}. id: #{notebook.id}, filename: #{notebook.github_filename}"
+    )
+
+    {created_or_updated, notebook}
+  end
+
+  defp return_created_or_updated_or_error({created_or_updated_or_error, _}),
+    do: created_or_updated_or_error
 
   defp get_or_create_user(attrs) do
     case Accounts.get_by_username(attrs.github_owner_login) do
