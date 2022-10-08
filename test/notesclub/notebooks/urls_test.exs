@@ -49,13 +49,13 @@ defmodule Notesclub.Notebooks.UrlsTest do
 
   test "get_urls/1 complains when NO notebook.user", %{notebook: notebook} do
     notebook = Map.put(notebook, :user, nil)
-    assert Urls.get_urls(notebook) == {:error, "user can't be nil. It needs to be preloaded."}
+    assert Urls.get_urls(notebook) == {:error, "notebook must include user and repo preloaded."}
   end
 
   test "get_urls/1 complains when NO notebook.repo.default_branch", %{notebook: notebook} do
     # Complains when repo is nil
     notebook2 = Map.put(notebook, :repo, nil)
-    assert Urls.get_urls(notebook2) == {:error, "repo can't be nil. It needs to be preloaded."}
+    assert Urls.get_urls(notebook2) == {:error, "notebook must include user and repo preloaded."}
 
     # Complains when repo.default_branch is nil
     {:ok, _repo} = Repos.update_repo(notebook.repo, %{default_branch: nil})
