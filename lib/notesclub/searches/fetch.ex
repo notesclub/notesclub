@@ -12,7 +12,23 @@ defmodule Notesclub.Searches.Fetch do
 
   ## Example
   iex> Notesclub.Searches.Fetch.get(%Options{per_page: 10, page: 1, order: "asc"})
-  {:ok, %Fetch{notebooks_data: [%Notebook{...}, %Notebook{...}]}"}
+  {:ok,
+   %Fetch{
+     notebooks_data: [
+       %{
+         github_filename: item["name"],
+         github_owner_login: owner["login"],
+         github_owner_avatar_url: owner["avatar_url"],
+         github_repo_name: repo["name"],
+         github_repo_full_name: repo["full_name"],
+         github_repo_fork: repo["fork"],
+         github_html_url: item["html_url"]
+       },
+       ...
+     ],
+     ...
+   }}
+  ]"}
 
   iex> Notesclub.Searches.Fetch.get(:wrong_arguments)
   {:error, %Fetch{response: response}}
