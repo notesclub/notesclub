@@ -32,6 +32,7 @@ notesclub-*.tar
 npm-debug.log
 /assets/node_modules/
 
-mix.lock
+# Local environment variables
+.env
 
-config/*secret.exs
+mix.lock
