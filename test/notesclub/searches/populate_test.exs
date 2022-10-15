@@ -4,7 +4,7 @@ defmodule Notesclub.Searches.PopulateTest do
   alias Notesclub.Searches
   alias Notesclub.Searches.Search
   alias Notesclub.Searches.Populate
-  alias Notesclub.Searches.Fetch
+  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
 
@@ -57,7 +57,7 @@ defmodule Notesclub.Searches.PopulateTest do
       with_mocks([
         {Populate, [:passthrough], [default_per_page: fn -> 2 end]},
         {Populate, [:passthrough], [daily_page_limit: fn -> 2 end]},
-        {Fetch, [:passthrough], [check_github_api_key: fn -> false end]},
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]},
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]}
       ]) do
         # Check that there are no searches or notebooks

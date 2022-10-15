@@ -1,6 +1,6 @@
-defmodule Notesclub.Searches.Fetch do
-  alias Notesclub.Searches.Fetch
-  alias Notesclub.Searches.Fetch.Options
+defmodule Notesclub.GithubAPI do
+  alias Notesclub.GithubAPI
+  alias Notesclub.GithubAPI.Options
 
   require Logger
 
@@ -8,12 +8,12 @@ defmodule Notesclub.Searches.Fetch do
 
   @doc """
 
-  Gets files with 'livemd' extension from Fetch.
+  Gets files with 'livemd' extension from GithubAPI.
 
   ## Example
-  iex> Notesclub.Searches.Fetch.get(%Options{per_page: 10, page: 1, order: "asc"})
+  iex> Notesclub.GithubAPI.get(%Options{per_page: 10, page: 1, order: "asc"})
   {:ok,
-   %Fetch{
+   %GithubAPI{
      notebooks_data: [
        %{
          github_filename: item["name"],
@@ -30,19 +30,19 @@ defmodule Notesclub.Searches.Fetch do
    }}
   ]"}
 
-  iex> Notesclub.Searches.Fetch.get(:wrong_arguments)
-  {:error, %Fetch{response: response}}
+  iex> Notesclub.GithubAPI.get(:wrong_arguments)
+  {:error, %GithubAPI{response: response}}
 
   Arguments:
   - order can be "asc" or "desc"
-  - per_page could be up to 100 according to Fetch's documentation.
+  - per_page could be up to 100 according to GithubAPI's documentation.
     Yet, a value greather than 10 often returns response from a wrong page.
 
   Other considerations:
-  A common error happens when we reach Fetch's rate limit.
+  A common error happens when we reach GithubAPI's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  @spec get(%Options{}) :: {:ok, %Fetch{}} | {:error, %Fetch{}}
+  @spec get(%Options{}) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
   def get(%Options{} = options) do
     options
     |> build_url()
@@ -50,7 +50,7 @@ defmodule Notesclub.Searches.Fetch do
     |> extract_notebooks_data()
   end
 
-  defp extract_notebooks_data(%Fetch{response: response, errors: errors} = fetch) do
+  defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
     cond do
       errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
         {:error, fetch}
@@ -60,12 +60,12 @@ defmodule Notesclub.Searches.Fetch do
     end
   end
 
-  defp prepare_data(%Fetch{response: response} = fetch, nil) do
-    Logger.error("Fetch.Search, response: " <> inspect(response))
+  defp prepare_data(%GithubAPI{response: response} = fetch, nil) do
+    Logger.error("GithubAPI.Search, response: " <> inspect(response))
     {:error, fetch}
   end
 
-  defp prepare_data(%Fetch{response: response} = fetch, items) do
+  defp prepare_data(%GithubAPI{response: response} = fetch, items) do
     notebooks_data =
       items
       # This filter shouldn't be needed. See function for more info.
@@ -99,8 +99,8 @@ defmodule Notesclub.Searches.Fetch do
 
         _ ->
           Logger.error(
-            "Fetch.Search fetched a private repo.\nRepo:\n" <>
-              inspect(i) <> "\nFull Fetch's response:\n" <> inspect(response)
+            "GithubAPI.Search fetched a private repo.\nRepo:\n" <>
+              inspect(i) <> "\nFull GithubAPI's response:\n" <> inspect(response)
           )
 
           false
@@ -109,7 +109,7 @@ defmodule Notesclub.Searches.Fetch do
   end
 
   defp build_url(%Options{per_page: per_page, page: page, order: order, username: nil} = options) do
-    %Fetch{
+    %GithubAPI{
       url:
         "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
@@ -119,14 +119,14 @@ defmodule Notesclub.Searches.Fetch do
   defp build_url(
          %Options{per_page: per_page, page: page, order: order, username: username} = options
        ) do
-    %Fetch{
+    %GithubAPI{
       url:
         "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end
 
-  defp make_request(%Fetch{} = fetch) do
+  defp make_request(%GithubAPI{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
     env = Application.get_env(:notesclub, :env)
 
@@ -149,8 +149,8 @@ defmodule Notesclub.Searches.Fetch do
   end
 
   #  Don't make requests to Github in test env
-  defp url(%Fetch{}, true), do: ""
-  defp url(%Fetch{} = fetch, false), do: fetch.url
+  defp url(%GithubAPI{}, true), do: ""
+  defp url(%GithubAPI{} = fetch, false), do: fetch.url
 
   # We can mock this in tests
   @spec check_github_api_key :: true

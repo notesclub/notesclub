@@ -17,8 +17,8 @@ defmodule Notesclub.Searches.Populate do
   alias Notesclub.Accounts
   alias Notesclub.Repos
   alias Notesclub.Searches.Search
-  alias Notesclub.Searches.Fetch
-  alias Notesclub.Searches.Fetch.Options
+  alias Notesclub.GithubAPI
+  alias Notesclub.GithubAPI.Options
 
   @doc """
   Makes a request to fetch new notebooks from Github
@@ -66,8 +66,8 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp populate(%Options{per_page: per_page, page: page, order: order} = options) do
-    case Fetch.get(options) do
-      {:ok, %Fetch{notebooks_data: notebooks_data, response: response, url: url}} ->
+    case GithubAPI.get(options) do
+      {:ok, %GithubAPI{notebooks_data: notebooks_data, response: response, url: url}} ->
         case Searches.create_search(%{
                response_notebooks_count: length(notebooks_data),
                response_status: response.status,
@@ -98,7 +98,7 @@ defmodule Notesclub.Searches.Populate do
             }
         end
 
-      {:error, %Fetch{errors: errors}} ->
+      {:error, %GithubAPI{errors: errors}} ->
         Logger.warn("Searches.Populate ERROR before saving search: " <> inspect(errors))
 
         %{

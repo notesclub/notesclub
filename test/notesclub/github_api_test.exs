@@ -1,8 +1,8 @@
-defmodule Notesclub.Searches.FetchTest do
+defmodule Notesclub.GithubAPITest do
   use Notesclub.DataCase
 
-  alias Notesclub.Searches.Fetch
-  alias Notesclub.Searches.Fetch.Options
+  alias Notesclub.GithubAPI
+  alias Notesclub.GithubAPI.Options
 
   import Mock
 
@@ -46,15 +46,15 @@ defmodule Notesclub.Searches.FetchTest do
     }
   }
 
-  describe "Fetch.Search" do
+  describe "GithubAPI.Search" do
     test "get/3 returns notebooks" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]},
-        {Fetch, [:passthrough], [check_github_api_key: fn -> false end]}
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
         assert {
                  :ok,
-                 %Fetch{
+                 %GithubAPI{
                    notebooks_data: [
                      %{
                        github_filename: "structs.livemd",
@@ -82,7 +82,7 @@ defmodule Notesclub.Searches.FetchTest do
                    response: @valid_reponse,
                    url: _url
                  }
-               } = Fetch.get(%Options{per_page: 2, page: 1, order: :asc})
+               } = GithubAPI.get(%Options{per_page: 2, page: 1, order: :asc})
       end
     end
 
@@ -92,9 +92,8 @@ defmodule Notesclub.Searches.FetchTest do
 
     @tag :github_api
     test "get/1 it returns the notebooks from the user" do
-      {:ok, %Notesclub.Searches.Fetch{notebooks_data: notebook_data} = response} =
-        Fetch.get(%Options{username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC"})
-        |> IO.inspect(label: "DATA")
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data} = response} =
+        GithubAPI.get(%Options{username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC"})
 
       Enum.each(notebook_data, fn item ->
         assert item.github_owner_login == "DockYard-Academy"
@@ -103,9 +102,8 @@ defmodule Notesclub.Searches.FetchTest do
 
     @tag :github_api
     test "get/1 it returns two notebooks when no username is passed" do
-      {:ok, %Notesclub.Searches.Fetch{notebooks_data: notebook_data} = response} =
-        Fetch.get(%Options{per_page: 2, page: 1, order: "ASC"})
-        |> IO.inspect(label: "DATA")
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data} = response} =
+        GithubAPI.get(%Options{per_page: 2, page: 1, order: "ASC"})
 
       assert length(notebook_data) == 2
     end
