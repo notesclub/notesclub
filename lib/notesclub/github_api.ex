@@ -1,17 +1,21 @@
 defmodule Notesclub.GithubAPI do
   alias Notesclub.GithubAPI
-  alias Notesclub.GithubAPI.Options
 
   require Logger
 
-  defstruct options: Options, url: nil, response: nil, notebooks_data: nil, errors: %{}
+  # Fetch -> GitHubAPI
+  # Replace Option with option() typespec/keyword list
+  # Fetch struct -> GitHubAPI
+
+  @type options :: [url: String.t(), response: map(), notebooks_data: map(), errors: map()]
+  defstruct options: [], url: nil, response: nil, notebooks_data: nil, errors: %{}
 
   @doc """
 
   Gets files with 'livemd' extension from GithubAPI.
 
   ## Example
-  iex> Notesclub.GithubAPI.get(%Options{per_page: 10, page: 1, order: "asc"})
+  iex> Notesclub.GithubAPI.get([per_page: 10, page: 1, order: "asc"])
   {:ok,
    %GithubAPI{
      notebooks_data: [
@@ -42,8 +46,8 @@ defmodule Notesclub.GithubAPI do
   A common error happens when we reach GithubAPI's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  @spec get(%Options{}) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
-  def get(%Options{} = options) do
+  @spec get(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
+  def get(options) do
     options
     |> build_url()
     |> make_request()
@@ -108,20 +112,18 @@ defmodule Notesclub.GithubAPI do
     end)
   end
 
-  defp build_url(%Options{per_page: per_page, page: page, order: order, username: nil} = options) do
+  defp build_url([per_page: per_page, page: page, order: order, username: username] = options) do
     %GithubAPI{
       url:
-        "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
+        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end
 
-  defp build_url(
-         %Options{per_page: per_page, page: page, order: order, username: username} = options
-       ) do
+  defp build_url([per_page: per_page, page: page, order: order] = options) do
     %GithubAPI{
       url:
-        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
+        "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
       options: options
     }
   end

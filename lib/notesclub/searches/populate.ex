@@ -18,7 +18,6 @@ defmodule Notesclub.Searches.Populate do
   alias Notesclub.Repos
   alias Notesclub.Searches.Search
   alias Notesclub.GithubAPI
-  alias Notesclub.GithubAPI.Options
 
   @doc """
   Makes a request to fetch new notebooks from Github
@@ -65,7 +64,7 @@ defmodule Notesclub.Searches.Populate do
     |> log_info("Populate.next_loop() end")
   end
 
-  defp populate(%Options{per_page: per_page, page: page, order: order} = options) do
+  defp populate([per_page: per_page, page: page, order: order] = options) do
     case GithubAPI.get(options) do
       {:ok, %GithubAPI{notebooks_data: notebooks_data, response: response, url: url}} ->
         case Searches.create_search(%{
@@ -117,14 +116,14 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp next_options(nil),
-    do: %Options{per_page: __MODULE__.default_per_page(), page: 1, order: "desc"}
+    do: [per_page: __MODULE__.default_per_page(), page: 1, order: "desc"]
 
   defp next_options(%Search{} = last_search) do
-    %Options{
+    [
       per_page: last_search.per_page,
       page: next_page(last_search),
       order: last_search.order
-    }
+    ]
   end
 
   # Github only returns the last 1000 records indexed, So when per_page=5, the page 201 returns error

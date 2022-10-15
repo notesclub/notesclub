@@ -2,7 +2,6 @@ defmodule Notesclub.GithubAPITest do
   use Notesclub.DataCase
 
   alias Notesclub.GithubAPI
-  alias Notesclub.GithubAPI.Options
 
   import Mock
 
@@ -82,7 +81,7 @@ defmodule Notesclub.GithubAPITest do
                    response: @valid_reponse,
                    url: _url
                  }
-               } = GithubAPI.get(%Options{per_page: 2, page: 1, order: :asc})
+               } = GithubAPI.get(per_page: 2, page: 1, order: :asc)
       end
     end
 
@@ -92,8 +91,8 @@ defmodule Notesclub.GithubAPITest do
 
     @tag :github_api
     test "get/1 it returns the notebooks from the user" do
-      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data} = response} =
-        GithubAPI.get(%Options{username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC"})
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data}} =
+        GithubAPI.get(username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC")
 
       Enum.each(notebook_data, fn item ->
         assert item.github_owner_login == "DockYard-Academy"
@@ -102,8 +101,8 @@ defmodule Notesclub.GithubAPITest do
 
     @tag :github_api
     test "get/1 it returns two notebooks when no username is passed" do
-      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data} = response} =
-        GithubAPI.get(%Options{per_page: 2, page: 1, order: "ASC"})
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data}} =
+        GithubAPI.get(per_page: 2, page: 1, order: "ASC")
 
       assert length(notebook_data) == 2
     end
