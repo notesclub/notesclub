@@ -2,6 +2,7 @@ defmodule Notesclub.Notebooks.Urls do
   @moduledoc """
   Generate Github notebooks' urls from github_html_url
   """
+  alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
@@ -47,6 +48,32 @@ defmodule Notesclub.Notebooks.Urls do
 
   def get_urls(%Notebook{}), do: {:error, "notebook must include user and repo preloaded."}
 
+  @doc """
+  Generates a raw_url from a github_html_url
+
+  ## Examples
+
+  iex> raw_url("https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd")
+  "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
+
+  iex> raw_url("https://no-github-url.com")
+  nil
+  """
+  def raw_url(github_html_url) do
+    if String.match?(github_html_url, ~r|^https://github.com/[^\/]+/[^\/]+/blob/|) do
+      github_html_url
+      |> String.replace(
+        ~r|^https://github.com/|,
+        "https://raw.githubusercontent.com/"
+      )
+      |> String.replace(
+        ~r|/blob/|,
+        "/"
+      )
+      |> URI.encode()
+    end
+  end
+
   # github_html_url is the url that returns Github Search API
   # It points to the sha/commit
   defp get_commit_url(%Notebook{} = notebook) do
@@ -57,8 +84,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   defp get_raw_commit_url(%Urls{} = urls) do
-    url = raw_url(urls.commit_url, urls.notebook)
-    Map.put(urls, :raw_commit_url, url)
+    Map.put(urls, :raw_commit_url, urls.commit_url |> raw_url())
   end
 
   defp get_default_branch_url(%Urls{commit_url: nil}), do: nil
@@ -73,22 +99,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   defp get_raw_default_branch_url(%Urls{} = urls) do
-    url = raw_url(urls.default_branch_url, urls.notebook)
-    urls = Map.put(urls, :raw_default_branch_url, url)
+    urls = Map.put(urls, :raw_default_branch_url, urls.default_branch_url |> raw_url())
     {:ok, urls}
-  end
-
-  defp raw_url(nil, _), do: nil
-
-  defp raw_url(url, %Notebook{user: user, repo: repo}) do
-    username = Regex.escape(user.username)
-    repo_name = Regex.escape(repo.name)
-
-    url
-    |> String.replace(
-      ~r|^https://github.com/#{username}/#{repo_name}/blob|,
-      "https://raw.githubusercontent.com/#{user.username}/#{repo.name}"
-    )
-    |> URI.encode()
   end
 end

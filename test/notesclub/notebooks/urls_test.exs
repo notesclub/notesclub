@@ -41,25 +41,32 @@ defmodule Notesclub.Notebooks.UrlsTest do
       assert urls.raw_default_branch_url ==
                "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
     end
-  end
 
-  test "get_urls/1 complains when NO notebook" do
-    assert Urls.get_urls(nil) == {:error, "notebook can't be nil"}
-  end
+    test "get_urls/1 complains when NO notebook" do
+      assert Urls.get_urls(nil) == {:error, "notebook can't be nil"}
+    end
 
-  test "get_urls/1 complains when NO notebook.user", %{notebook: notebook} do
-    notebook = Map.put(notebook, :user, nil)
-    assert Urls.get_urls(notebook) == {:error, "notebook must include user and repo preloaded."}
-  end
+    test "get_urls/1 complains when NO notebook.user", %{notebook: notebook} do
+      notebook = Map.put(notebook, :user, nil)
+      assert Urls.get_urls(notebook) == {:error, "notebook must include user and repo preloaded."}
+    end
 
-  test "get_urls/1 complains when NO notebook.repo.default_branch", %{notebook: notebook} do
-    # Complains when repo is nil
-    notebook2 = Map.put(notebook, :repo, nil)
-    assert Urls.get_urls(notebook2) == {:error, "notebook must include user and repo preloaded."}
+    test "get_urls/1 complains when NO notebook.repo.default_branch", %{notebook: notebook} do
+      # Complains when repo is nil
+      notebook2 = Map.put(notebook, :repo, nil)
 
-    # Complains when repo.default_branch is nil
-    {:ok, _repo} = Repos.update_repo(notebook.repo, %{default_branch: nil})
-    notebook3 = Notebooks.get_notebook!(notebook.id, preload: [:user, :repo])
-    assert Urls.get_urls(notebook3) == {:error, "repo.default_branch can't be nil"}
+      assert Urls.get_urls(notebook2) ==
+               {:error, "notebook must include user and repo preloaded."}
+
+      # Complains when repo.default_branch is nil
+      {:ok, _repo} = Repos.update_repo(notebook.repo, %{default_branch: nil})
+      notebook3 = Notebooks.get_notebook!(notebook.id, preload: [:user, :repo])
+      assert Urls.get_urls(notebook3) == {:error, "repo.default_branch can't be nil"}
+    end
+
+    test "raw_url/1 generates raw_url" do
+      assert Urls.raw_url("https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd") ==
+        "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
+    end
   end
 end
