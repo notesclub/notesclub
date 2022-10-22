@@ -10,7 +10,7 @@ Welcome to Notesclub!
 
 Feel free to:
 - [Take an issue](https://github.com/notesclub/notesclub/issues)
-- Propose a new one issue 
+- Propose a new one issue
 - Refactor existent code
 - Add documentation
 Thanks!
@@ -30,7 +30,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 ## Secrets
 
 To use tests with the `:github_api` tag, and to interact with the GitHub API key the project requires a GitHub API key.
-Create a `config/secret.exs` file using the `config/secret` template file.
+Create a `config/test_secrets.exs` template file.
 
 Replace **GITHUB_API_KEY** with a GitHub API Key.
 
@@ -42,6 +42,9 @@ import Config
 config :notesclub, :github_api_key, "GITHUB_API_KEY"
 
 ```
+
+To download notebooks in development, create a similar `config/dev.secrets.exs`
+
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/
