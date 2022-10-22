@@ -36,3 +36,6 @@ npm-debug.log
 .env
 
 mix.lock
+
+# vscode, live sharing
+.vsls.json
