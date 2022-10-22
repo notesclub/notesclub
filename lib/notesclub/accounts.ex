@@ -118,6 +118,8 @@ defmodule Notesclub.Accounts do
       {:ok, %User{}}
 
   """
+  def get_by_username(nil), do: nil
+
   @spec get_by_username(binary) :: {:ok, %User{}}
   def get_by_username(username) do
     Repo.get_by(User, username: username)

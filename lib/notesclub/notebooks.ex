@@ -7,7 +7,11 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Repo
 
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Repos
+  alias Notesclub.Accounts
+  alias Notesclub.Accounts.User
   alias Notesclub.Repos.Repo, as: RepoSchema
+  alias Notesclub.Accounts
 
   alias Notesclub.Workers.UrlContentSyncWorker
 
@@ -189,31 +193,42 @@ defmodule Notesclub.Notebooks do
   end
 
   @doc """
-  Gets a notebook by its filename, owner and repo
+  Gets a notebook by its url or filename, owner and repo
   This allows us to override a file if the url has changed
 
   ## Examples
-    iex> get_by_filename_owner_and_repo?(%{url: "https://github.com/.../file.livemd"})
+    iex> get_by(url: "https://github.com/.../file.livemd")
     true
 
   TODO: We should probably deprecate this once we re-download all public livemd files within
         each repo's default branch and their history of blobs.
         Then, we won't create new files but update
   """
-  @spec get_by_filename_owner_and_repo(binary, binary, binary) :: %Notebook{}
-  def get_by_filename_owner_and_repo(filename, owner_login, repo_name)
-      when is_binary(filename) and is_binary(owner_login) and is_binary(repo_name) do
-    from(n in Notebook,
-      where: n.github_filename == ^filename,
-      where: n.github_owner_login == ^owner_login,
-      where: n.github_repo_name == ^repo_name,
-      limit: 1
-    )
+  @spec get_by(list()) :: %Notebook{} | nil
+  def get_by(ops) do
+    Enum.reduce(ops, from(n in Notebook), fn
+      {:github_filename, github_filename}, query ->
+        where(query, [notebook], notebook.github_filename == ^github_filename)
+
+      {:github_owner_login, github_owner_login}, query ->
+        where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
+
+      {:github_repo_name, github_repo_name}, query ->
+        where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
+
+      {:url, url}, query ->
+        where(query, [notebook], notebook.url == ^url)
+
+      _, query ->
+        query
+    end)
     |> Repo.one()
   end
 
   @doc """
   Creates a notebook.
+  It also:
+  - creates the associations user and repo if they don't exist
 
   ## Examples
 
@@ -228,7 +243,108 @@ defmodule Notesclub.Notebooks do
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
     |> Notebook.changeset(attrs)
+    |> put_user_id_if_exists(attrs)
+    |> put_user_and_repo_if_missing(attrs)
     |> Repo.insert()
+    |> set_user_id(attrs)
+  end
+
+  defp set_user_id(result, %{user_id: _}), do: result
+
+  defp set_user_id({:ok, notebook}, _) do
+    case update_notebook(notebook, %{user_id: notebook.repo.user_id}) do
+      {:ok, notebook} ->
+        {:ok, notebook}
+
+      {:error, _} ->
+        Logger.warn(
+          "create_notebook/1 created notebook id #{notebook.id} but couldn't save notebook.user_id. However, this is deprecated as we saved notebook.repo.user_id"
+        )
+
+        {:ok, notebook}
+    end
+  end
+
+  defp set_user_id({:error, changeset}, _) do
+    {:error, changeset}
+  end
+
+  def put_user_id_if_exists(changeset, %{user_id: _}), do: changeset
+
+  def put_user_id_if_exists(changeset, attrs) do
+    case Accounts.get_by_username(attrs.github_owner_login) do
+      nil ->
+        changeset
+
+      %User{} = user ->
+        Ecto.Changeset.put_change(changeset, :user_id, user.id)
+    end
+  end
+
+  def put_user_and_repo_if_missing(changeset, %{repo_id: _, user_id: _}), do: changeset
+
+  def put_user_and_repo_if_missing(changeset, %{repo_id: repo_id} = attrs) do
+    case Repos.get_repo(repo_id) do
+      nil -> changeset
+      repo -> Changeset.set_change(changeset, :user_id, repo.user_id)
+    end
+  end
+
+  def put_user_and_repo_if_missing(changeset, attrs) do
+    user_id = Ecto.Changeset.get_change(changeset, :user_id)
+
+    case Ecto.Changeset.get_change(changeset, :user_id) do
+      nil ->
+        Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
+          name: attrs.github_repo_name,
+          user: %User{
+            username: attrs.github_owner_login,
+            avatar_url: attrs.github_owner_avatar_url
+          }
+        })
+
+      user_id ->
+        Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
+          name: attrs.github_repo_name,
+          user_id: user_id
+        })
+    end
+  end
+
+  @doc """
+  Creates or updates a notebook depending on url
+  url (default branch url) is generated from github_html_url (commit url) if url is not present
+
+  ## Examples
+
+  iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
+  {:ok, %Notebook{}}
+
+  iex> save_notebook(%{field: bad_value})
+  {:error, %Ecto.Changeset{}}
+  """
+  @spec save_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  def save_notebook(attrs \\ %{}) do
+    attrs = if attrs.github_html_url, do: Map.put(attrs, :url, build_url(attrs)), else: attrs
+
+    if notebook = Notebooks.get_by(url: attrs.url) do
+      update_notebook(notebook, attrs)
+    else
+      create_notebook(attrs)
+    end
+  end
+
+  defp build_url(repo_id: repo_id, github_html_url: github_html_url) do
+    case Repos.get_repo(repo_id) do
+      nil ->
+        nil
+
+      %RepoSchema{default_branch: nil} ->
+        nil
+
+      %RepoSchema{default_branch: default_branch} ->
+        Urls.default_branch_url(github_html_url, default_branch)
+    end
   end
 
   @doc """

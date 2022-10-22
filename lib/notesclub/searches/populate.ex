@@ -157,10 +157,10 @@ defmodule Notesclub.Searches.Populate do
 
   defp create_or_update_notebook(new_attributes) do
     existent_notebook =
-      Notebooks.get_by_filename_owner_and_repo(
-        new_attributes.github_filename,
-        new_attributes.github_owner_login,
-        new_attributes.github_repo_name
+      Notebooks.get_by(
+        github_filename: new_attributes.github_filename,
+        github_owner_login: new_attributes.github_owner_login,
+        github_repo_name: new_attributes.github_repo_name
       )
 
     if existent_notebook do

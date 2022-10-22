@@ -94,8 +94,12 @@ defmodule Notesclub.Notebooks.Urls do
 
   defp get_default_branch_url(%Urls{} = urls) do
     default_branch = urls.notebook.repo.default_branch
-    url = String.replace(urls.commit_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
+    url = default_branch_url(urls.commit_url, default_branch)
     Map.put(urls, :default_branch_url, url)
+  end
+
+  def default_branch_url(github_html_url, default_branch) do
+    String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 
   defp get_raw_default_branch_url(%Urls{} = urls) do
