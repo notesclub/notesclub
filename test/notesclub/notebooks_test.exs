@@ -90,7 +90,7 @@ defmodule Notesclub.NotebooksTest do
       assert original_notebook.repo_id == preloaded_notebook.repo.id
     end
 
-    test "create_notebook/1 with valid data creates a notebook" do
+    test "create_notebook/1 with valid data creates a notebook, a repo and a user" do
       search = SearchesFixtures.search_fixture()
 
       valid_attrs = %{
