@@ -39,3 +39,5 @@ mix.lock
 
 # vscode, live sharing
 .vsls.json
+
+/config/*secrets.exs
