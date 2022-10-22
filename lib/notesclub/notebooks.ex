@@ -291,15 +291,15 @@ defmodule Notesclub.Notebooks do
   end
 
   def put_user_and_repo_if_missing(changeset, attrs) do
-    user_id = Ecto.Changeset.get_change(changeset, :user_id)
-
     case Ecto.Changeset.get_change(changeset, :user_id) do
       nil ->
         Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
-          name: attrs.github_repo_name,
+          name: attrs[:github_repo_name],
+          full_name: attrs[:github_repo_full_name],
+          fork: attrs[:github_repo_fork],
           user: %User{
-            username: attrs.github_owner_login,
-            avatar_url: attrs.github_owner_avatar_url
+            username: attrs[:github_owner_login],
+            avatar_url: attrs[:github_owner_avatar_url]
           }
         })
 

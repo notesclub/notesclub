@@ -99,8 +99,10 @@ defmodule Notesclub.NotebooksTest do
         github_filename: "some github_filename",
         github_html_url: "some github_html_url",
         github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: "some github_owner_login",
-        github_repo_name: "some github_repo_name",
+        github_owner_login: "some_github_owner_login",
+        github_repo_name: "some_github_repo_name",
+        github_repo_full_name: "some_github_owner_login/some_github_repo_name",
+        github_repo_fork: true,
         search_id: search.id
       }
 
@@ -110,29 +112,52 @@ defmodule Notesclub.NotebooksTest do
       assert notebook.github_filename == "some github_filename"
       assert notebook.github_html_url == "some github_html_url"
       assert notebook.github_owner_avatar_url == "some github_owner_avatar_url"
-      assert notebook.github_owner_login == "some github_owner_login"
-      assert notebook.github_repo_name == "some github_repo_name"
+      assert notebook.github_owner_login == "some_github_owner_login"
+      assert notebook.github_repo_name == "some_github_repo_name"
       assert notebook.search_id == search.id
       assert notebook.repo_id != nil
       assert notebook.repo.user_id != nil
 
       repo = Repos.get_repo!(notebook.repo_id, preload: :user)
-      assert repo.name == "some github_repo_name"
-      assert repo.user.username == "some github_owner_login"
+      assert repo.name == "some_github_repo_name"
+      assert repo.full_name == "some_github_owner_login/some_github_repo_name"
+      assert repo.fork == true
+      assert repo.user.username == "some_github_owner_login"
       assert repo.user.avatar_url == "some github_owner_avatar_url"
       assert repo.user_id == notebook.user_id
     end
 
-    def get_attrs(%{github_html_url: github_html_url, repo_id: repo_id}) do
-      %{
-        github_html_url: github_html_url,
+    test "create_notebook/1 does not create duplicate users" do
+      # Arrange
+
+      user = AccountsFixtures.user_fixture()
+
+      notebook_data = %{
+        url: "some url",
+        content: "whatever",
         github_filename: "some github_filename",
+        github_html_url: "some github_html_url",
         github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: "some github_owner_login",
-        github_repo_name: "some github_repo_name",
-        repo_id: repo_id,
-        url: nil
+        github_owner_login: user.username,
+        github_repo_name: "repo1"
       }
+
+      notebook_data1 = %{
+        url: "some url",
+        content: "whatever",
+        github_filename: "some github_filename",
+        github_html_url: "some github_html_url_foo",
+        github_owner_avatar_url: "some github_owner_avatar_url",
+        github_owner_login: user.username,
+        github_repo_name: "repo2"
+      }
+
+      {:ok, notebook} = Notebooks.create_notebook(notebook_data1)
+      {:ok, new_notebook} = Notebooks.create_notebook(notebook_data)
+
+      assert notebook.user_id == new_notebook.user_id
+      repo = Repos.get_repo(notebook.repo_id)
+      assert repo.user_id == notebook.user_id
     end
 
     test "create_notebook/1 with invalid data returns error changeset" do
@@ -182,57 +207,6 @@ defmodule Notesclub.NotebooksTest do
         })
 
       assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
-    end
-
-    test "create_notebook/1 creates a user" do
-      notebook_data = %{
-        url: "some url",
-        content: "whatever",
-        github_filename: "some github_filename",
-        github_html_url: "some github_html_url",
-        github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: "some_github_owner_login",
-        github_repo_name: "some github_repo_name"
-      }
-
-      {:ok, notebook} = Notebooks.create_notebook(notebook_data)
-
-      user = Accounts.get_user!(notebook.user_id)
-      assert user.username == notebook_data.github_owner_login
-      assert user.avatar_url == notebook_data.github_owner_avatar_url
-    end
-
-    test "create_notebook/1 does not create duplicate users" do
-      # Arrange
-
-      user = AccountsFixtures.user_fixture()
-
-      notebook_data = %{
-        url: "some url",
-        content: "whatever",
-        github_filename: "some github_filename",
-        github_html_url: "some github_html_url",
-        github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: user.username,
-        github_repo_name: "repo1"
-      }
-
-      notebook_data1 = %{
-        url: "some url",
-        content: "whatever",
-        github_filename: "some github_filename",
-        github_html_url: "some github_html_url_foo",
-        github_owner_avatar_url: "some github_owner_avatar_url",
-        github_owner_login: user.username,
-        github_repo_name: "repo2"
-      }
-
-      {:ok, notebook} = Notebooks.create_notebook(notebook_data1)
-      {:ok, new_notebook} = Notebooks.create_notebook(notebook_data)
-
-      assert notebook.user_id == new_notebook.user_id
-      repo = Repos.get_repo(notebook.repo_id)
-      assert repo.user_id == notebook.user_id
     end
   end
 end
