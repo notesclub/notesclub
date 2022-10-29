@@ -194,7 +194,7 @@ defmodule Notesclub.Repos do
       {:ok, %RepoSchema{}}
 
   """
-  @spec get_by(list) :: %RepoSchema{} | nil
+  @spec get_by(map) :: %RepoSchema{} | nil
   def get_by(params) do
     Repo.get_by(RepoSchema, params)
   end

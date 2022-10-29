@@ -220,8 +220,8 @@ defmodule Notesclub.Searches.Populate do
                username: attrs.github_owner_login,
                avatar_url: attrs.github_owner_avatar_url
              }) do
-          {:ok, user} ->
-            Map.put_new(attrs, :user_id, user.id)
+          {:ok, new_user} ->
+            Map.put_new(attrs, :user_id, new_user.id)
 
           {:error, error} ->
             Logger.info(

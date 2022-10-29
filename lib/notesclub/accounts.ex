@@ -110,17 +110,21 @@ defmodule Notesclub.Accounts do
   end
 
   @doc """
-  Returns an `{:ok, %Ecto.Changeset{}}` for user by name.
+  Finds a user by username
+  Returns `%User{}` or nil
 
   ## Examples
 
       iex> get_by_username(username)
-      {:ok, %User{}}
+      %User{}
+
+      iex> get_by_username(non_existent_username)
+      nil
 
   """
   def get_by_username(nil), do: nil
 
-  @spec get_by_username(binary) :: {:ok, %User{}}
+  @spec get_by_username(binary) :: %User{} | nil
   def get_by_username(username) do
     Repo.get_by(User, username: username)
   end

@@ -11,7 +11,8 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Accounts
   alias Notesclub.Accounts.User
   alias Notesclub.Repos.Repo, as: RepoSchema
-  alias Notesclub.Accounts
+  alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Urls
 
   alias Notesclub.Workers.UrlContentSyncWorker
 
@@ -203,7 +204,7 @@ defmodule Notesclub.Notebooks do
     true
 
   """
-  @spec get_by(list()) :: %Notebook{} | nil
+  @spec get_by([...]) :: %Notebook{} | nil
   def get_by(ops) do
     Enum.reduce(ops, from(n in Notebook), fn
       {:github_filename, github_filename}, query ->
@@ -335,6 +336,11 @@ defmodule Notesclub.Notebooks do
   Creates or updates a notebook depending on url
   url (default branch url) is generated from github_html_url (commit url) if url is not present
 
+  If url or github_html_url exist or can be generated, we create a notebook. Otherwise, we update it.
+  If we create a notebook, we'll also create a user and repo if they don't exist.any()
+  Yet, if we update a notebook, we do NOT create user and repo if missing.
+    This should NOT be a problem as user and repo creation is handled upon creation.
+
   ## Examples
 
   iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
@@ -343,16 +349,37 @@ defmodule Notesclub.Notebooks do
   iex> save_notebook(%{field: bad_value})
   {:error, %Ecto.Changeset{}}
   """
-  @spec save_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
-  def save_notebook(attrs \\ %{}) do
-    attrs = if attrs.github_html_url, do: Map.put(attrs, :url, build_url(attrs)), else: attrs
+  @spec save_notebook(map) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  def save_notebook(attrs) do
+    attrs = attrs |> put_repo_id() |> put_url()
 
-    if notebook = Notebooks.get_by(url: attrs.url) do
+    url = attrs[:url]
+    github_html_url = attrs[:github_html_url]
+
+    notebook =
+      (url && Notebooks.get_by(url: url)) ||
+        (github_html_url && Notebooks.get_by(github_html_url: github_html_url))
+
+    if notebook do
       update_notebook(notebook, attrs)
     else
       create_notebook(attrs)
     end
   end
+
+  defp put_repo_id(%{github_repo_name: repo_name, github_owner_login: username} = attrs) do
+    case Repos.get_by(full_name: "#{username}/#{repo_name}") do
+      nil -> attrs
+      repo -> Map.put_new(attrs, :repo_id, repo.id)
+    end
+  end
+
+  defp put_url(%{github_html_url: github_html_url, repo_id: repo_id} = attrs) do
+    url = build_url(%{github_html_url: github_html_url, repo_id: repo_id})
+    Map.put_new(attrs, :url, url)
+  end
+
+  defp put_url(attrs), do: attrs
 
   defp build_url(repo_id: repo_id, github_html_url: github_html_url) do
     case Repos.get_repo(repo_id) do

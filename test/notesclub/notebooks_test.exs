@@ -7,10 +7,12 @@ defmodule Notesclub.NotebooksTest do
   alias Notesclub.ReposFixtures
   alias Notesclub.Repos
 
+  import Notesclub.NotebooksFixtures
+  import Notesclub.ReposFixtures
+  import Notesclub.AccountsFixtures
+
   describe "notebooks" do
     alias Notesclub.Notebooks.Notebook
-
-    import Notesclub.NotebooksFixtures
 
     @invalid_attrs %{
       github_filename: nil,
@@ -211,6 +213,79 @@ defmodule Notesclub.NotebooksTest do
       notebook = notebook_fixture()
       assert {:error, %Ecto.Changeset{}} = Notebooks.update_notebook(notebook, @invalid_attrs)
       assert notebook == Notebooks.get_notebook!(notebook.id)
+    end
+
+    defp github_html_url(repo_full_name, sha) do
+      "https://github.com/#{repo_full_name}/blob/#{sha}/whatever.livemd"
+    end
+
+    test "save_notebook/1 with repo updates notebook because of url" do
+      user = user_fixture(%{username: "oneuser"})
+      repo = repo_fixture(%{name: "onerepo", default_branch: "main"})
+
+      commit1 = "34d6etc"
+
+      notebook =
+        notebook_fixture(%{
+          github_html_url: github_html_url(repo.full_name, commit1),
+          url: github_html_url(repo.full_name, repo.default_branch),
+          repo_id: repo.id
+        })
+
+      commit2 = "8321etc"
+
+      notebook_data = %{
+        github_html_url: github_html_url(repo.full_name, commit2),
+        github_owner_login: user.username,
+        github_repo_name: repo.name,
+        github_repo_full_name: repo.full_name,
+        github_filename: "whatever.livemd",
+        github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
+        github_repo_fork: false
+      }
+
+      {:ok, updated_notebook} = Notebooks.save_notebook(notebook_data)
+      assert updated_notebook.id == notebook.id
+    end
+
+    test "save_notebook/1 without repo updates notebook because of github_html_url" do
+      html_url = github_html_url("qwqw/ewqeq", "93823etc")
+      notebook = notebook_fixture(%{github_html_url: html_url})
+
+      notebook_data = %{
+        github_html_url: html_url,
+        github_owner_login: "non-existent-user-yet",
+        github_repo_name: "non-existent-repo-yet",
+        github_repo_full_name: "non-existent-user-yet/non-existent-repo-yet",
+        github_filename: "whatever.livemd",
+        github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
+        github_repo_fork: false
+      }
+
+      {:ok, updated_notebook} = Notebooks.save_notebook(notebook_data)
+      assert updated_notebook.id == notebook.id
+    end
+
+    test "save_notebook/1 creates notebook" do
+      html_url = github_html_url("josevalim/one_repo", "2323etc")
+
+      notebook_data = %{
+        github_html_url: html_url,
+        github_owner_login: "josevalim",
+        github_repo_name: "one_repo",
+        github_repo_full_name: "josevalim/one_repo",
+        github_filename: "whatever.livemd",
+        github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
+        github_repo_fork: false
+      }
+
+      assert Notebooks.list_notebooks() == []
+      {:ok, notebook} = Notebooks.save_notebook(notebook_data)
+      assert Notebooks.list_notebooks() |> Enum.map(& &1.id) == [notebook.id]
+      assert notebook.github_html_url == html_url
+      assert notebook.user_id
+      assert notebook.repo_id
+      # ... (tested in create_notebook/1)
     end
 
     test "delete_notebook/1 deletes the notebook" do
