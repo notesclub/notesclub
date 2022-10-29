@@ -129,6 +129,7 @@ defmodule Notesclub.Searches do
   end
 
   def notebooks_by_user(user) do
+    data = Notesclub.GithubAPI.get(username: user.username, per_page: 100, page: 1, order: "asc")
     {:ok, ""}
   end
 end

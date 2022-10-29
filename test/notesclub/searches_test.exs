@@ -93,7 +93,7 @@ defmodule Notesclub.SearchesTest do
       # don't pass a user
       # api endpoint fails
       user = user_fixture()
-      {:ok, notebooks} = Searches.notebooks_by_user(user)
+      {:ok, _notebooks} = Searches.notebooks_by_user(user)
     end
   end
 end
