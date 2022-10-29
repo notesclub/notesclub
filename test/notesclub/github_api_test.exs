@@ -85,9 +85,10 @@ defmodule Notesclub.GithubAPITest do
       end
     end
 
-    #     test "GithubAPI Key Exists" do
-    # assert Application.get_env(:notesclub, :github_api_key), "There is no :github_api_key"
-    #     end
+    @tag :github_api
+    test "confirm github_api_key exists" do
+      assert Application.get_env(:notesclub, :github_api_key), "There is no :github_api_key"
+    end
 
     @tag :github_api
     test "get/1 it returns the notebooks from the user" do
