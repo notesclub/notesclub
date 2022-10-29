@@ -88,12 +88,5 @@ defmodule Notesclub.SearchesTest do
       search = search_fixture()
       assert %Ecto.Changeset{} = Searches.change_search(search)
     end
-
-    test "notebooks_by_user/1 inserts new notebooks" do
-      # don't pass a user
-      # api endpoint fails
-      user = user_fixture()
-      {:ok, _notebooks} = Searches.notebooks_by_user(user)
-    end
   end
 end
