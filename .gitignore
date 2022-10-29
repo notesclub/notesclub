@@ -40,4 +40,5 @@ mix.lock
 # vscode, live sharing
 .vsls.json
 
+# optional dev_secrets.exs, test_secrets.exs, etc.
 /config/*secrets.exs
