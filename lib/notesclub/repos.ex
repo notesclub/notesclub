@@ -190,12 +190,12 @@ defmodule Notesclub.Repos do
 
   ## Examples
 
-      iex> get_by_name_and_user_id(%{user_id: "id", name: "repo_name"})
+      iex> get_by(%{user_id: "id", name: "repo_name"})
       {:ok, %RepoSchema{}}
 
   """
-  @spec get_by_name_and_user_id(%{name: binary, user_id: integer}) :: %RepoSchema{} | nil
-  def get_by_name_and_user_id(attrs) do
-    Repo.get_by(RepoSchema, attrs)
+  @spec get_by(list) :: %RepoSchema{} | nil
+  def get_by(params) do
+    Repo.get_by(RepoSchema, params)
   end
 end

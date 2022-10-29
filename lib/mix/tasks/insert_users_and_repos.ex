@@ -54,7 +54,7 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
   end
 
   defp find_or_create_repo(%{notebook: notebook, user: user}) do
-    case Repos.get_by_name_and_user_id(%{name: notebook.github_repo_name, user_id: user.id}) do
+    case Repos.get_by(%{name: notebook.github_repo_name, user_id: user.id}) do
       nil ->
         {:ok, repo} = Repos.create_repo(%{name: notebook.github_repo_name, user_id: user.id})
         %{notebook: notebook, user: user, repo: repo}

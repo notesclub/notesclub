@@ -15,6 +15,8 @@ defmodule Notesclub.Notebooks do
 
   alias Notesclub.Workers.UrlContentSyncWorker
 
+  require Logger
+
   @doc """
   Returns the list of notebooks.
 
@@ -200,9 +202,6 @@ defmodule Notesclub.Notebooks do
     iex> get_by(url: "https://github.com/.../file.livemd")
     true
 
-  TODO: We should probably deprecate this once we re-download all public livemd files within
-        each repo's default branch and their history of blobs.
-        Then, we won't create new files but update
   """
   @spec get_by(list()) :: %Notebook{} | nil
   def get_by(ops) do
@@ -243,16 +242,21 @@ defmodule Notesclub.Notebooks do
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
     |> Notebook.changeset(attrs)
-    |> put_user_id_if_exists(attrs)
-    |> put_user_and_repo_if_missing(attrs)
+    |> maybe_put_repo_id(attrs)
+    |> maybe_put_user_id(attrs)
+    |> maybe_put_user_and_repo_assoc(attrs)
     |> Repo.insert()
     |> set_user_id(attrs)
   end
 
   defp set_user_id(result, %{user_id: _}), do: result
 
+  # When we put the associations notebook.repo and notebook.repo.user
+  #  we need to manually set notebook.user_id
   defp set_user_id({:ok, notebook}, _) do
-    case update_notebook(notebook, %{user_id: notebook.repo.user_id}) do
+    repo = Repos.get_repo!(notebook.repo_id)
+
+    case update_notebook(notebook, %{user_id: repo.user_id}) do
       {:ok, notebook} ->
         {:ok, notebook}
 
@@ -269,30 +273,43 @@ defmodule Notesclub.Notebooks do
     {:error, changeset}
   end
 
-  def put_user_id_if_exists(changeset, %{user_id: _}), do: changeset
+  def maybe_put_repo_id(changeset, %{repo_id: _, user_id: _}), do: changeset
+  def maybe_put_repo_id(changeset, %{repo_id: nil}), do: changeset
 
-  def put_user_id_if_exists(changeset, attrs) do
-    case Accounts.get_by_username(attrs.github_owner_login) do
+  def maybe_put_repo_id(changeset, %{repo_id: repo_id}) do
+    repo = Repos.get_repo!(repo_id)
+    Ecto.Changeset.put_change(changeset, :user_id, repo.user_id)
+  end
+
+  def maybe_put_repo_id(changeset, %{github_repo_name: nil}), do: changeset
+
+  def maybe_put_repo_id(changeset, %{github_repo_name: github_repo_name}) do
+    case Repos.get_by(%{name: github_repo_name}) do
       nil ->
         changeset
 
-      %User{} = user ->
-        Ecto.Changeset.put_change(changeset, :user_id, user.id)
+      repo ->
+        changeset
+        |> Ecto.Changeset.put_change(:repo_id, repo.id)
+        |> Ecto.Changeset.put_change(:user_id, repo.user_id)
     end
   end
 
-  def put_user_and_repo_if_missing(changeset, %{repo_id: _, user_id: _}), do: changeset
+  def maybe_put_user_id(changeset, %{user_id: _}), do: changeset
 
-  def put_user_and_repo_if_missing(changeset, %{repo_id: repo_id} = attrs) do
-    case Repos.get_repo(repo_id) do
+  def maybe_put_user_id(changeset, %{github_owner_login: github_owner_login}) do
+    case Accounts.get_by_username(github_owner_login) do
       nil -> changeset
-      repo -> Changeset.set_change(changeset, :user_id, repo.user_id)
+      %User{} = user -> Ecto.Changeset.put_change(changeset, :user_id, user.id)
     end
   end
 
-  def put_user_and_repo_if_missing(changeset, attrs) do
-    case Ecto.Changeset.get_change(changeset, :user_id) do
-      nil ->
+  def maybe_put_user_and_repo_assoc(changeset, attrs) do
+    user_id = Ecto.Changeset.get_change(changeset, :user_id)
+    repo_id = Ecto.Changeset.get_change(changeset, :repo_id)
+
+    case {user_id, repo_id} do
+      {nil, nil} ->
         Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
           name: attrs[:github_repo_name],
           full_name: attrs[:github_repo_full_name],
@@ -303,11 +320,14 @@ defmodule Notesclub.Notebooks do
           }
         })
 
-      user_id ->
+      {user_id, nil} ->
         Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
           name: attrs.github_repo_name,
           user_id: user_id
         })
+
+      {_user_id, _repo_id} ->
+        changeset
     end
   end
 

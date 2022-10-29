@@ -4,7 +4,7 @@ defmodule Notesclub.NotebooksTest do
   alias Notesclub.Notebooks
   alias Notesclub.SearchesFixtures
   alias Notesclub.AccountsFixtures
-  alias Notesclub.Accounts
+  alias Notesclub.ReposFixtures
   alias Notesclub.Repos
 
   describe "notebooks" do
@@ -90,6 +90,29 @@ defmodule Notesclub.NotebooksTest do
       assert original_notebook.repo_id == preloaded_notebook.repo.id
     end
 
+    test "create_notebook/1 with repo_id saves user_id=repo.user_id" do
+      search = SearchesFixtures.search_fixture()
+      repo = ReposFixtures.repo_fixture()
+
+      valid_attrs = %{
+        repo_id: repo.id,
+        url: "some url",
+        content: "whatever",
+        github_filename: "some github_filename",
+        github_html_url: "some github_html_url",
+        github_owner_avatar_url: "some github_owner_avatar_url",
+        github_owner_login: "some_github_owner_login",
+        github_repo_name: "some_github_repo_name",
+        github_repo_full_name: "some_github_owner_login/some_github_repo_name",
+        github_repo_fork: true,
+        search_id: search.id
+      }
+
+      assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
+      assert notebook.repo_id == repo.id
+      assert notebook.user_id == repo.user_id
+    end
+
     test "create_notebook/1 with valid data creates a notebook, a repo and a user" do
       search = SearchesFixtures.search_fixture()
 
@@ -116,15 +139,16 @@ defmodule Notesclub.NotebooksTest do
       assert notebook.github_repo_name == "some_github_repo_name"
       assert notebook.search_id == search.id
       assert notebook.repo_id != nil
-      assert notebook.repo.user_id != nil
+      assert notebook.user_id != nil
+      assert notebook.user_id == notebook.repo.user_id
 
       repo = Repos.get_repo!(notebook.repo_id, preload: :user)
       assert repo.name == "some_github_repo_name"
       assert repo.full_name == "some_github_owner_login/some_github_repo_name"
       assert repo.fork == true
+      assert repo.user_id != nil
       assert repo.user.username == "some_github_owner_login"
       assert repo.user.avatar_url == "some github_owner_avatar_url"
-      assert repo.user_id == notebook.user_id
     end
 
     test "create_notebook/1 does not create duplicate users" do

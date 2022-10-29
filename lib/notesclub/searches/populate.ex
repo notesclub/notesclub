@@ -237,7 +237,7 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp get_or_create_repo(attrs) do
-    case Repos.get_by_name_and_user_id(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
+    case Repos.get_by(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
       nil ->
         repo_attrs = %{
           name: attrs.github_repo_name,
