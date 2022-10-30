@@ -66,3 +66,6 @@ config :notesclub, :github_api_key, github_api_key
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
+
+github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
+config :notesclub, :github_api_key, github_api_key
