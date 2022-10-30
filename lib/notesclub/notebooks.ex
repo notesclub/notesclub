@@ -368,11 +368,13 @@ defmodule Notesclub.Notebooks do
   end
 
   defp put_repo_id(%{github_repo_name: repo_name, github_owner_login: username} = attrs) do
-    case Repos.get_by(full_name: "#{username}/#{repo_name}") do
+    case Repos.get_by(%{full_name: "#{username}/#{repo_name}"}) do
       nil -> attrs
       repo -> Map.put_new(attrs, :repo_id, repo.id)
     end
   end
+
+  defp put_repo_id(attrs), do: attrs
 
   defp put_url(%{github_html_url: github_html_url, repo_id: repo_id} = attrs) do
     url = build_url(%{github_html_url: github_html_url, repo_id: repo_id})
@@ -381,7 +383,7 @@ defmodule Notesclub.Notebooks do
 
   defp put_url(attrs), do: attrs
 
-  defp build_url(repo_id: repo_id, github_html_url: github_html_url) do
+  defp build_url(%{repo_id: repo_id, github_html_url: github_html_url}) do
     case Repos.get_repo(repo_id) do
       nil ->
         nil
