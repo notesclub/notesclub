@@ -81,7 +81,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
       # Github REST API allows us to make 5000 req/h. We limit to 2000 as we make requests outside of this queue (populate.ex)
       github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]],
       # Github Search API allows us to make 10 req/min
-      github_search: [global_limit: 10, rate_limit: [allowed: 1, period: {3, :minute}]]
+      github_search: [global_limit: 10, rate_limit: [allowed: 3, period: {1, :minute}]]
     ]
 else
   config :notesclub, Oban,
