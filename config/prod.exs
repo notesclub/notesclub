@@ -30,9 +30,6 @@ config :notesclub, NotesclubWeb.Endpoint,
   version: Mix.Project.config()[:version],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
-github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
-config :notesclub, :github_api_key, github_api_key
-
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
@@ -66,6 +63,3 @@ config :notesclub, :github_api_key, github_api_key
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
-
-github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
-config :notesclub, :github_api_key, github_api_key
