@@ -60,12 +60,7 @@ config :tailwind,
 
 config :notesclub, Notesclub.Scheduler,
   jobs: [
-    {"@daily", {Notesclub.Searches.Delete, :eliminate, []}},
-    application_tags: [
-      # Every minute
-      schedule: "* * * * *",
-      task: {Notesclub.Searches.Populate, :next, []}
-    ]
+    {"@daily", {Notesclub.Searches.Delete, :eliminate, []}}
   ]
 
 if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
@@ -73,6 +68,8 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     engine: Oban.Pro.Queue.SmartEngine,
     repo: Notesclub.Repo,
     plugins: [
+      {Oban.Plugins.Cron,
+       crontab: [{"* * * * *", Notesclub.Workers.PopulateRecentNotebooksWorker}]},
       # seconds
       {Oban.Plugins.Pruner, max_age: 300},
       Oban.Plugins.Gossip,
@@ -81,8 +78,10 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     ],
     queues: [
       default: 10,
-      # Github allows us to make 5000 req/h. We limit to 2000 as we make requests outside of this queue (populate.ex)
-      github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]]
+      # Github REST API allows us to make 5000 req/h. We limit to 2000 as we make requests outside of this queue (populate.ex)
+      github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]],
+      # Github Search API allows us to make 10 req/min
+      github_search: [global_limit: 10, rate_limit: [allowed: 1, period: {3, :minute}]]
     ]
 else
   config :notesclub, Oban,
