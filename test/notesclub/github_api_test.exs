@@ -1,8 +1,7 @@
-defmodule Notesclub.Searches.FetchTest do
+defmodule Notesclub.GithubAPITest do
   use Notesclub.DataCase
 
-  alias Notesclub.Searches.Fetch
-  alias Notesclub.Searches.Fetch.Options
+  alias Notesclub.GithubAPI
 
   import Mock
 
@@ -46,15 +45,15 @@ defmodule Notesclub.Searches.FetchTest do
     }
   }
 
-  describe "Fetch.Search" do
+  describe "GithubAPI.Search" do
     test "get/3 returns notebooks" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]},
-        {Fetch, [:passthrough], [check_github_api_key: fn -> false end]}
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
         assert {
                  :ok,
-                 %Fetch{
+                 %GithubAPI{
                    notebooks_data: [
                      %{
                        github_filename: "structs.livemd",
@@ -82,27 +81,30 @@ defmodule Notesclub.Searches.FetchTest do
                    response: @valid_reponse,
                    url: _url
                  }
-               } = Fetch.get(%Options{per_page: 2, page: 1, order: :asc})
+               } = GithubAPI.get(per_page: 2, page: 1, order: :asc)
       end
     end
 
-    test "get/3 complains about missing github_api_key" do
-      with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]}
-      ]) do
-        options = %Options{per_page: 2, page: 1, order: :asc}
+    #     test "GithubAPI Key Exists" do
+    # assert Application.get_env(:notesclub, :github_api_key), "There is no :github_api_key"
+    #     end
 
-        assert {
-                 :error,
-                 %Notesclub.Searches.Fetch{
-                   errors: %{github_api_key: ["is missing"]},
-                   notebooks_data: nil,
-                   options: ^options,
-                   response: nil,
-                   url: _
-                 }
-               } = Fetch.get(options)
-      end
+    @tag :github_api
+    test "get/1 it returns the notebooks from the user" do
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data}} =
+        GithubAPI.get(username: "DockYard-Academy", per_page: 2, page: 1, order: "ASC")
+
+      Enum.each(notebook_data, fn item ->
+        assert item.github_owner_login == "DockYard-Academy"
+      end)
+    end
+
+    @tag :github_api
+    test "get/1 it returns two notebooks when no username is passed" do
+      {:ok, %Notesclub.GithubAPI{notebooks_data: notebook_data}} =
+        GithubAPI.get(per_page: 2, page: 1, order: "ASC")
+
+      assert length(notebook_data) == 2
     end
   end
 end
