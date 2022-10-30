@@ -5,7 +5,7 @@ defmodule Notesclub.Accounts.User do
   schema "users" do
     field :username, :string
     field :avatar_url, :string
-
+    has_many :notebooks, Notesclub.Notebooks.Notebook
     timestamps()
   end
 

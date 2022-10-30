@@ -7,8 +7,10 @@ defmodule Notesclub.GithubAPI do
   # Replace Option with option() typespec/keyword list
   # Fetch struct -> GitHubAPI
 
-  @type options :: [url: String.t(), response: map(), notebooks_data: map(), errors: map()]
-  defstruct options: [], url: nil, response: nil, notebooks_data: nil, errors: %{}
+  @type options ::
+          [per_page: number, page: number, order: binary]
+          | [username: binary, per_page: number, page: number, order: binary]
+  defstruct notebooks_data: nil, response: nil, url: nil, errors: %{}
 
   @doc """
 
@@ -112,25 +114,22 @@ defmodule Notesclub.GithubAPI do
     end)
   end
 
-  defp build_url([per_page: per_page, page: page, order: order, username: username] = options) do
+  defp build_url(username: username, per_page: per_page, page: page, order: order) do
     %GithubAPI{
       url:
-        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
-      options: options
+        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
     }
   end
 
-  defp build_url([per_page: per_page, page: page, order: order] = options) do
+  defp build_url(per_page: per_page, page: page, order: order) do
     %GithubAPI{
       url:
-        "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}",
-      options: options
+        "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
     }
   end
 
   defp make_request(%GithubAPI{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
-    env = Application.get_env(:notesclub, :env)
 
     cond do
       github_api_key == nil && __MODULE__.check_github_api_key() ->
@@ -149,10 +148,6 @@ defmodule Notesclub.GithubAPI do
         Map.put(fetch, :response, response)
     end
   end
-
-  #  Don't make requests to Github in test env
-  defp url(%GithubAPI{}, true), do: ""
-  defp url(%GithubAPI{} = fetch, false), do: fetch.url
 
   # We can mock this in tests
   @spec check_github_api_key :: true

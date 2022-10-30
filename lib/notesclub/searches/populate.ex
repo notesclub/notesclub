@@ -157,10 +157,10 @@ defmodule Notesclub.Searches.Populate do
 
   defp create_or_update_notebook(new_attributes) do
     existent_notebook =
-      Notebooks.get_by_filename_owner_and_repo(
-        new_attributes.github_filename,
-        new_attributes.github_owner_login,
-        new_attributes.github_repo_name
+      Notebooks.get_by(
+        github_filename: new_attributes.github_filename,
+        github_owner_login: new_attributes.github_owner_login,
+        github_repo_name: new_attributes.github_repo_name
       )
 
     if existent_notebook do
@@ -220,8 +220,8 @@ defmodule Notesclub.Searches.Populate do
                username: attrs.github_owner_login,
                avatar_url: attrs.github_owner_avatar_url
              }) do
-          {:ok, user} ->
-            Map.put_new(attrs, :user_id, user.id)
+          {:ok, new_user} ->
+            Map.put_new(attrs, :user_id, new_user.id)
 
           {:error, error} ->
             Logger.info(
@@ -237,7 +237,7 @@ defmodule Notesclub.Searches.Populate do
   end
 
   defp get_or_create_repo(attrs) do
-    case Repos.get_by_name_and_user_id(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
+    case Repos.get_by(%{name: attrs.github_repo_name, user_id: attrs.user_id}) do
       nil ->
         repo_attrs = %{
           name: attrs.github_repo_name,

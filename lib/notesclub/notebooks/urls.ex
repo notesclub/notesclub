@@ -87,15 +87,21 @@ defmodule Notesclub.Notebooks.Urls do
     Map.put(urls, :raw_commit_url, urls.commit_url |> raw_url())
   end
 
-  defp get_default_branch_url(%Urls{commit_url: nil}), do: nil
+  defp get_default_branch_url(%Urls{commit_url: nil} = urls), do: urls
 
-  defp get_default_branch_url(%Urls{notebook: %Notebook{repo: %Repo{default_branch: nil}}}),
-    do: nil
+  defp get_default_branch_url(
+         %Urls{notebook: %Notebook{repo: %Repo{default_branch: nil}}} = urls
+       ),
+       do: urls
 
   defp get_default_branch_url(%Urls{} = urls) do
     default_branch = urls.notebook.repo.default_branch
-    url = String.replace(urls.commit_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
+    url = default_branch_url(urls.commit_url, default_branch)
     Map.put(urls, :default_branch_url, url)
+  end
+
+  def default_branch_url(github_html_url, default_branch) do
+    String.replace(github_html_url, ~r/\/blob\/[^\/]*\//, "/blob/#{default_branch}/")
   end
 
   defp get_raw_default_branch_url(%Urls{} = urls) do
