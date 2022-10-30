@@ -7,7 +7,6 @@ defmodule Notesclub.SearchesTest do
     alias Notesclub.Searches.Search
 
     import Notesclub.SearchesFixtures
-    import Notesclub.AccountsFixtures
 
     @invalid_attrs %{
       order: nil,
