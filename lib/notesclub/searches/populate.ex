@@ -3,7 +3,7 @@ defmodule Notesclub.Searches.Populate do
   require Logger
 
   #  max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"
-  @daily_page_limit 100
+  @daily_page_limit 200
   @default_per_page 5
 
   # public function so we can mock it in tests
