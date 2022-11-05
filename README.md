@@ -10,7 +10,7 @@ Welcome to Notesclub!
 
 Feel free to:
 - [Take an issue](https://github.com/notesclub/notesclub/issues)
-- Propose a new one issue
+- Propose a new issue
 - Refactor existent code
 - Add documentation
 Thanks!
