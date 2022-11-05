@@ -10,7 +10,7 @@ defmodule Notesclub.GithubAPI do
   @type options ::
           [per_page: number, page: number, order: binary]
           | [username: binary, per_page: number, page: number, order: binary]
-  defstruct notebooks_data: nil, response: nil, url: nil, errors: %{}
+  defstruct notebooks_data: nil, total_count: 0, response: nil, url: nil, errors: %{}
 
   @doc """
 
@@ -91,7 +91,12 @@ defmodule Notesclub.GithubAPI do
         }
       end)
 
-    {:ok, Map.put(fetch, :notebooks_data, notebooks_data)}
+    fetch =
+      fetch
+      |> Map.put(:notebooks_data, notebooks_data)
+      |> Map.put(:total_count, response.body["total_count"])
+
+    {:ok, fetch}
   end
 
   #  We make sure we only store public repos/files
