@@ -65,8 +65,10 @@ defmodule Notesclub.Notebooks.UrlsTest do
     end
 
     test "raw_url/1 generates raw_url" do
-      assert Urls.raw_url("https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd") ==
-        "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
+      assert Urls.raw_url(
+               "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+             ) ==
+               "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
     end
   end
 end

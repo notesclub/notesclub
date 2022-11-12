@@ -36,8 +36,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
     with {:ok, notebook} <- load_notebook(notebook_id),
          {:ok, urls} <- get_urls(notebook),
-         {:ok, attrs} <- attrs_for_update(notebook, urls)
-    do
+         {:ok, attrs} <- attrs_for_update(notebook, urls) do
       update_notebook(notebook, attrs)
     end
   end
