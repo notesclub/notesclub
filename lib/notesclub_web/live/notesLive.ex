@@ -22,17 +22,7 @@ defmodule NotesclubWeb.NotesLive do
     {:noreply, push_patch(socket, to: Routes.live_path(socket, NotesLive))}
   end
 
-  def handle_params(params, url, socket) do
-    case connected?(socket) do
-      true ->
-        handle_params_internal(params, url, socket)
-
-      false ->
-        {:noreply, assign(socket, notebooks: [], notebooks_count: 0, search: nil, page: :random)}
-    end
-  end
-
-  defp handle_params_internal(%{"author" => author, "repo" => repo}, _url, socket) do
+  def handle_params(%{"author" => author, "repo" => repo}, _url, socket) do
     notebooks = Notebooks.list_repo_author_notebooks_desc(repo, author)
     count = Notebooks.count()
 
@@ -40,7 +30,7 @@ defmodule NotesclubWeb.NotesLive do
      assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :repo)}
   end
 
-  defp handle_params_internal(%{"author" => author}, _url, socket) do
+  def handle_params(%{"author" => author}, _url, socket) do
     notebooks = Notebooks.list_author_notebooks_desc(author)
     count = Notebooks.count()
 
@@ -48,7 +38,7 @@ defmodule NotesclubWeb.NotesLive do
      assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :author)}
   end
 
-  defp handle_params_internal(%{"search" => "content:" <> term}, _url, socket) do
+  def handle_params(%{"search" => "content:" <> term}, _url, socket) do
     notebooks = Notebooks.list_notebooks(github_filename: term)
 
     notebooks2 =
@@ -65,7 +55,7 @@ defmodule NotesclubWeb.NotesLive do
      )}
   end
 
-  defp handle_params_internal(%{"search" => term}, _url, socket) do
+  def handle_params(%{"search" => term}, _url, socket) do
     notebooks = Notebooks.list_notebooks(github_filename: term)
     count = Notebooks.count()
 
@@ -73,7 +63,7 @@ defmodule NotesclubWeb.NotesLive do
      assign(socket, notebooks: notebooks, notebooks_count: count, search: term, page: :all)}
   end
 
-  defp handle_params_internal(%{}, url, socket) do
+  def handle_params(%{}, url, socket) do
     cond do
       String.ends_with?(url, "/last_week") ->
         notebooks = Notebooks.list_notebooks_since(7)
