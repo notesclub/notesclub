@@ -299,13 +299,21 @@ defmodule Notesclub.NotebooksTest do
       assert %Ecto.Changeset{} = Notebooks.change_notebook(notebook)
     end
 
-    test "get_by/3 returns a notebook" do
-      notebook =
-        notebook_fixture(%{
-          url: "https://whatever.com"
-        })
+    test "get_by/1 returns a notebook" do
+      notebook = notebook_fixture()
 
-      assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
+      notebook =
+        notebook_fixture(
+          url: "different",
+          github_html_url: "different",
+          github_owner_login: "different",
+          github_repo_name: "different"
+        )
+
+      assert notebook == Notebooks.get_by(url: notebook.url)
+      assert notebook == Notebooks.get_by(github_html_url: notebook.github_html_url)
+      assert notebook == Notebooks.get_by(github_owner_login: notebook.github_owner_login)
+      assert notebook == Notebooks.get_by(github_repo_name: notebook.github_repo_name)
     end
   end
 end

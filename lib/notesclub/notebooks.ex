@@ -213,6 +213,9 @@ defmodule Notesclub.Notebooks do
       {:github_owner_login, github_owner_login}, query ->
         where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
 
+      {:github_html_url, github_html_url}, query ->
+        where(query, [notebook], notebook.github_html_url == ^github_html_url)
+
       {:github_repo_name, github_repo_name}, query ->
         where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
 
@@ -356,9 +359,8 @@ defmodule Notesclub.Notebooks do
     url = attrs[:url]
     github_html_url = attrs[:github_html_url]
 
-    notebook =
-      (url && Notebooks.get_by(url: url)) ||
-        (github_html_url && Notebooks.get_by(github_html_url: github_html_url))
+    notebook = url && Notebooks.get_by(url: url)
+    notebook = notebook || (github_html_url && Notebooks.get_by(github_html_url: github_html_url))
 
     if notebook do
       update_notebook(notebook, attrs)
