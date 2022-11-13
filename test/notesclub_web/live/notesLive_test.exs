@@ -7,7 +7,7 @@ defmodule NotesclubWeb.NotesLiveTest do
   alias Notesclub.NotebooksFixtures
   alias NotesclubWeb.NotesLive
 
-  test "mount only returns first n notebooks", %{conn: conn} do
+  test "GET / only returns first n notebooks", %{conn: conn} do
     notebooks_in_home_count = NotesLive.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3
 
