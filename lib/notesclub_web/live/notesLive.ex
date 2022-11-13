@@ -11,7 +11,7 @@ defmodule NotesclubWeb.NotesLive do
   def notebooks_in_home_count, do: @notebooks_in_home_count
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, notebooks: [], notebooks_count: 0, search: nil, page: :random)}
+    {:ok, socket}
   end
 
   def handle_event("search", %{"term" => term}, socket) do
