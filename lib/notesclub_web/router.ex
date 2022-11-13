@@ -38,14 +38,14 @@ defmodule NotesclubWeb.Router do
   scope "/", NotesclubWeb do
     pipe_through :browser
 
-    get "/", PageController, :index, as: :index
-    get "/all", PageController, :all, as: :all
-    get "/last_week", PageController, :last_week, as: :last_week
-    get "/last_month", PageController, :last_month, as: :last_month
+    live "/", NotesLive
     # Used for uptime monitoring and zero-downtime deploys
     get "/ok", StatusController, :ok
-    get "/:author", PageController, :author, as: :author
-    get "/:author/:repo", PageController, :repo, as: :repo
+    live "/all", NotesLive, :all
+    live "/last_week", NotesLive, :last_week
+    live "/last_month", NotesLive, :last_month
+    live "/:author", NotesLive, :author
+    live "/:author/:repo", NotesLive, :repo
   end
 
   # Other scopes may use custom stacks.
