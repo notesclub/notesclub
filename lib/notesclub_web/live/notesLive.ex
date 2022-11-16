@@ -63,45 +63,45 @@ defmodule NotesclubWeb.NotesLive do
      assign(socket, notebooks: notebooks, notebooks_count: count, search: term, page: :all)}
   end
 
-  def handle_params(%{}, url, socket) do
-    cond do
-      String.ends_with?(url, "/last_week") ->
-        notebooks = Notebooks.list_notebooks_since(7)
-        count = Notebooks.count()
+  def handle_params(%{}, _url, %{assigns: %{live_action: :last_week}} = socket) do
+    notebooks = Notebooks.list_notebooks_since(7)
+    count = Notebooks.count()
 
-        {:noreply,
-         assign(socket,
-           notebooks: notebooks,
-           notebooks_count: count,
-           search: nil,
-           page: :last_week
-         )}
+    {:noreply,
+     assign(socket,
+       notebooks: notebooks,
+       notebooks_count: count,
+       search: nil,
+       page: :last_week
+     )}
+  end
 
-      String.ends_with?(url, "/last_month") ->
-        notebooks = Notebooks.list_notebooks_since(30)
-        count = Notebooks.count()
+  def handle_params(%{}, _url, %{assigns: %{live_action: :last_month}} = socket) do
+    notebooks = Notebooks.list_notebooks_since(30)
+    count = Notebooks.count()
 
-        {:noreply,
-         assign(socket,
-           notebooks: notebooks,
-           notebooks_count: count,
-           search: nil,
-           page: :last_month
-         )}
+    {:noreply,
+     assign(socket,
+       notebooks: notebooks,
+       notebooks_count: count,
+       search: nil,
+       page: :last_month
+     )}
+  end
 
-      String.ends_with?(url, "/all") ->
-        notebooks = Notebooks.list_notebooks()
-        count = Notebooks.count()
+  def handle_params(%{}, _url, %{assigns: %{live_action: :all}} = socket) do
+    notebooks = Notebooks.list_notebooks()
+    count = Notebooks.count()
 
-        {:noreply,
-         assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :all)}
+    {:noreply,
+     assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :all)}
+  end
 
-      true ->
-        notebooks = Notebooks.list_random_notebooks(%{limit: @notebooks_in_home_count})
-        count = Notebooks.count()
+  def handle_params(%{}, _url, socket) do
+    notebooks = Notebooks.list_random_notebooks(%{limit: @notebooks_in_home_count})
+    count = Notebooks.count()
 
-        {:noreply,
-         assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :random)}
-    end
+    {:noreply,
+     assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :random)}
   end
 end
