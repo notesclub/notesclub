@@ -108,12 +108,13 @@ defmodule NotesclubWeb.NotesLive do
   end
 
   defp get_notebooks(%{assigns: %{search: search, notebooks: notebooks}}, :search, page) do
+    per_page = trunc(@per_page / 2)
     exclude_ids = Enum.map(notebooks, & &1.id)
 
     filename_matches =
       Notebooks.list_notebooks(
         github_filename: search,
-        per_page: @per_page,
+        per_page: per_page,
         page: page,
         order: :desc,
         exclude_ids: exclude_ids
@@ -124,7 +125,7 @@ defmodule NotesclubWeb.NotesLive do
     content_matches =
       Notebooks.list_notebooks(
         content: search,
-        per_page: @per_page,
+        per_page: per_page,
         page: page,
         order: :desc,
         exclude_ids: exclude_ids
