@@ -9,9 +9,9 @@
   </p>
   <form id="search" class="flex justify-center my-12" phx-submit="search">
     <input type="text" name="term" value={@search}
-      class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mr-6">
-    <input type="submit" name="Submit"
-      class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+    <input type="submit" name="Submit" value="Search"
+      class="ml-2 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
   </form>
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll shadow ring-1 ring-black ring-opacity-5 rounded-lg">
     <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
