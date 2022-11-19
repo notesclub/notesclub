@@ -18,6 +18,8 @@ defmodule Notesclub.Notebooks do
 
   require Logger
 
+  @default_per_page 15
+
   @doc """
   Returns the list of notebooks.
 
@@ -33,9 +35,18 @@ defmodule Notesclub.Notebooks do
       {:order, :desc}, query ->
         order_by(query, [notebook], -notebook.id)
 
+      {:order, :random}, query ->
+        order_by(query, [notebook], fragment("RANDOM()"))
+
       {:github_filename, github_filename}, query ->
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
+
+      {:github_owner_login, github_owner_login}, query ->
+        where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
+
+      {:github_repo_name, github_repo_name}, query ->
+        where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
 
       {:content, content}, query ->
         search = "%#{content}%"
@@ -46,6 +57,12 @@ defmodule Notesclub.Notebooks do
 
       {:repo_id, repo_id}, query ->
         where(query, [notebook], notebook.repo_id == ^repo_id)
+
+      {:page, page}, query ->
+        case Keyword.fetch(opts, :per_page) do
+          {:ok, per_page} -> paginate(query, page, per_page)
+          :error -> paginate(query, page, @default_per_page)
+        end
 
       _, query ->
         query
@@ -458,12 +475,22 @@ defmodule Notesclub.Notebooks do
   def content_fragment(_notebook, nil), do: nil
 
   def content_fragment(%Notebook{content: content}, search) do
-    case Regex.run(~r/[^\n]{0,15}#{search}[^\n]{0,15}/i, content) do
+    case Regex.run(~r/[^\n]{0,25}#{search}[^\n]{0,25}/i, content) do
       nil ->
         nil
 
       list ->
         "..." <> List.first(list) <> "..."
     end
+  end
+
+  def paginate(query, 0, per_page), do: limit(query, ^per_page)
+
+  def paginate(query, page, per_page) do
+    offset_by = per_page * page
+
+    query
+    |> limit(^per_page)
+    |> offset(^offset_by)
   end
 end

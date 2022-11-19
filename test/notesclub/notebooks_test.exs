@@ -45,6 +45,20 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.list_notebooks(github_filename: "FOUND") == [notebook]
     end
 
+    test "list_notebooks/1 search by github_owner_login" do
+      notebook = notebook_fixture(%{github_owner_login: "one"})
+      _other_notebook = notebook_fixture(%{github_owner_login: "two"})
+
+      assert Notebooks.list_notebooks(github_owner_login: "one") == [notebook]
+    end
+
+    test "list_notebooks/1 search by github_repo_name" do
+      notebook = notebook_fixture(%{github_repo_name: "one"})
+      _other_notebook = notebook_fixture(%{github_repo_name: "two"})
+
+      assert Notebooks.list_notebooks(github_repo_name: "one") == [notebook]
+    end
+
     # Ensure all filters integrate correctly
     test "list_notebooks/1 search by all filters" do
       notebook1 = notebook_fixture(%{github_filename: "found.livemd"})
