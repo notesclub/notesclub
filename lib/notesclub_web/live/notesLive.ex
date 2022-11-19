@@ -7,99 +7,55 @@ defmodule NotesclubWeb.NotesLive do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
 
-  @random_notebooks_count 7
   @per_page 20
 
-  def random_notebooks_count, do: @random_notebooks_count
+  def per_page, do: @per_page
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, notebooks_count: Notebooks.count())}
   end
 
-  def handle_params(%{"author" => author, "repo" => repo}, _url, socket) do
-    notebooks = Notebooks.list_repo_author_notebooks_desc(repo, author)
-    count = Notebooks.count()
-
-    {:noreply,
-     assign(socket,
-       notebooks: notebooks,
-       notebooks_count: count,
-       search: nil,
-       page: :repo,
-       page_number: 1
-     )}
+  def handle_params(params, _url, %{assigns: %{live_action: live_action}} = socket) do
+    run_action(params, live_action, socket)
   end
 
-  def handle_params(%{"author" => author}, _url, socket) do
-    notebooks = Notebooks.list_author_notebooks_desc(author)
-    count = Notebooks.count()
-
-    {:noreply,
-     assign(socket,
-       notebooks: notebooks,
-       notebooks_count: count,
-       search: nil,
-       page: :author,
-       page_number: 1
-     )}
+  defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
+    socket = assign(socket, author: author, repo: repo)
+    notebooks = get_notebooks(socket, :repo, 0)
+    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
   end
 
-  def handle_params(%{"search" => "content:" <> term}, _url, socket) do
-    notebooks = Notebooks.list_notebooks(github_filename: term)
-
-    notebooks2 =
-      Notebooks.list_notebooks(content: term, exclude_ids: notebooks |> Enum.map(& &1.id))
-
-    count = Notebooks.count()
-
-    {:noreply,
-     assign(socket,
-       notebooks: notebooks ++ notebooks2,
-       notebooks_count: count,
-       search: term,
-       page: :all,
-       page_number: 1
-     )}
+  defp run_action(%{"author" => author}, :author, socket) do
+    socket = assign(socket, author: author, repo: nil)
+    notebooks = get_notebooks(socket, :author, 0)
+    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
   end
 
-  def handle_params(%{"search" => term}, _url, socket) do
-    notebooks = Notebooks.list_notebooks(github_filename: term)
-    count = Notebooks.count()
+  defp run_action(%{"search" => search}, :search, socket) do
+    # We get_notebooks/3 needs :search and :notebooks in the socket
+    socket = assign(socket, search: search, notebooks: [])
+    notebooks = get_notebooks(socket, :search, 0)
 
     {:noreply,
-     assign(socket,
-       notebooks: notebooks,
-       notebooks_count: count,
-       search: term,
-       page: :all,
-       page_number: 1
-     )}
+     assign(socket, page: 0, search: search, notebooks: notebooks, author: nil, repo: nil)}
   end
 
-  def handle_params(%{}, _url, %{assigns: %{live_action: :home}} = socket) do
-    notebooks = get_notebooks()
-    count = Notebooks.count()
-
-    {:noreply,
-     assign(socket,
-       notebooks: notebooks,
-       notebooks_count: count,
-       search: nil,
-       page: :last_week,
-       page_number: 1
-     )}
+  defp run_action(_params, :home, socket) do
+    notebooks = get_notebooks(socket, :home, 0)
+    {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
   end
 
-  def handle_params(%{}, _url, %{assigns: %{live_action: :random}} = socket) do
-    notebooks = Notebooks.list_random_notebooks(%{limit: @random_notebooks_count})
-    count = Notebooks.count()
+  defp run_action(_params, :random, socket) do
+    notebooks = get_notebooks(socket, :random, 0)
+    {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
+  end
 
-    {:noreply,
-     assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :random)}
+  def handle_event("search", %{"term" => ""}, socket) do
+    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :home))}
   end
 
   def handle_event("search", %{"term" => term}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :all, search: term))}
+    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :search, search: term))}
   end
 
   def handle_event("random", _, socket) do
@@ -107,14 +63,15 @@ defmodule NotesclubWeb.NotesLive do
   end
 
   def handle_event("load-more", _, socket) do
-    %{assigns: %{page_number: page_number, notebooks: notebooks}} = socket
-    next_page = page_number + 1
+    %{assigns: %{page: page, notebooks: notebooks, live_action: live_action}} = socket
+
+    next_page = page + 1
 
     {:noreply,
      assign(
        socket,
-       notebooks: notebooks ++ get_notebooks(next_page),
-       page_number: next_page
+       notebooks: notebooks ++ get_notebooks(socket, live_action, next_page),
+       page: next_page
      )}
   end
 
@@ -123,7 +80,56 @@ defmodule NotesclubWeb.NotesLive do
     "#{year}-#{month}-#{day}"
   end
 
-  defp get_notebooks(page_number \\ 1) do
-    Notebooks.list_notebooks(per_page: @per_page, page: page_number, order: :desc)
+  defp get_notebooks(_socket, :home, page) do
+    Notebooks.list_notebooks(per_page: @per_page, page: page, order: :desc)
+  end
+
+  defp get_notebooks(_socket, :random, page) do
+    Notebooks.list_notebooks(per_page: @per_page, page: page, order: :random)
+  end
+
+  defp get_notebooks(%{assigns: %{repo: repo, author: author}}, :repo, page) do
+    Notebooks.list_notebooks(
+      github_repo_name: repo,
+      github_owner_login: author,
+      per_page: @per_page,
+      page: page,
+      order: :desc
+    )
+  end
+
+  defp get_notebooks(%{assigns: %{author: author}}, :author, page) do
+    Notebooks.list_notebooks(
+      github_owner_login: author,
+      per_page: @per_page,
+      page: page,
+      order: :desc
+    )
+  end
+
+  defp get_notebooks(%{assigns: %{search: search, notebooks: notebooks}}, :search, page) do
+    exclude_ids = Enum.map(notebooks, & &1.id)
+
+    filename_matches =
+      Notebooks.list_notebooks(
+        github_filename: search,
+        per_page: @per_page,
+        page: page,
+        order: :desc,
+        exclude_ids: exclude_ids
+      )
+
+    exclude_ids = exclude_ids ++ Enum.map(filename_matches, & &1.id)
+
+    content_matches =
+      Notebooks.list_notebooks(
+        content: search,
+        per_page: @per_page,
+        page: page,
+        order: :desc,
+        exclude_ids: exclude_ids
+      )
+
+    filename_matches ++ content_matches
   end
 end
