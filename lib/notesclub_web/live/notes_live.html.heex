@@ -9,10 +9,12 @@
   </p>
   <form id="search" class="flex justify-center my-12" phx-submit="search">
     <input type="text" name="term" value={@search}
-      class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mr-6">
+      class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
     <input type="submit" name="Submit"
-      class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      class="ml-2 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+    <a phx-click="random" style="cursor:pointer;" class="ml-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
   </form>
+
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll shadow ring-1 ring-black ring-opacity-5 rounded-lg">
     <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
       <thead class="bg-gray-100 font-semibold text-gray-900">
@@ -63,7 +65,6 @@
     </table>
   </section>
   <div class="text-center p-6">
-    <a phx-click="random" style="cursor:pointer;" class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
     <%= unless @page == :last_week do %>
       <%= live_patch "Last week", to: Routes.notes_path(@socket, :last_week),
         class: "px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" %>

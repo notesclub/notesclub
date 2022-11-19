@@ -7,7 +7,7 @@ defmodule NotesclubWeb.NotesLiveTest do
   alias Notesclub.Notebooks
   alias NotesclubWeb.NotesLive
 
-  test "GET / only returns first n notebooks", %{conn: conn} do
+  test "GET /random only returns first n notebooks", %{conn: conn} do
     notebooks_in_home_count = NotesLive.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3
 
@@ -15,7 +15,7 @@ defmodule NotesclubWeb.NotesLiveTest do
       notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
     end
 
-    {:ok, _view, html} = live(conn, "/")
+    {:ok, _view, html} = live(conn, "/random")
 
     assert notebooks_in_home_count ==
              1..notebooks_count
@@ -150,7 +150,7 @@ defmodule NotesclubWeb.NotesLiveTest do
     assert html =~ "whatever4.livemd"
   end
 
-  test "GET /last_week returns last week's notebooks", %{conn: conn} do
+  test "GET / returns last week's notebooks", %{conn: conn} do
     # today
     notebook_fixture(%{github_filename: "whatever0.livemd"})
 
@@ -159,7 +159,7 @@ defmodule NotesclubWeb.NotesLiveTest do
       {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
     end
 
-    {:ok, _view, html} = live(conn, "/last_week")
+    {:ok, _view, html} = live(conn, "/")
 
     for day <- 0..6 do
       assert html =~ "whatever#{day}.livemd"

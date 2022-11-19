@@ -38,11 +38,11 @@ defmodule NotesclubWeb.Router do
   scope "/", NotesclubWeb do
     pipe_through :browser
 
-    live "/", NotesLive
+    live "/", NotesLive, :last_week
     # Used for uptime monitoring and zero-downtime deploys
     get "/ok", StatusController, :ok
     live "/all", NotesLive, :all
-    live "/last_week", NotesLive, :last_week
+    live "/random", NotesLive, :random
     live "/last_month", NotesLive, :last_month
     live "/:author", NotesLive, :author
     live "/:author/:repo", NotesLive, :repo

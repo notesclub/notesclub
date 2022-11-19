@@ -4,7 +4,6 @@ defmodule NotesclubWeb.NotesLive do
   import Phoenix.LiveView.Helpers
   import Phoenix.LiveView
 
-  alias NotesclubWeb.NotesLive
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
 
@@ -20,7 +19,7 @@ defmodule NotesclubWeb.NotesLive do
   end
 
   def handle_event("random", _, socket) do
-    {:noreply, push_patch(socket, to: Routes.live_path(socket, NotesLive))}
+    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :random))}
   end
 
   def handle_params(%{"author" => author, "repo" => repo}, _url, socket) do
@@ -98,7 +97,7 @@ defmodule NotesclubWeb.NotesLive do
      assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :all)}
   end
 
-  def handle_params(%{}, _url, socket) do
+  def handle_params(%{}, _url, %{assigns: %{live_action: :random}} = socket) do
     notebooks = Notebooks.list_random_notebooks(%{limit: @notebooks_in_home_count})
     count = Notebooks.count()
 
