@@ -10,7 +10,7 @@
   <form id="search" class="flex justify-center my-12" phx-submit="search">
     <input type="text" name="term" value={@search}
       class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-    <input type="submit" name="Submit"
+    <input type="submit" name="Submit" value="Search"
       class="ml-2 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
     <a phx-click="random" style="cursor:pointer;" class="ml-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
   </form>
