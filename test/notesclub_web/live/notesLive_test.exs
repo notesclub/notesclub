@@ -2,9 +2,9 @@ defmodule NotesclubWeb.NotesLiveTest do
   use NotesclubWeb.ConnCase
   import Phoenix.ConnTest
   import Phoenix.LiveViewTest
+  import Notesclub.NotebooksFixtures
 
   alias Notesclub.Notebooks
-  alias Notesclub.NotebooksFixtures
   alias NotesclubWeb.NotesLive
 
   test "GET / only returns first n notebooks", %{conn: conn} do
@@ -12,7 +12,7 @@ defmodule NotesclubWeb.NotesLiveTest do
     notebooks_count = notebooks_in_home_count + 3
 
     for i <- 1..notebooks_count do
-      NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
+      notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
     end
 
     {:ok, _view, html} = live(conn, "/")
@@ -25,12 +25,20 @@ defmodule NotesclubWeb.NotesLiveTest do
              |> Enum.count()
   end
 
+  test "GET /all includes the date", %{conn: conn} do
+    notebook = notebook_fixture(%{})
+    %NaiveDateTime{year: year, month: month, day: day} = notebook.inserted_at
+
+    {:ok, _view, html} = live(conn, "/all")
+    html =~ "#{year}-#{month}-#{day}"
+  end
+
   test "GET /all returns all notebooks", %{conn: conn} do
     notebooks_in_home_count = NotesLive.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3
 
     for i <- 1..notebooks_count do
-      NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
+      notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
     end
 
     {:ok, _view, html} = live(conn, "/all")
@@ -44,14 +52,14 @@ defmodule NotesclubWeb.NotesLiveTest do
   end
 
   test "GET /all with search returns notebooks that match filename", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{github_filename: "found.livemd"})
+    notebook_fixture(%{github_filename: "found.livemd"})
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "any-name.livemd",
       content: "abc found xyz"
     })
 
-    NotebooksFixtures.notebook_fixture(%{github_filename: "not_present.livemd"})
+    notebook_fixture(%{github_filename: "not_present.livemd"})
 
     {:ok, _view, html} = live(conn, "/all?search=found")
 
@@ -63,14 +71,14 @@ defmodule NotesclubWeb.NotesLiveTest do
   test "GET /all with content:search returns notebooks that match filename or content", %{
     conn: conn
   } do
-    NotebooksFixtures.notebook_fixture(%{github_filename: "found.livemd"})
+    notebook_fixture(%{github_filename: "found.livemd"})
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "any-name.livemd",
       content: "abc found xyz"
     })
 
-    NotebooksFixtures.notebook_fixture(%{github_filename: "not_present.livemd"})
+    notebook_fixture(%{github_filename: "not_present.livemd"})
 
     {:ok, _view, html} = live(conn, "/all?search=content:found")
 
@@ -80,22 +88,22 @@ defmodule NotesclubWeb.NotesLiveTest do
   end
 
   test "GET /:author filters notebooks", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever1.livemd",
       github_owner_login: "someone"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever2.livemd",
       github_owner_login: "someone"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever3.livemd",
       github_owner_login: "someone else"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever4.livemd",
       github_owner_login: "someone"
     })
@@ -110,25 +118,25 @@ defmodule NotesclubWeb.NotesLiveTest do
   end
 
   test "GET /:author/:repo filters notebooks", %{conn: conn} do
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever1.livemd",
       github_owner_login: "someone",
       github_repo_name: "one"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever2.livemd",
       github_owner_login: "someone",
       github_repo_name: "two"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever3.livemd",
       github_owner_login: "someone else",
       github_repo_name: "three"
     })
 
-    NotebooksFixtures.notebook_fixture(%{
+    notebook_fixture(%{
       github_filename: "whatever4.livemd",
       github_owner_login: "someone",
       github_repo_name: "one"
@@ -144,10 +152,10 @@ defmodule NotesclubWeb.NotesLiveTest do
 
   test "GET /last_week returns last week's notebooks", %{conn: conn} do
     # today
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"})
+    notebook_fixture(%{github_filename: "whatever0.livemd"})
 
     for day <- 1..10 do
-      n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
+      n = notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
       {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
     end
 
@@ -164,10 +172,10 @@ defmodule NotesclubWeb.NotesLiveTest do
 
   test "GET /last_month returns last month's notebooks", %{conn: conn} do
     # today
-    NotebooksFixtures.notebook_fixture(%{github_filename: "whatever0.livemd"})
+    notebook_fixture(%{github_filename: "whatever0.livemd"})
 
     for day <- 1..32 do
-      n = NotebooksFixtures.notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
+      n = notebook_fixture(%{github_filename: "whatever#{day}.livemd"})
       {:ok, _} = Notebooks.update_notebook(n, %{inserted_at: DateTools.days_ago(day)})
     end
 
