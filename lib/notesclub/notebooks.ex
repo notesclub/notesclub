@@ -18,6 +18,8 @@ defmodule Notesclub.Notebooks do
 
   require Logger
 
+  @default_per_page 15
+
   @doc """
   Returns the list of notebooks.
 
@@ -46,6 +48,12 @@ defmodule Notesclub.Notebooks do
 
       {:repo_id, repo_id}, query ->
         where(query, [notebook], notebook.repo_id == ^repo_id)
+
+      {:page, page}, query ->
+        case Keyword.fetch(opts, :per_page) do
+          {:ok, per_page} -> paginate(query, page, per_page)
+          :error -> paginate(query, page, @default_per_page)
+        end
 
       _, query ->
         query
@@ -465,5 +473,13 @@ defmodule Notesclub.Notebooks do
       list ->
         "..." <> List.first(list) <> "..."
     end
+  end
+
+  def paginate(query, page, per_page) do
+    offset_by = per_page * page
+
+    query
+    |> limit(^per_page)
+    |> offset(^offset_by)
   end
 end
