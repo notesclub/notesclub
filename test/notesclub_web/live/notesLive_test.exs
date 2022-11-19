@@ -25,6 +25,14 @@ defmodule NotesclubWeb.NotesLiveTest do
              |> Enum.count()
   end
 
+  test "GET /all includes the date", %{conn: conn} do
+    notebook = NotebooksFixtures.notebook_fixture(%{})
+    %NaiveDateTime{year: year, month: month, day: day} = notebook.inserted_at
+
+    {:ok, _view, html} = live(conn, "/all")
+    html =~ "#{year}-#{month}-#{day}"
+  end
+
   test "GET /all returns all notebooks", %{conn: conn} do
     notebooks_in_home_count = NotesLive.notebooks_in_home_count()
     notebooks_count = notebooks_in_home_count + 3

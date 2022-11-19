@@ -23,6 +23,7 @@
             / Search
           <% end %>
         </td>
+        <td align="left" scope="col">Date</td>
         <td align="left" scope="col">Actions</td>
       </thead>
       <%= for notebook <- @notebooks do %>
@@ -50,6 +51,9 @@
                 <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
               </p>
             <% end %>
+          </td>
+          <td>
+            <%= format_date(notebook) %>
           </td>
           <td>
             <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>

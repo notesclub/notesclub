@@ -6,6 +6,7 @@ defmodule NotesclubWeb.NotesLive do
 
   alias NotesclubWeb.NotesLive
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Notebook
 
   @notebooks_in_home_count 7
   def notebooks_in_home_count, do: @notebooks_in_home_count
@@ -103,5 +104,10 @@ defmodule NotesclubWeb.NotesLive do
 
     {:noreply,
      assign(socket, notebooks: notebooks, notebooks_count: count, search: nil, page: :random)}
+  end
+
+  defp format_date(%Notebook{inserted_at: inserted_at}) do
+    %NaiveDateTime{year: year, month: month, day: day} = inserted_at
+    "#{year}-#{month}-#{day}"
   end
 end
