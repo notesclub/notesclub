@@ -48,7 +48,7 @@
             <p>
               <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
             </p>
-            <%= if assigns[:search] && !Regex.match?(~r/#{@search}/i, notebook.github_filename)  do %>
+            <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
               <p class="text-gray-400">
                 <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
               </p>
