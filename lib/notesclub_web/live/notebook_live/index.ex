@@ -1,4 +1,4 @@
-defmodule NotesclubWeb.NotesLive do
+defmodule NotesclubWeb.NotebookLive.Index do
   use NotesclubWeb, :live_view
   use Phoenix.HTML
   import Phoenix.LiveView.Helpers
@@ -51,15 +51,15 @@ defmodule NotesclubWeb.NotesLive do
   end
 
   def handle_event("search", %{"term" => ""}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :home))}
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
   end
 
   def handle_event("search", %{"term" => term}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :search, search: term))}
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, search: term))}
   end
 
   def handle_event("random", _, socket) do
-    {:noreply, push_patch(socket, to: Routes.notes_path(socket, :random))}
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :random))}
   end
 
   def handle_event("load-more", _, socket) do

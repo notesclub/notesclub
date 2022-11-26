@@ -1,4 +1,4 @@
-defmodule NotesclubWeb.NotesLiveTest do
+defmodule NotesclubWeb.NotebookLive.IndexTest do
   use NotesclubWeb.ConnCase
   import Phoenix.ConnTest
   import Phoenix.LiveViewTest
