@@ -41,11 +41,11 @@ defmodule NotesclubWeb.Router do
     # Used for uptime monitoring and zero-downtime deploys
     get "/ok", StatusController, :ok
 
-    live "/", NotesLive, :home
-    live "/search", NotesLive, :search
-    live "/random", NotesLive, :random
-    live "/:author", NotesLive, :author
-    live "/:author/:repo", NotesLive, :repo
+    live "/", NotebookLive.Index, :home
+    live "/search", NotebookLive.Index, :search
+    live "/random", NotebookLive.Index, :random
+    live "/:author", NotebookLive.Index, :author
+    live "/:author/:repo", NotebookLive.Index, :repo
   end
 
   # Enables LiveDashboard only for development
