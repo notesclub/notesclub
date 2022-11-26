@@ -38,20 +38,15 @@ defmodule NotesclubWeb.Router do
   scope "/", NotesclubWeb do
     pipe_through :browser
 
-    get "/", PageController, :index, as: :index
-    get "/all", PageController, :all, as: :all
-    get "/last_week", PageController, :last_week, as: :last_week
-    get "/last_month", PageController, :last_month, as: :last_month
     # Used for uptime monitoring and zero-downtime deploys
     get "/ok", StatusController, :ok
-    get "/:author", PageController, :author, as: :author
-    get "/:author/:repo", PageController, :repo, as: :repo
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", NotesclubWeb do
-  #   pipe_through :api
-  # end
+    live "/", NotebookLive.Index, :home
+    live "/search", NotebookLive.Index, :search
+    live "/random", NotebookLive.Index, :random
+    live "/:author", NotebookLive.Index, :author
+    live "/:author/:repo", NotebookLive.Index, :repo
+  end
 
   # Enables LiveDashboard only for development
   #
