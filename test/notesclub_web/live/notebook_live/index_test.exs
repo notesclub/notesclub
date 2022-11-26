@@ -51,7 +51,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
 
     notebook_fixture(%{github_filename: "not_present.livemd"})
 
-    {:ok, _view, html} = live(conn, "/search?search=found")
+    {:ok, _view, html} = live(conn, "/search?q=found")
 
     assert html =~ "found.livemd"
     assert html =~ "any-name.livemd"
