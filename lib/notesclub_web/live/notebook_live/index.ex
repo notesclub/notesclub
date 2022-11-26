@@ -31,7 +31,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, assign(socket, search: nil, notebooks: notebooks)}
   end
 
-  defp run_action(%{"search" => search}, :search, socket) do
+  defp run_action(%{"q" => search} = args, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
     socket = assign(socket, search: search, notebooks: [])
     notebooks = get_notebooks(socket, :search, 0)
@@ -50,12 +50,12 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
   end
 
-  def handle_event("search", %{"term" => ""}, socket) do
+  def handle_event("search", %{"q" => ""}, socket) do
     {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
   end
 
-  def handle_event("search", %{"term" => term}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, search: term))}
+  def handle_event("search", %{"q" => q}, socket) do
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: q))}
   end
 
   def handle_event("random", _, socket) do
