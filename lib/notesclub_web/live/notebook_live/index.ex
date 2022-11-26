@@ -31,7 +31,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, assign(socket, search: nil, notebooks: notebooks)}
   end
 
-  defp run_action(%{"q" => encoded_search} = args, :search, socket) do
+  defp run_action(%{"q" => encoded_search}, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
     search = URI.decode(encoded_search)
     socket = assign(socket, search: search, notebooks: [])
@@ -39,6 +39,13 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
     {:noreply,
      assign(socket, page: 0, search: search, notebooks: notebooks, author: nil, repo: nil)}
+  end
+
+  defp run_action(_, :search, socket) do
+    socket = assign(socket, search: nil, notebooks: [])
+    notebooks = get_notebooks(socket, :search, 0)
+
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, author: nil, repo: nil)}
   end
 
   defp run_action(_params, :home, socket) do

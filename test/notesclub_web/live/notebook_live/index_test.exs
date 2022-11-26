@@ -58,6 +58,18 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     refute html =~ "not_present.livemd"
   end
 
+  test "GET /search without query returns all notebooks", %{conn: conn} do
+    notebook_fixture(%{github_filename: "one.livemd"})
+    notebook_fixture(%{github_filename: "two.livemd"})
+    notebook_fixture(%{github_filename: "three.livemd"})
+
+    {:ok, _view, html} = live(conn, "/search")
+
+    assert html =~ "one.livemd"
+    assert html =~ "two.livemd"
+    assert html =~ "three.livemd"
+  end
+
   test "GET /:author filters notebooks", %{conn: conn} do
     notebook_fixture(%{
       github_filename: "whatever1.livemd",
