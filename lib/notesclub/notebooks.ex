@@ -477,12 +477,9 @@ defmodule Notesclub.Notebooks do
   def content_fragment(%Notebook{content: content}, search) do
     s = Regex.escape(search)
 
-    case Regex.run(~r/[^\n]{0,25}#{s}[^\n]{0,25}/i, content) do
-      nil ->
-        nil
-
-      list ->
-        "..." <> List.first(list) <> "..."
+    case Regex.run(~r/.*#{s}.*/i, content) do
+      nil -> nil
+      list -> List.first(list)
     end
   end
 
