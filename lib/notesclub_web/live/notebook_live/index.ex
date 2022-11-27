@@ -22,13 +22,13 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
     socket = assign(socket, author: author, repo: repo)
     notebooks = get_notebooks(socket, :repo, 0)
-    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
   defp run_action(%{"author" => author}, :author, socket) do
     socket = assign(socket, author: author, repo: nil)
     notebooks = get_notebooks(socket, :author, 0)
-    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
   defp run_action(%{"q" => encoded_search}, :search, socket) do

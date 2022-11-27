@@ -70,6 +70,18 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ "three.livemd"
   end
 
+  test "GET /search returns notebooks with emojis", %{conn: conn} do
+    notebook_fixture(%{github_filename: "one.livemd", content: "# One 🎄🤶\n ..."})
+    notebook_fixture(%{github_filename: "two.livemd", content: ""})
+    notebook_fixture(%{github_filename: "three.livemd"})
+
+    {:ok, _view, html} = live(conn, "/search")
+
+    assert html =~ "one.livemd"
+    assert html =~ "two.livemd"
+    assert html =~ "three.livemd"
+  end
+
   test "GET /:author filters notebooks", %{conn: conn} do
     notebook_fixture(%{
       github_filename: "whatever1.livemd",
