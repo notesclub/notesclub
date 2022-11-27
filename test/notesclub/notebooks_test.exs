@@ -321,5 +321,26 @@ defmodule Notesclub.NotebooksTest do
 
       assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
     end
+
+    test "extract_title/1 returns the title" do
+      title = "That's a title"
+
+      content = """
+      # #{title}
+      ## That's a subtitle
+      That's content
+      """
+
+      assert Notebooks.extract_title(content) == title
+    end
+
+    test "extract_title/1 without title returns a nil" do
+      content = """
+      ## That's a subtitle
+      That's content
+      """
+
+      assert Notebooks.extract_title(content) == nil
+    end
   end
 end

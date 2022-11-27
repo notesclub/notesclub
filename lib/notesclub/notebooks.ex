@@ -495,4 +495,11 @@ defmodule Notesclub.Notebooks do
     |> limit(^per_page)
     |> offset(^offset_by)
   end
+
+  def extract_title(content) do
+    case Regex.scan(~r/^#\s+(.+)/, content) do
+      [[_full_capture, capture]] -> capture
+      _ -> nil
+    end
+  end
 end
