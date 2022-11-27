@@ -475,15 +475,25 @@ defmodule Notesclub.Notebooks do
   def content_fragment(_notebook, nil), do: nil
 
   def content_fragment(%Notebook{content: content}, search) do
-    s = Regex.escape(search)
+    search
+    |> Regex.escape()
+    |> extract_line(content)
+    |> extract_surounding(search)
+  end
 
-    case Regex.run(~r/[^\n]{0,25}#{s}[^\n]{0,25}/i, content) do
-      nil ->
-        nil
-
-      list ->
-        "..." <> List.first(list) <> "..."
+  defp extract_line(search, content) do
+    case Regex.run(~r/.*#{search}.*/i, content) do
+      nil -> nil
+      list -> List.first(list)
     end
+  end
+
+  defp extract_surounding(line, search) do
+    [part_before, part_after | _] = String.split(line, ~r/#{search}/i)
+    len = String.length(part_before)
+    part_before = String.slice(part_before, (len - 25)..(len - 1))
+    part_after = String.slice(part_after, 0..25)
+    "...#{part_before}#{search}#{part_after}..."
   end
 
   def paginate(query, 0, per_page), do: limit(query, ^per_page)

@@ -321,5 +321,19 @@ defmodule Notesclub.NotebooksTest do
 
       assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
     end
+
+    test "content_fragment/2 extracts fragment" do
+      content = """
+      # Advent of code 2021 🎄🤶🏽
+
+      Task.async(fn ->
+        ...
+      end)
+      """
+
+      notebook = notebook_fixture(%{content: content})
+      assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
+      assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
+    end
   end
 end
