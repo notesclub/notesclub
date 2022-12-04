@@ -329,5 +329,19 @@ defmodule Notesclub.NotebooksTest do
       assert notebook == Notebooks.get_by(github_owner_login: notebook.github_owner_login)
       assert notebook == Notebooks.get_by(github_repo_name: notebook.github_repo_name)
     end
+
+    test "content_fragment/2 extracts fragment" do
+      content = """
+      # Advent of code 2021 🎄🤶🏽
+
+      Task.async(fn ->
+        ...
+      end)
+      """
+
+      notebook = notebook_fixture(%{content: content})
+      assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
+      assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
+    end
   end
 end

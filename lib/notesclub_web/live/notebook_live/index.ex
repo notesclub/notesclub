@@ -22,18 +22,17 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
     socket = assign(socket, author: author, repo: repo)
     notebooks = get_notebooks(socket, :repo, 0)
-    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
   defp run_action(%{"author" => author}, :author, socket) do
     socket = assign(socket, author: author, repo: nil)
     notebooks = get_notebooks(socket, :author, 0)
-    {:noreply, assign(socket, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
-  defp run_action(%{"q" => encoded_search}, :search, socket) do
+  defp run_action(%{"q" => search}, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
-    search = URI.decode(encoded_search)
     socket = assign(socket, search: search, notebooks: [])
     notebooks = get_notebooks(socket, :search, 0)
 
@@ -63,8 +62,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   end
 
   def handle_event("search", %{"q" => q}, socket) do
-    encoded_q = URI.encode(q)
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: encoded_q))}
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: q))}
   end
 
   def handle_event("random", _, socket) do
