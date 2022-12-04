@@ -3,7 +3,7 @@ defmodule Notesclub.Workers.PopulateRecentNotebooksWorker do
     Fetch and create or update recent notebooks from Github
   """
 
-  use Oban.Worker, queue: :github_search
+  use Oban.Worker, queue: :github_search, priority: 2
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
