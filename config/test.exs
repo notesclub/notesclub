@@ -29,7 +29,7 @@ config :logger, level: :warn
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :notesclub, Oban, testing: :manual
+config :notesclub, Oban, testing: :manual, queues: false, plugins: false
 
 if File.exists?("config/test_secrets.exs") do
   import_config "test_secrets.exs"
