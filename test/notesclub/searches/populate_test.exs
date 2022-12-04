@@ -55,6 +55,7 @@ defmodule Notesclub.Searches.PopulateTest do
   describe "next/0" do
     test "downloads and saves notebooks — until we reach daily_page_limit" do
       with_mocks([
+        {Application, [:passthrough], [get_env: fn _, _ -> true end]},
         {Populate, [:passthrough], [default_per_page: fn -> 2 end]},
         {Populate, [:passthrough], [daily_page_limit: fn -> 2 end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]},
