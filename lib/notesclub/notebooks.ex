@@ -488,6 +488,8 @@ defmodule Notesclub.Notebooks do
     end
   end
 
+  defp extract_surounding(nil, _), do: nil
+
   defp extract_surounding(line, search) do
     [part_before, part_after | _] = String.split(line, ~r/#{search}/i)
     len = String.length(part_before)

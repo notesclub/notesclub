@@ -335,5 +335,10 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
       assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
     end
+
+    test "content_fragment/2 works when content excludes search" do
+      notebook = notebook_fixture(%{content: "whatever"})
+      assert Notebooks.content_fragment(notebook, "day23") == nil
+    end
   end
 end
