@@ -31,7 +31,14 @@ let Hooks = {
 
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
-  hooks: Hooks
+  hooks: Hooks,
+  metadata: {
+    keydown: (e, el) => {
+      return {
+        timestamp: Date.now()
+      }
+    }
+  }
 })
 
 // Show progress bar on live navigation and form submits
