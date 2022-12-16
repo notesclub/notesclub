@@ -342,5 +342,24 @@ defmodule Notesclub.NotebooksTest do
 
       assert Notebooks.extract_title(content) == nil
     end
+
+    test "content_fragment/2 extracts fragment" do
+      content = """
+      # Advent of code 2021 🎄🤶🏽
+
+      Task.async(fn ->
+        ...
+      end)
+      """
+
+      notebook = notebook_fixture(%{content: content})
+      assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
+      assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
+    end
+
+    test "content_fragment/2 works when content excludes search" do
+      notebook = notebook_fixture(%{content: "whatever"})
+      assert Notebooks.content_fragment(notebook, "day23") == nil
+    end
   end
 end
