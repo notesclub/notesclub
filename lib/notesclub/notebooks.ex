@@ -42,6 +42,22 @@ defmodule Notesclub.Notebooks do
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
 
+      {:searchable, searchable}, query ->
+        search = "%#{searchable}%"
+
+        where(
+          query,
+          [notebook],
+          fragment(
+            "CONCAT(?, ?, ?, ?) ilike ?",
+            notebook.title,
+            notebook.github_filename,
+            notebook.github_owner_login,
+            notebook.github_repo_name,
+            ^search
+          )
+        )
+
       {:github_owner_login, github_owner_login}, query ->
         where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
 
