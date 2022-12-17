@@ -17,22 +17,59 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
       }) do
     options = [username: username, per_page: per_page, page: page, order: "desc"]
 
-    {:ok, %GithubAPI{notebooks_data: notebooks_data, total_count: total_count}} =
-      GithubAPI.get(options)
+    case GithubAPI.get(options) do
+      {:ok, %GithubAPI{notebooks_data: notebooks_data, total_count: total_count}} ->
+        saved_ids = save_notebooks_and_enqueue_content_sync(notebooks_data)
+        already_saved_ids = already_saved_ids ++ saved_ids
 
-    saved_ids =
-      Enum.map(notebooks_data, fn notebook_data ->
-        {:ok, notebook} = Notebooks.save_notebook(notebook_data)
+        enqueue_next_and_delete_old_if_required(%{
+          per_page: per_page,
+          page: page,
+          total_count: total_count,
+          already_saved_ids: already_saved_ids,
+          username: username
+        })
 
-        %{notebook_id: notebook.id}
-        |> Notesclub.Workers.UrlContentSyncWorker.new()
-        |> Oban.insert()
+      {:error,
+       %Notesclub.GithubAPI{
+         response: %Req.Response{
+           body: %{
+             "errors" => [
+               %{
+                 "code" => "invalid",
+                 "message" =>
+                   "The listed users, orgs, or repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
+               }
+             ]
+           }
+         }
+       }} ->
+        {:ok, "Skipping. User does NOT exist or we do not have permissions."}
 
-        notebook.id
-      end)
+      error ->
+        {:error, "Retrying. Unknown error: #{inspect(error)}"}
+    end
+  end
 
-    already_saved_ids = already_saved_ids ++ saved_ids
+  defp save_notebooks_and_enqueue_content_sync(notebooks_data) do
+    Enum.map(notebooks_data, fn notebook_data ->
+      {:ok, notebook} = Notebooks.save_notebook(notebook_data)
 
+      %{notebook_id: notebook.id}
+      |> Notesclub.Workers.UrlContentSyncWorker.new()
+      |> Oban.insert()
+
+      notebook.id
+    end)
+  end
+
+  def enqueue_next_and_delete_old_if_required(%{
+        per_page: per_page,
+        page: page,
+        total_count: total_count,
+        already_saved_ids: already_saved_ids,
+        username: username
+      }) do
     cond do
       per_page * (page + 1) > 2000 ->
         # We could actualy change to order :asc and get 2000 more — but not needed at the moment
