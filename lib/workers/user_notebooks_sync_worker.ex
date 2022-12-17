@@ -40,10 +40,6 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
 
       {:ok, "done and enqueued another page"}
     else
-      three_days_ago =
-        NaiveDateTime.utc_now()
-        |> Timex.shift(days: -3)
-
       {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: already_saved_ids})
       {:ok, "done and NO more pages — #{n} old notebooks deleted"}
     end
