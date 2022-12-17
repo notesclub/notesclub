@@ -42,6 +42,22 @@ defmodule Notesclub.Notebooks do
         search = "%#{github_filename}%"
         where(query, [notebook], ilike(notebook.github_filename, ^search))
 
+      {:searchable, searchable}, query ->
+        search = "%#{searchable}%"
+
+        where(
+          query,
+          [notebook],
+          fragment(
+            "CONCAT(?, ?, ?, ?) ilike ?",
+            notebook.title,
+            notebook.github_filename,
+            notebook.github_owner_login,
+            notebook.github_repo_name,
+            ^search
+          )
+        )
+
       {:github_owner_login, github_owner_login}, query ->
         where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
 
@@ -490,6 +506,8 @@ defmodule Notesclub.Notebooks do
     end
   end
 
+  defp extract_surounding(nil, _), do: nil
+
   defp extract_surounding(line, search) do
     [part_before, part_after | _] = String.split(line, ~r/#{search}/i)
     len = String.length(part_before)
@@ -506,5 +524,21 @@ defmodule Notesclub.Notebooks do
     query
     |> limit(^per_page)
     |> offset(^offset_by)
+  end
+
+  def extract_title(nil), do: nil
+
+  def extract_title(content) do
+    case Regex.scan(~r/#\s+(.+)/, content) do
+      [[_full_capture, capture] | _] -> capture
+      _ -> nil
+    end
+  end
+
+  def update_all_titles() do
+    list_notebooks()
+    |> Enum.map(fn n ->
+      update_notebook(n, %{title: extract_title(n.content)})
+    end)
   end
 end

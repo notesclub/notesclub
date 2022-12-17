@@ -7,8 +7,8 @@
     Updated every day.
     <%= link("Contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %> and join the <%= link "conversation in the elixir forum", to: "https://elixirforum.com/t/notesclub-discover-livebook-notebooks/49698", class: "text-blue-600", target: "_blank" %>.
   </p>
-  <form id="search" class="flex justify-center my-12" phx-change="search" phx-submit="search">
-    <input type="text" name="q" value={@search} autofocus phx-debounce="400"
+  <form id="search" class="flex justify-center my-12" phx-submit="search">
+    <input type="text" name="q" value={@search} autofocus phx-debounce="100" phx-keydown="search"
       class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
     <input type="submit" name="Submit" value="Search"
       class="ml-2 cursor-pointer inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -21,9 +21,6 @@
         <td class="p-4" align="left" scope="col">Author/Repo</td>
         <td align="left" scope="col">
           File
-          <%= if assigns[:search] do %>
-            / Search
-          <% end %>
         </td>
         <td align="left" scope="col">Date</td>
         <td align="left" scope="col">Actions</td>
@@ -46,6 +43,9 @@
           </td>
           <td>
             <p>
+              <%= link Notesclub.StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+            </p>
+            <p class="text-gray-400">
               <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
             </p>
             <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>

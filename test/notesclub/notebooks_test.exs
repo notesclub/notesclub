@@ -76,6 +76,15 @@ defmodule Notesclub.NotebooksTest do
              ]
     end
 
+    test "list_notebooks/1 search by searchable" do
+      notebook_fixture(%{github_owner_login: "josevalim"})
+      notebook_fixture()
+      notebook_fixture(%{github_repo_name: "valim-ideas", github_owner_login: "someone"})
+
+      assert Notebooks.list_notebooks(searchable: "valim", order: :asc)
+             |> Enum.map(& &1.github_owner_login) == ["josevalim", "someone"]
+    end
+
     test "list_notebooks_since/1 returns notebooks since n days ago" do
       # We create a notebook and confirm we get it
       notebook1 = notebook_fixture()
@@ -330,6 +339,40 @@ defmodule Notesclub.NotebooksTest do
       assert notebook == Notebooks.get_by(github_repo_name: notebook.github_repo_name)
     end
 
+    test "extract_title/1 returns the title" do
+      title = "That's a title"
+
+      content = """
+      # #{title}
+      ## That's a subtitle
+      That's content
+      """
+
+      assert Notebooks.extract_title(content) == title
+    end
+
+    test "extract_title/1 with <!-- returns the title" do
+      title = "2023 Advent of Code Day 14"
+
+      content = """
+      <!-- livebook:{"persist_outputs":true} -->
+
+      # #{title}
+
+      ```elixir
+      Mix.install([
+        {:kino, "~> 0.7.0"},
+        {:explorer, "~> 0.4.0"}
+      ])
+      ```
+
+      # kk
+      lll
+      """
+
+      assert Notebooks.extract_title(content) == title
+    end
+
     test "content_fragment/2 extracts fragment" do
       content = """
       # Advent of code 2021 🎄🤶🏽
@@ -342,6 +385,11 @@ defmodule Notesclub.NotebooksTest do
       notebook = notebook_fixture(%{content: content})
       assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
       assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
+    end
+
+    test "content_fragment/2 works when content excludes search" do
+      notebook = notebook_fixture(%{content: "whatever"})
+      assert Notebooks.content_fragment(notebook, "day23") == nil
     end
   end
 end

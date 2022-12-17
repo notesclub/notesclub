@@ -12,7 +12,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   def per_page, do: @per_page
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, notebooks_count: Notebooks.count())}
+    {:ok, assign(socket, notebooks_count: Notebooks.count(), last_search_time: 0)}
   end
 
   def handle_params(params, _url, %{assigns: %{live_action: live_action}} = socket) do
@@ -61,8 +61,19 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
   end
 
-  def handle_event("search", %{"q" => q}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: q))}
+  def handle_event("search", params, socket) do
+    %{"timestamp" => timestamp, "value" => q} = params
+
+    if timestamp > socket.assigns.last_search_time do
+      socket =
+        socket
+        |> assign(timestamp: timestamp)
+        |> push_patch(to: Routes.notebook_index_path(socket, :search, q: q))
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("random", _, socket) do
@@ -118,16 +129,16 @@ defmodule NotesclubWeb.NotebookLive.Index do
     per_page = trunc(@per_page / 2)
     exclude_ids = Enum.map(notebooks, & &1.id)
 
-    filename_matches =
+    searchable_matches =
       Notebooks.list_notebooks(
-        github_filename: search,
+        searchable: search,
         per_page: per_page,
         page: page,
         order: :desc,
         exclude_ids: exclude_ids
       )
 
-    exclude_ids = exclude_ids ++ Enum.map(filename_matches, & &1.id)
+    exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
 
     content_matches =
       Notebooks.list_notebooks(
@@ -138,6 +149,6 @@ defmodule NotesclubWeb.NotebookLive.Index do
         exclude_ids: exclude_ids
       )
 
-    filename_matches ++ content_matches
+    searchable_matches ++ content_matches
   end
 end
