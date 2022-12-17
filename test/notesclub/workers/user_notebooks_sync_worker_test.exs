@@ -78,15 +78,31 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
                  %Notebook{github_filename: "collections.livemd"} = n2
                ] = Notebooks.list_notebooks()
 
-        assert_enqueued(
-          worker: UserNotebooksSyncWorker,
-          args: %{
-            page: page + 1,
-            per_page: per_page,
-            username: username,
-            already_saved_ids: [n1.id, n2.id]
-          }
-        )
+        # enqueue next page and url sync
+
+        n2_id = n2.id
+        n1_id = n1.id
+        next_page = page + 1
+
+        assert [
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.UserNotebooksSyncWorker",
+                   args: %{
+                     "page" => ^next_page,
+                     "per_page" => ^per_page,
+                     "username" => ^username,
+                     "already_saved_ids" => [^n1_id, ^n2_id]
+                   }
+                 },
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n2_id}
+                 },
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n1_id}
+                 }
+               ] = all_enqueued()
       end
     end
 
@@ -128,6 +144,20 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
             already_saved_ids: [n1.id, n2.id]
           }
         )
+
+        n2_id = n2.id
+        n1_id = n1.id
+
+        assert [
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n2_id}
+                 },
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n1_id}
+                 }
+               ] = all_enqueued()
       end
     end
   end
