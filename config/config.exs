@@ -69,7 +69,10 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     repo: Notesclub.Repo,
     plugins: [
       {Oban.Plugins.Cron,
-       crontab: [{"* * * * *", Notesclub.Workers.PopulateRecentNotebooksWorker}]},
+       crontab: [
+         {"* * * * *", Notesclub.Workers.PopulateRecentNotebooksWorker},
+         {@weekly, Notesclub.Workers.AllUserNotebooksSyncWorker}
+       ]},
       # seconds
       {Oban.Plugins.Pruner, max_age: 300},
       Oban.Plugins.Gossip,
