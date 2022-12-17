@@ -515,6 +515,14 @@ defmodule Notesclub.Notebooks do
     Repo.delete(notebook)
   end
 
+  def delete_notebooks(%{username: username, except_ids: except_ids}) do
+    from(n in Notebook,
+      where: n.github_owner_login == ^username,
+      where: n.id not in ^except_ids
+    )
+    |> Repo.delete_all()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking notebook changes.
 

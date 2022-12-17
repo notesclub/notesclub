@@ -325,6 +325,15 @@ defmodule Notesclub.NotebooksTest do
       assert_raise Ecto.NoResultsError, fn -> Notebooks.get_notebook!(notebook.id) end
     end
 
+    test "delete_notebooks/1 deletes notebooks except the given ids" do
+      _n1 = notebook_fixture(%{github_owner_login: "one"})
+      n2 = notebook_fixture(%{github_owner_login: "one"})
+      _n3 = notebook_fixture(%{github_owner_login: "one"})
+      n4 = notebook_fixture()
+      assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) == {2, nil}
+      assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
+    end
+
     test "change_notebook/1 returns a notebook changeset" do
       notebook = notebook_fixture()
       assert %Ecto.Changeset{} = Notebooks.change_notebook(notebook)

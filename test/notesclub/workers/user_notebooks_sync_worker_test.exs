@@ -67,19 +67,25 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
                  perform_job(UserNotebooksSyncWorker, %{
                    username: username,
                    page: page,
-                   per_page: per_page
+                   per_page: per_page,
+                   already_saved_ids: []
                  })
 
         assert called(Req.get!(url, :_))
 
         assert [
-                 %Notebook{github_filename: "structs.livemd"},
-                 %Notebook{github_filename: "collections.livemd"}
+                 %Notebook{github_filename: "structs.livemd"} = n1,
+                 %Notebook{github_filename: "collections.livemd"} = n2
                ] = Notebooks.list_notebooks()
 
         assert_enqueued(
           worker: UserNotebooksSyncWorker,
-          args: %{page: page + 1, per_page: per_page, username: username}
+          args: %{
+            page: page + 1,
+            per_page: per_page,
+            username: username,
+            already_saved_ids: [n1.id, n2.id]
+          }
         )
       end
     end
