@@ -22,7 +22,14 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
 
     saved_ids =
       Enum.map(notebooks_data, fn notebook_data ->
+        #  save notebook
         {:ok, notebook} = Notebooks.save_notebook(notebook_data)
+        #  enqueue url content sync
+        %{notebook_id: notebook.id}
+        |> Notesclub.Workers.UrlContentSyncWorker.new()
+        |> Oban.insert()
+
+        # return id
         notebook.id
       end)
 
