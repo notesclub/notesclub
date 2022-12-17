@@ -244,7 +244,9 @@ defmodule Notesclub.NotebooksTest do
 
     test "save_notebook/1 with repo updates notebook because of url" do
       user = user_fixture(%{username: "oneuser"})
-      repo = repo_fixture(%{name: "onerepo", default_branch: "main"})
+
+      repo =
+        repo_fixture(%{name: "onerepo", default_branch: "main", full_name: "oneuser/onerepo"})
 
       commit1 = "34d6etc"
 
@@ -252,7 +254,13 @@ defmodule Notesclub.NotebooksTest do
         notebook_fixture(%{
           github_html_url: github_html_url(repo.full_name, commit1),
           url: github_html_url(repo.full_name, repo.default_branch),
-          repo_id: repo.id
+          repo_id: repo.id,
+          github_owner_login: user.username,
+          github_repo_name: repo.name,
+          github_repo_full_name: repo.full_name,
+          github_filename: "whatever.livemd",
+          github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
+          github_repo_fork: false
         })
 
       commit2 = "8321etc"
@@ -317,18 +325,35 @@ defmodule Notesclub.NotebooksTest do
       assert_raise Ecto.NoResultsError, fn -> Notebooks.get_notebook!(notebook.id) end
     end
 
+    test "delete_notebooks/1 deletes notebooks except the given ids" do
+      _n1 = notebook_fixture(%{github_owner_login: "one"})
+      n2 = notebook_fixture(%{github_owner_login: "one"})
+      _n3 = notebook_fixture(%{github_owner_login: "one"})
+      n4 = notebook_fixture()
+      assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) == {2, nil}
+      assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
+    end
+
     test "change_notebook/1 returns a notebook changeset" do
       notebook = notebook_fixture()
       assert %Ecto.Changeset{} = Notebooks.change_notebook(notebook)
     end
 
-    test "get_by/3 returns a notebook" do
-      notebook =
-        notebook_fixture(%{
-          url: "https://whatever.com"
-        })
+    test "get_by/1 returns a notebook" do
+      notebook = notebook_fixture()
 
-      assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
+      notebook =
+        notebook_fixture(
+          url: "different",
+          github_html_url: "different",
+          github_owner_login: "different",
+          github_repo_name: "different"
+        )
+
+      assert notebook == Notebooks.get_by(url: notebook.url)
+      assert notebook == Notebooks.get_by(github_html_url: notebook.github_html_url)
+      assert notebook == Notebooks.get_by(github_owner_login: notebook.github_owner_login)
+      assert notebook == Notebooks.get_by(github_repo_name: notebook.github_repo_name)
     end
 
     test "extract_title/1 returns the title" do

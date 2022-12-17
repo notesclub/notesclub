@@ -246,6 +246,9 @@ defmodule Notesclub.Notebooks do
       {:github_owner_login, github_owner_login}, query ->
         where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
 
+      {:github_html_url, github_html_url}, query ->
+        where(query, [notebook], notebook.github_html_url == ^github_html_url)
+
       {:github_repo_name, github_repo_name}, query ->
         where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
 
@@ -317,6 +320,21 @@ defmodule Notesclub.Notebooks do
 
   def maybe_put_repo_id(changeset, %{github_repo_name: nil}), do: changeset
 
+  def maybe_put_repo_id(changeset, %{
+        github_repo_name: repo_name,
+        github_owner_login: username
+      }) do
+    case Repos.get_by(%{full_name: "#{username}/#{repo_name}"}) do
+      nil ->
+        changeset
+
+      repo ->
+        changeset
+        |> Ecto.Changeset.put_change(:repo_id, repo.id)
+        |> Ecto.Changeset.put_change(:user_id, repo.user_id)
+    end
+  end
+
   def maybe_put_repo_id(changeset, %{github_repo_name: github_repo_name}) do
     case Repos.get_by(%{name: github_repo_name}) do
       nil ->
@@ -386,18 +404,50 @@ defmodule Notesclub.Notebooks do
   def save_notebook(attrs) do
     attrs = attrs |> put_repo_id() |> put_url()
 
-    url = attrs[:url]
-    github_html_url = attrs[:github_html_url]
-
     notebook =
-      (url && Notebooks.get_by(url: url)) ||
-        (github_html_url && Notebooks.get_by(github_html_url: github_html_url))
+      get_notebook_for_save(
+        url: attrs[:url],
+        github_html_url: attrs[:github_html_url],
+        repo_name: attrs[:github_repo_name],
+        username: attrs[:github_owner_login]
+      )
 
     if notebook do
       update_notebook(notebook, attrs)
     else
       create_notebook(attrs)
     end
+  end
+
+  defp get_notebook_for_save(url: nil, github_html_url: nil), do: nil
+  defp get_notebook_for_save(url: nil, repo_name: nil), do: nil
+  defp get_notebook_for_save(url: nil, username: nil), do: nil
+
+  defp get_notebook_for_save(url: url) do
+    Notebooks.get_by(url: url)
+  end
+
+  defp get_notebook_for_save(
+         url: _,
+         github_html_url: github_html_url,
+         repo_name: repo_name,
+         username: username
+       ) do
+    notebook =
+      case Repos.get_by(full_name: "#{username}/#{repo_name}") do
+        nil ->
+          nil
+
+        repo ->
+          url = Urls.default_branch_url(github_html_url, repo.default_branch)
+          Notebooks.get_by(url: url)
+      end
+
+    notebook || (github_html_url && Notebooks.get_by(github_html_url: github_html_url))
+  end
+
+  defp get_notebook_for_save(github_html_url: github_html_url) do
+    Notebooks.get_by(github_html_url: github_html_url)
   end
 
   defp put_repo_id(%{github_repo_name: repo_name, github_owner_login: username} = attrs) do
@@ -463,6 +513,14 @@ defmodule Notesclub.Notebooks do
   @spec delete_notebook(%Notebook{}) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
   def delete_notebook(%Notebook{} = notebook) do
     Repo.delete(notebook)
+  end
+
+  def delete_notebooks(%{username: username, except_ids: except_ids}) do
+    from(n in Notebook,
+      where: n.github_owner_login == ^username,
+      where: n.id not in ^except_ids
+    )
+    |> Repo.delete_all()
   end
 
   @doc """

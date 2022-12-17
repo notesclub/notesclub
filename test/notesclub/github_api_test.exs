@@ -51,6 +51,8 @@ defmodule Notesclub.GithubAPITest do
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
+        total_count = @valid_reponse.body["total_count"]
+
         assert {
                  :ok,
                  %GithubAPI{
@@ -78,6 +80,7 @@ defmodule Notesclub.GithubAPITest do
                        github_repo_fork: false
                      }
                    ],
+                   total_count: ^total_count,
                    response: @valid_reponse,
                    url: _url
                  }
