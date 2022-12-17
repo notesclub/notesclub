@@ -13,7 +13,8 @@ defmodule UrlContentSyncWorkerTest do
   @valid_response %Req.Response{
     status: 200,
     body: """
-    Classifying handwritten digits
+    # Classifying handwritten digits
+
     Mix.install([
       {:axon, github: \"elixir-nx/axon\"},
       ...
@@ -60,6 +61,7 @@ defmodule UrlContentSyncWorkerTest do
         # It should have updated content and url
         notebook = Notebooks.get_notebook!(notebook.id)
         assert notebook.content == @valid_response.body
+        assert notebook.title == "Classifying handwritten digits"
 
         assert notebook.url ==
                  "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"

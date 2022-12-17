@@ -508,10 +508,19 @@ defmodule Notesclub.Notebooks do
     |> offset(^offset_by)
   end
 
+  def extract_title(nil), do: nil
+
   def extract_title(content) do
-    case Regex.scan(~r/^#\s+(.+)/, content) do
-      [[_full_capture, capture]] -> capture
+    case Regex.scan(~r/#\s+(.+)/, content) do
+      [[_full_capture, capture] | _] -> capture
       _ -> nil
     end
+  end
+
+  def update_all_titles() do
+    list_notebooks()
+    |> Enum.map(fn n ->
+      update_notebook(n, %{title: extract_title(n.content)})
+    end)
   end
 end

@@ -334,13 +334,26 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.extract_title(content) == title
     end
 
-    test "extract_title/1 without title returns a nil" do
+    test "extract_title/1 with <!-- returns the title" do
+      title = "2023 Advent of Code Day 14"
+
       content = """
-      ## That's a subtitle
-      That's content
+      <!-- livebook:{"persist_outputs":true} -->
+
+      # #{title}
+
+      ```elixir
+      Mix.install([
+        {:kino, "~> 0.7.0"},
+        {:explorer, "~> 0.4.0"}
+      ])
+      ```
+
+      # kk
+      lll
       """
 
-      assert Notebooks.extract_title(content) == nil
+      assert Notebooks.extract_title(content) == title
     end
 
     test "content_fragment/2 extracts fragment" do

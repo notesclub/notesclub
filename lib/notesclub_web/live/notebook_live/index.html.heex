@@ -46,6 +46,9 @@
           </td>
           <td>
             <p>
+              <%= link Notesclub.StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+            </p>
+            <p class="text-gray-400">
               <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
             </p>
             <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
