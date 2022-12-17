@@ -129,16 +129,16 @@ defmodule NotesclubWeb.NotebookLive.Index do
     per_page = trunc(@per_page / 2)
     exclude_ids = Enum.map(notebooks, & &1.id)
 
-    filename_matches =
+    searchable_matches =
       Notebooks.list_notebooks(
-        github_filename: search,
+        searchable: search,
         per_page: per_page,
         page: page,
         order: :desc,
         exclude_ids: exclude_ids
       )
 
-    exclude_ids = exclude_ids ++ Enum.map(filename_matches, & &1.id)
+    exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
 
     content_matches =
       Notebooks.list_notebooks(
@@ -149,6 +149,6 @@ defmodule NotesclubWeb.NotebookLive.Index do
         exclude_ids: exclude_ids
       )
 
-    filename_matches ++ content_matches
+    searchable_matches ++ content_matches
   end
 end
