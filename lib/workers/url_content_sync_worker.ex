@@ -78,7 +78,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp attrs_for_update(notebook, urls) do
     case ReqTools.make_request(urls.raw_default_branch_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        {:ok, %{content: body, url: urls.default_branch_url}}
+        title = Notebooks.extract_title(body)
+        {:ok, %{content: body, title: title, url: urls.default_branch_url}}
 
       {:ok, %Req.Response{status: 404}} ->
         attrs_from_commit(notebook, urls)
@@ -92,7 +93,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   defp attrs_from_commit(notebook, urls) do
     case ReqTools.make_request(urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        {:ok, %{content: body, url: nil}}
+        title = Notebooks.extract_title(body)
+        {:ok, %{content: body, title: title, url: nil}}
 
       {:ok, %Req.Response{status: 404}} ->
         {:cancel,

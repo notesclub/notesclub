@@ -322,6 +322,40 @@ defmodule Notesclub.NotebooksTest do
       assert notebook.id == Notebooks.get_by(url: "https://whatever.com").id
     end
 
+    test "extract_title/1 returns the title" do
+      title = "That's a title"
+
+      content = """
+      # #{title}
+      ## That's a subtitle
+      That's content
+      """
+
+      assert Notebooks.extract_title(content) == title
+    end
+
+    test "extract_title/1 with <!-- returns the title" do
+      title = "2023 Advent of Code Day 14"
+
+      content = """
+      <!-- livebook:{"persist_outputs":true} -->
+
+      # #{title}
+
+      ```elixir
+      Mix.install([
+        {:kino, "~> 0.7.0"},
+        {:explorer, "~> 0.4.0"}
+      ])
+      ```
+
+      # kk
+      lll
+      """
+
+      assert Notebooks.extract_title(content) == title
+    end
+
     test "content_fragment/2 extracts fragment" do
       content = """
       # Advent of code 2021 🎄🤶🏽
