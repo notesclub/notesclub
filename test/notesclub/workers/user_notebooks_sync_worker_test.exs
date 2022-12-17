@@ -89,5 +89,46 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
         )
       end
     end
+
+    test "saves notebooks and does NOT enqueue because we reached GitHub's 2000" do
+      username = "elixir-nx"
+      per_page = 100
+      page = 20
+      order = "desc"
+
+      url =
+        "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
+
+      with_mocks([
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]},
+        {Req, [:passthrough], [get!: fn _url, _ -> @github_response end]}
+      ]) do
+        # Run job
+        assert {:ok, _} =
+                 perform_job(UserNotebooksSyncWorker, %{
+                   username: username,
+                   page: page,
+                   per_page: per_page,
+                   already_saved_ids: []
+                 })
+
+        assert called(Req.get!(url, :_))
+
+        assert [
+                 %Notebook{github_filename: "structs.livemd"} = n1,
+                 %Notebook{github_filename: "collections.livemd"} = n2
+               ] = Notebooks.list_notebooks()
+
+        refute_enqueued(
+          worker: UserNotebooksSyncWorker,
+          args: %{
+            page: page + 1,
+            per_page: per_page,
+            username: username,
+            already_saved_ids: [n1.id, n2.id]
+          }
+        )
+      end
+    end
   end
 end

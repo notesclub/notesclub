@@ -28,20 +28,29 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
 
     already_saved_ids = already_saved_ids ++ saved_ids
 
-    if total_count > per_page * page do
-      %{
-        username: username,
-        page: page + 1,
-        per_page: per_page,
-        already_saved_ids: already_saved_ids
-      }
-      |> Notesclub.Workers.UserNotebooksSyncWorker.new(priority: 2)
-      |> Oban.insert()
+    cond do
+      per_page * (page + 1) > 2000 ->
+        # We could actualy change to order :asc and get 2000 more — but not needed at the moment
+        {:ok,
+         "reached GitHub limit of 2000 — we can't download more for this user — we do NOT delete old notebooks"}
 
-      {:ok, "done and enqueued another page"}
-    else
-      {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: already_saved_ids})
-      {:ok, "done and NO more pages — #{n} old notebooks deleted"}
+      total_count > per_page * page ->
+        %{
+          username: username,
+          page: page + 1,
+          per_page: per_page,
+          already_saved_ids: already_saved_ids
+        }
+        |> Notesclub.Workers.UserNotebooksSyncWorker.new(priority: 2)
+        |> Oban.insert()
+
+        {:ok, "done and enqueued another page"}
+
+      true ->
+        {n, nil} =
+          Notebooks.delete_notebooks(%{username: username, except_ids: already_saved_ids})
+
+        {:ok, "done and NO more pages — #{n} old notebooks deleted"}
     end
   end
 end
