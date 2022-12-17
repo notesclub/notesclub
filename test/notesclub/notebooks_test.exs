@@ -244,7 +244,9 @@ defmodule Notesclub.NotebooksTest do
 
     test "save_notebook/1 with repo updates notebook because of url" do
       user = user_fixture(%{username: "oneuser"})
-      repo = repo_fixture(%{name: "onerepo", default_branch: "main"})
+
+      repo =
+        repo_fixture(%{name: "onerepo", default_branch: "main", full_name: "oneuser/onerepo"})
 
       commit1 = "34d6etc"
 
@@ -252,7 +254,13 @@ defmodule Notesclub.NotebooksTest do
         notebook_fixture(%{
           github_html_url: github_html_url(repo.full_name, commit1),
           url: github_html_url(repo.full_name, repo.default_branch),
-          repo_id: repo.id
+          repo_id: repo.id,
+          github_owner_login: user.username,
+          github_repo_name: repo.name,
+          github_repo_full_name: repo.full_name,
+          github_filename: "whatever.livemd",
+          github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
+          github_repo_fork: false
         })
 
       commit2 = "8321etc"
