@@ -340,8 +340,6 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "get_by/1 returns a notebook" do
-      notebook = notebook_fixture()
-
       notebook =
         notebook_fixture(
           url: "different",
