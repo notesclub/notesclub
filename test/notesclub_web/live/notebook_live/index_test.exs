@@ -41,6 +41,14 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     end)
   end
 
+  test "GET / does NOT include close filter button", %{conn: conn} do
+    notebook_fixture(%{github_filename: "myfile.livemd", content: "# One 🎄🤶\n ..."})
+
+    {:ok, _view, html} = live(conn, "/")
+
+    refute html =~ "Remove filter"
+  end
+
   test "GET /search returns notebooks that match filename or content", %{conn: conn} do
     notebook_fixture(%{github_filename: "found.livemd"})
 
@@ -82,6 +90,14 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ "three.livemd"
   end
 
+  test "GET /search does NOT include close filter button", %{conn: conn} do
+    notebook_fixture(%{github_filename: "myfile.livemd", content: "# One 🎄🤶\n ..."})
+
+    {:ok, _view, html} = live(conn, "/search?q=one")
+
+    refute html =~ "Remove filter"
+  end
+
   test "GET /:author filters notebooks", %{conn: conn} do
     notebook_fixture(%{
       github_filename: "whatever1.livemd",
@@ -103,13 +119,34 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
       github_owner_login: "someone"
     })
 
-    conn = get(conn, "/someone")
     {:ok, _view, html} = live(conn, "/someone")
 
     assert html =~ "whatever1.livemd"
     refute html =~ "whatever3.livemd"
     assert html =~ "whatever2.livemd"
     assert html =~ "whatever4.livemd"
+  end
+
+  test "GET /:author includes close filter button", %{conn: conn} do
+    notebook_fixture(%{
+      github_filename: "whatever1.livemd",
+      github_owner_login: "someone"
+    })
+
+    {:ok, _view, html} = live(conn, "/someone")
+
+    assert html =~ "Remove filter"
+  end
+
+  test "GET /:author/:repo includes close filter button", %{conn: conn} do
+    notebook_fixture(%{
+      github_filename: "whatever1.livemd",
+      github_full_name: "someone/her_repo"
+    })
+
+    {:ok, _view, html} = live(conn, "/someone/her_repo")
+
+    assert html =~ "Remove filter"
   end
 
   test "GET /:author/:repo filters notebooks", %{conn: conn} do

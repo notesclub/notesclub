@@ -80,6 +80,10 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :random))}
   end
 
+  def handle_event("home", _, socket) do
+    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
+  end
+
   def handle_event("load-more", _, socket) do
     %{assigns: %{page: page, notebooks: notebooks, live_action: live_action}} = socket
 
