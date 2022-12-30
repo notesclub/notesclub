@@ -56,6 +56,28 @@ defmodule Notesclub.GithubAPI do
     |> extract_notebooks_data()
   end
 
+  @doc """
+
+  Using a given username, look up the corresponding user record from Github API 
+
+  ## Example
+  iex> Notesclub.GithubAPI.get_twitter_username([username: "octocat"])
+  {:ok, "octocat"}
+
+  iex> Notesclub.GithubAPI.get_twitter_username([username: -1])
+  {:error, :not_found}
+
+  Arguments:
+  - username can be a string or a positive integer 
+  """
+  @spec get_twitter_username(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
+  def get_twitter_username(options) do
+    options
+    |> build_url()
+    |> make_request()
+    |> extract_twitter_username()
+  end
+
   defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
     cond do
       errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
@@ -63,6 +85,14 @@ defmodule Notesclub.GithubAPI do
 
       true ->
         prepare_data(fetch, response.body["items"])
+    end
+  end
+
+  defp extract_twitter_username(%GithubAPI{response: response}) do
+    case response.status do
+      404 -> {:error, :not_found}
+      200 -> {:ok, response.body["twitter_username"]}
+      _ -> {:error, :not_found}
     end
   end
 
