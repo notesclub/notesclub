@@ -15,54 +15,62 @@
     <a phx-click="random" class="cursor-pointer ml-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
   </form>
 
-  <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-    <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
-      <thead class="bg-gray-100 font-semibold text-gray-900">
-        <td class="p-4" align="left" scope="col">Author/Repo</td>
-        <td align="left" scope="col">
-          File
-        </td>
-        <td align="left" scope="col">Date</td>
-        <td align="left" scope="col">Actions</td>
-      </thead>
-      <%= for notebook <- @notebooks do %>
-        <tbody class="h-20 bg-white">
-          <td>
-            <article class="flex w-min-max p-4 min-w-max">
-              <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login) do %>
-                <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
-              <% end %>
-              <div class="flex flex-col ml-4">
-                <%= live_redirect "@#{notebook.github_owner_login}",
-                  to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
-                  class: "font-medium whitespace-nowrap" %>
-                <%= live_redirect Notesclub.StringTools.truncate(notebook.github_repo_name, 25),
-                  to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
-              </div>
-            </article>
+  <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll">
+    <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+      <.live_component
+        module={NotesclubWeb.NotebookLive.CloseFilterComponent}
+        author={@author}
+        repo={@repo}
+        id="f"
+      />
+      <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
+        <thead class="bg-gray-100 font-semibold text-gray-900">
+          <td class="p-4" align="left" scope="col">Author/Repo</td>
+          <td align="left" scope="col">
+            File
           </td>
-          <td>
-            <p>
-              <%= link Notesclub.StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
-            </p>
-            <p class="text-gray-400">
-              <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
-            </p>
-            <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
-              <p class="text-gray-400">
-                <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
+          <td align="left" scope="col">Date</td>
+          <td align="left" scope="col">Actions</td>
+        </thead>
+        <%= for notebook <- @notebooks do %>
+          <tbody class="h-20 bg-white">
+            <td>
+              <article class="flex w-min-max p-4 min-w-max">
+                <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login) do %>
+                  <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+                <% end %>
+                <div class="flex flex-col ml-4">
+                  <%= live_redirect "@#{notebook.github_owner_login}",
+                    to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
+                    class: "font-medium whitespace-nowrap" %>
+                  <%= live_redirect Notesclub.StringTools.truncate(notebook.github_repo_name, 25),
+                    to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
+                </div>
+              </article>
+            </td>
+            <td>
+              <p>
+                <%= link Notesclub.StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
               </p>
-            <% end %>
-          </td>
-          <td>
-            <%= format_date(notebook) %>
-          </td>
-          <td>
-            <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
-          </td>
-        </tbody>
-      <% end %>
-    </table>
+              <p class="text-gray-400">
+                <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+              </p>
+              <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
+                <p class="text-gray-400">
+                  <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
+                </p>
+              <% end %>
+            </td>
+            <td>
+              <%= format_date(notebook) %>
+            </td>
+            <td>
+              <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
+            </td>
+          </tbody>
+        <% end %>
+      </table>
+    </div>
   </section>
   <footer class="p-8 w-full">
     <h2 class="text-center text-gray-400 font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
