@@ -163,6 +163,12 @@ defmodule Notesclub.GithubAPI do
     }
   end
 
+  defp build_url(username: username) do
+    %GithubAPI{
+      url: "https://api.github.com/users/#{username}"
+    }
+  end
+
   defp make_request(%GithubAPI{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
 

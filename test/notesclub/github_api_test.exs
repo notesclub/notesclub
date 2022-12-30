@@ -45,6 +45,21 @@ defmodule Notesclub.GithubAPITest do
     }
   }
 
+  @valid_user_reponse %Req.Response{
+    status: 200,
+    body: %{
+      "id" => 1,
+      "twitter_username" => "test_name"
+    }
+  }
+
+  @invalid_user_reponse %Req.Response{
+    status: 404,
+    body: %{
+      "message" => "Not Found"
+    }
+  }
+
   describe "GithubAPI.Search" do
     test "get/3 returns notebooks" do
       with_mocks([
@@ -109,6 +124,26 @@ defmodule Notesclub.GithubAPITest do
         GithubAPI.get(per_page: 2, page: 1, order: "ASC")
 
       assert length(notebook_data) == 2
+    end
+  end
+
+  describe "get_twitter_username/1" do
+    test "should return {:ok, name} on 200" do
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]},
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      ]) do
+        assert {:ok, "test_name"} == GithubAPI.get_twitter_username(username: "test_name")
+      end
+    end
+
+    test "should return {:error, :not_found} on 404" do
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _options -> @invalid_user_reponse end]},
+        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      ]) do
+        assert {:error, :not_found} == GithubAPI.get_twitter_username(username: -1)
+      end
     end
   end
 end
