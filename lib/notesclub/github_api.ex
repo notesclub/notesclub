@@ -62,7 +62,6 @@ defmodule Notesclub.GithubAPI do
 
   ## Example
   iex> Notesclub.GithubAPI.get_twitter_username([username: "octocat"])
-  {:ok, "octocat"}
 
   iex> Notesclub.GithubAPI.get_twitter_username([username: -1])
   {:error, :not_found}
@@ -70,12 +69,12 @@ defmodule Notesclub.GithubAPI do
   Arguments:
   - username can be a string or a positive integer 
   """
-  @spec get_twitter_username(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
-  def get_twitter_username(options) do
+  # @spec get_user_info(options()) :: {:ok, map()} | {:error, :not_found}
+  def get_user_info(options) do
     options
     |> build_url()
     |> make_request()
-    |> extract_twitter_username()
+    |> extract_user_info()
   end
 
   defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
@@ -88,11 +87,19 @@ defmodule Notesclub.GithubAPI do
     end
   end
 
-  defp extract_twitter_username(%GithubAPI{response: response}) do
-    case response.status do
-      404 -> {:error, :not_found}
-      200 -> {:ok, response.body["twitter_username"]}
-      _ -> {:error, :not_found}
+  defp extract_user_info(%GithubAPI{response: response, errors: errors} = fetch) do
+    with false <- errors[:github_api_key] == ["is missing"],
+         true <- __MODULE__.check_github_api_key(),
+         200 <- response.status do
+      user_info = %{
+        github_twitter_username: response.body["twitter_username"],
+        github_user_name: response.body["name"]
+      }
+
+      fetch
+      |> Map.put(:user_info, user_info)
+    else
+      _ -> {:error, Map.put(fetch, :errors, [response.body["message"]])}
     end
   end
 
