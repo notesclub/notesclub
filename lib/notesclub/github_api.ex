@@ -97,7 +97,7 @@ defmodule Notesclub.GithubAPI do
          200 <- response.status do
       user_info = %{
         github_twitter_username: response.body["twitter_username"],
-        github_username: response.body["name"]
+        github_real_name: response.body["name"]
       }
 
       fetch =

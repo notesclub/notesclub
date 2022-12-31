@@ -128,8 +128,8 @@ defmodule Notesclub.GithubAPITest do
     end
   end
 
-  describe "get_twitter_username/1" do
-    test "should return {:ok, name} on 200" do
+  describe "get_user_info/1" do
+    test "should return success response on 200" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
@@ -137,14 +137,14 @@ defmodule Notesclub.GithubAPITest do
         assert {:ok,
                 %Notesclub.GithubAPI{
                   user_info: %{
-                    github_username: "test_name",
+                    github_real_name: "test_name",
                     github_twitter_username: "test_twitter_name"
                   }
                 }} = GithubAPI.get_user_info(username: "test_name")
       end
     end
 
-    test "should return {:error, :not_found} on 404" do
+    test "should return error response on 404" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @invalid_user_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
