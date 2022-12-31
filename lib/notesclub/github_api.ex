@@ -10,7 +10,12 @@ defmodule Notesclub.GithubAPI do
   @type options ::
           [per_page: number, page: number, order: binary]
           | [username: binary, per_page: number, page: number, order: binary]
-  defstruct notebooks_data: nil, total_count: 0, response: nil, url: nil, errors: %{}
+  defstruct notebooks_data: nil,
+            user_info: nil,
+            total_count: 0,
+            response: nil,
+            url: nil,
+            errors: %{}
 
   @doc """
 
@@ -89,17 +94,21 @@ defmodule Notesclub.GithubAPI do
 
   defp extract_user_info(%GithubAPI{response: response, errors: errors} = fetch) do
     with false <- errors[:github_api_key] == ["is missing"],
-         true <- __MODULE__.check_github_api_key(),
          200 <- response.status do
       user_info = %{
         github_twitter_username: response.body["twitter_username"],
-        github_user_name: response.body["name"]
+        github_username: response.body["name"]
       }
 
-      fetch
-      |> Map.put(:user_info, user_info)
+      fetch =
+        fetch
+        |> Map.put(:user_info, user_info)
+
+      {:ok, fetch}
     else
-      _ -> {:error, Map.put(fetch, :errors, [response.body["message"]])}
+      true -> {:error, Map.put(fetch, :errors, ["Github API key is missing"])}
+      404 -> {:error, Map.put(fetch, :errors, [response.body["message"]])}
+      _ -> {:error, Map.put(fetch, :errors, ["Uncaught API Error"])}
     end
   end
 

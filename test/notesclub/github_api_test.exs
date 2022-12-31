@@ -134,7 +134,13 @@ defmodule Notesclub.GithubAPITest do
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
-        assert {:ok, "test_twitter_name"} == GithubAPI.get_user_info(username: "test_name")
+        assert {:ok,
+                %Notesclub.GithubAPI{
+                  user_info: %{
+                    github_username: "test_name",
+                    github_twitter_username: "test_twitter_name"
+                  }
+                }} = GithubAPI.get_user_info(username: "test_name")
       end
     end
 
