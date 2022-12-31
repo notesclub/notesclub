@@ -67,14 +67,26 @@ defmodule Notesclub.GithubAPI do
 
   ## Example
   iex> Notesclub.GithubAPI.get_twitter_username([username: "octocat"])
+  {:ok,
+   %GithubAPI{
+     user_info: [
+       %{
+         github_real_name: "octo's realname",
+         github_twitter_username: "twitter_octo",
+       },
+       ...
+     ],
+     ...
+   }}
+  ]"}
 
   iex> Notesclub.GithubAPI.get_twitter_username([username: -1])
-  {:error, :not_found}
+  {:error, %GithubAPI{response: response, errors: ["Not Found"]}}
 
   Arguments:
   - username can be a string or a positive integer 
   """
-  # @spec get_user_info(options()) :: {:ok, map()} | {:error, :not_found}
+  @spec get_user_info(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
   def get_user_info(options) do
     options
     |> build_url()
