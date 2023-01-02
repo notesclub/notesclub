@@ -66,22 +66,11 @@ defmodule Notesclub.GithubAPI do
   Using a given username, look up the corresponding user record from Github API 
 
   ## Example
-  iex> Notesclub.GithubAPI.get_user_info([username: "octocat"])
-  {:ok,
-   %GithubAPI{
-     user_info: [
-       %{
-         github_real_name: "octo's realname",
-         github_twitter_username: "twitter_octo",
-       },
-       ...
-     ],
-     ...
-   }}
-  ]"}
+  iex> Notesclub.GithubAPI.get_user_info("octocat")
+  {:ok, %{twitter_username: "twitter_octo", name: "octo realname"}
 
-  iex> Notesclub.GithubAPI.get_user_info([username: -1])
-  {:error, %GithubAPI{response: response, errors: ["Not Found"]}}
+  iex> Notesclub.GithubAPI.get_user_info(-1)
+  {:error, :not_found} 
 
   Arguments:
   - username can be a string or a positive integer 
