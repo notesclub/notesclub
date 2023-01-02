@@ -86,9 +86,9 @@ defmodule Notesclub.GithubAPI do
   Arguments:
   - username can be a string or a positive integer 
   """
-  @spec get_user_info(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
-  def get_user_info(options) do
-    options
+  @spec get_user_info(String.t()) :: {:ok, map()} | {:error, String.t()}
+  def get_user_info(username) do
+    username
     |> build_url()
     |> make_request()
     |> extract_user_info()
@@ -104,7 +104,7 @@ defmodule Notesclub.GithubAPI do
     end
   end
 
-  defp extract_user_info(%GithubAPI{response: response, errors: errors} = fetch) do
+  defp extract_user_info(%GithubAPI{response: response, errors: errors}) do
     with false <- errors[:github_api_key] == ["is missing"],
          200 <- response.status do
       user_info = %{
@@ -112,13 +112,11 @@ defmodule Notesclub.GithubAPI do
         real_name: response.body["name"]
       }
 
-      fetch = %{fetch | user_info: user_info}
-
-      {:ok, fetch}
+      {:ok, user_info}
     else
-      true -> {:error, Map.put(fetch, :errors, ["Github API key is missing"])}
-      404 -> {:error, Map.put(fetch, :errors, [response.body["message"]])}
-      _ -> {:error, Map.put(fetch, :errors, ["Uncaught API Error"])}
+      true -> {:error, :missing_api_key}
+      404 -> {:error, :not_found}
+      _ -> {:error, :uncaught_error}
     end
   end
 
@@ -189,7 +187,7 @@ defmodule Notesclub.GithubAPI do
     }
   end
 
-  defp build_url(username: username) do
+  defp build_url(username) do
     %GithubAPI{
       url: "https://api.github.com/users/#{username}"
     }
