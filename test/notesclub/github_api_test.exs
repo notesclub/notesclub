@@ -137,8 +137,8 @@ defmodule Notesclub.GithubAPITest do
         assert {:ok,
                 %Notesclub.GithubAPI{
                   user_info: %{
-                    github_real_name: "test_name",
-                    github_twitter_username: "test_twitter_name"
+                    real_name: "test_name",
+                    twitter_username: "test_twitter_name"
                   }
                 }} = GithubAPI.get_user_info(username: "test_name")
       end

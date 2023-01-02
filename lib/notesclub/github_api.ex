@@ -108,13 +108,11 @@ defmodule Notesclub.GithubAPI do
     with false <- errors[:github_api_key] == ["is missing"],
          200 <- response.status do
       user_info = %{
-        github_twitter_username: response.body["twitter_username"],
-        github_real_name: response.body["name"]
+        twitter_username: response.body["twitter_username"],
+        real_name: response.body["name"]
       }
 
-      fetch =
-        fetch
-        |> Map.put(:user_info, user_info)
+      fetch = %{fetch | user_info: user_info}
 
       {:ok, fetch}
     else
