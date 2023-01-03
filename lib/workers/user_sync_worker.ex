@@ -2,8 +2,6 @@ defmodule Notesclub.Workers.UserSyncWorker do
   @moduledoc """
   Worker to fetch user info and include it during user creation
   """
-  require Logger
-
   alias Notesclub.{Accounts, GithubAPI}
 
   use Oban.Worker,

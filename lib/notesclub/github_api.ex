@@ -11,7 +11,6 @@ defmodule Notesclub.GithubAPI do
           [per_page: number, page: number, order: binary]
           | [username: binary, per_page: number, page: number, order: binary]
   defstruct notebooks_data: nil,
-            user_info: nil,
             total_count: 0,
             response: nil,
             url: nil,

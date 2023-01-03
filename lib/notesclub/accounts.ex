@@ -54,7 +54,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  # @spec create_user(map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec create_user(map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def create_user(attrs \\ %{}) do
     attrs
     |> Enum.into(%{
