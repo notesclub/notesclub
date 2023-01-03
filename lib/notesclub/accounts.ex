@@ -10,6 +10,7 @@ defmodule Notesclub.Accounts do
   alias Notesclub.Workers.UserSyncWorker
 
   require Logger
+
   @doc """
   Returns the list of users.
 
@@ -57,21 +58,17 @@ defmodule Notesclub.Accounts do
   def create_user(attrs \\ %{}) do
     attrs
     |> Enum.into(%{
-      username: nil,
       name: nil,
-      twitter_username: nil,
-      avatar_url: nil})
-      |> create_user_and_enqueue_sync_if_necessary()
-
-    # %User{}
-    # |> User.changeset(attrs)
-    # |> Repo.insert()
+      twitter_username: nil
+    })
+    |> create_user_and_enqueue_sync_if_necessary()
   end
 
-  defp create_user_and_enqueue_sync_if_necessary(%{name: nil} = attrs), do: create_user_and_enqueue_sync(attrs)
+  defp create_user_and_enqueue_sync_if_necessary(%{name: nil} = attrs),
+    do: create_user_and_enqueue_sync(attrs)
 
-  defp create_user_and_enqueue_sync_if_necessary(%{twitter_username: nil} = attrs), do: create_user_and_enqueue_sync(attrs)
-
+  defp create_user_and_enqueue_sync_if_necessary(%{twitter_username: nil} = attrs),
+    do: create_user_and_enqueue_sync(attrs)
 
   defp create_user_and_enqueue_sync_if_necessary(attrs) do
     %User{}
@@ -105,23 +102,6 @@ defmodule Notesclub.Accounts do
 
         {:error, changeset}
     end
-
-    # |> case do
-    #   _ -> IO.inspect("got to end")
-    #   # {:ok, %{repo: repo}} ->
-    #   #   {:ok, repo}
-
-    #   # {:error, :repo, changeset, _} ->
-    #   #   {:error, changeset}
-
-    #   # {:error, :repo_default_branch_worker, changeset, _} ->
-    #   #   Logger.error(
-    #   #     "create_repo failed in repo_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
-    #   #   )
-
-    #   #   {:error, changeset}
-    # end
-
   end
 
   @doc """

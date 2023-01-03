@@ -29,7 +29,7 @@ defmodule UserSyncWorkerTest do
         user = AccountsFixtures.user_fixture()
 
         # Run worker:
-       assert :ok = perform_job(UserSyncWorker, %{user_id: user.id})
+        assert :ok = perform_job(UserSyncWorker, %{user_id: user.id})
 
         # It should have updated user:
         user = Accounts.get_user!(user.id)
@@ -45,11 +45,11 @@ defmodule UserSyncWorkerTest do
         user = AccountsFixtures.user_fixture()
 
         # Run worker:
-       assert {:error, _error} = perform_job(UserSyncWorker, %{user_id: user.id})
+        assert {:error, _error} = perform_job(UserSyncWorker, %{user_id: user.id})
 
         # It should not have updated user:
         user = Accounts.get_user!(user.id)
-        assert user.name == nil 
+        assert user.name == nil
         assert user.twitter_username == nil
       end
     end

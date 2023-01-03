@@ -134,11 +134,11 @@ defmodule Notesclub.GithubAPITest do
         {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
-        assert {:ok, %{
-                    real_name: "test_name",
-                    twitter_username: "test_twitter_name"
-                  }
-                } = GithubAPI.get_user_info("test_name")
+        assert {:ok,
+                %{
+                  name: "test_name",
+                  twitter_username: "test_twitter_name"
+                }} = GithubAPI.get_user_info("test_name")
       end
     end
 
@@ -147,8 +147,7 @@ defmodule Notesclub.GithubAPITest do
         {Req, [:passthrough], [get!: fn _url, _options -> @invalid_user_reponse end]},
         {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
       ]) do
-        assert {:error, :not_found} =
-                 GithubAPI.get_user_info(-1)
+        assert {:error, :not_found} = GithubAPI.get_user_info(-1)
       end
     end
   end
