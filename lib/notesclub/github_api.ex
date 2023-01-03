@@ -75,7 +75,7 @@ defmodule Notesclub.GithubAPI do
   Arguments:
   - username can be a string or a positive integer 
   """
-  @spec get_user_info(String.t()) :: {:ok, map()} | {:error, String.t()}
+  @spec get_user_info(String.t()) :: {:ok, map()} | {:error, atom()}
   def get_user_info(username) do
     username
     |> build_url()
@@ -98,7 +98,7 @@ defmodule Notesclub.GithubAPI do
          200 <- response.status do
       user_info = %{
         twitter_username: response.body["twitter_username"],
-        real_name: response.body["name"]
+        name: response.body["name"]
       }
 
       {:ok, user_info}

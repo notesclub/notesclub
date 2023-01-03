@@ -92,7 +92,18 @@ defmodule Notesclub.Accounts do
     )
     |> Repo.transaction()
     |> case do
-      _ -> IO.inspect("Finish")
+      {:ok, %{user: user}} ->
+        {:ok, user}
+
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
+
+      {:error, :user_default_branch_worker, changeset, _} ->
+        Logger.error(
+          "create_user failed in user_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
+        )
+
+        {:error, changeset}
     end
 
     # |> case do
