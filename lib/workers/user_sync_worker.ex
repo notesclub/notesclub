@@ -11,8 +11,7 @@ defmodule Notesclub.Workers.UserSyncWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"user_id" => user_id}}) do
     with user = %{username: username} <- Accounts.get_user!(user_id),
-         {:ok, user_info} <- GithubAPI.get_user_info(username) do
-      Accounts.update_user(user, user_info)
+         {:ok, user_info} <- GithubAPI.get_user_info(username), {:ok, _user} <- Accounts.update_user(user, user_info) do
       :ok
     else
       {:error, error} -> {:error, error}
