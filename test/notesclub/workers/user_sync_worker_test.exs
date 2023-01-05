@@ -5,6 +5,7 @@ defmodule UserSyncWorkerTest do
 
   alias Notesclub.{Accounts, AccountsFixtures, GithubAPI}
   alias Notesclub.Workers.UserSyncWorker
+  alias Notesclub.GithubAPI
 
   @github_user_response %Req.Response{
     status: 200,
