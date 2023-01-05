@@ -10,7 +10,11 @@ defmodule Notesclub.GithubAPI do
   @type options ::
           [per_page: number, page: number, order: binary]
           | [username: binary, per_page: number, page: number, order: binary]
-  defstruct notebooks_data: nil, total_count: 0, response: nil, url: nil, errors: %{}
+  defstruct notebooks_data: nil,
+            total_count: 0,
+            response: nil,
+            url: nil,
+            errors: %{}
 
   @doc """
 
@@ -56,6 +60,28 @@ defmodule Notesclub.GithubAPI do
     |> extract_notebooks_data()
   end
 
+  @doc """
+
+  Using a given username, look up the corresponding user record from Github API 
+
+  ## Example
+  iex> Notesclub.GithubAPI.get_user_info("octocat")
+  {:ok, %{twitter_username: "twitter_octo", name: "octo realname"}
+
+  iex> Notesclub.GithubAPI.get_user_info(-1)
+  {:error, :not_found} 
+
+  Arguments:
+  - username can be a string or a positive integer 
+  """
+  @spec get_user_info(String.t()) :: {:ok, map()} | {:error, atom()}
+  def get_user_info(username) do
+    username
+    |> build_url()
+    |> make_request()
+    |> extract_user_info()
+  end
+
   defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
     cond do
       errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
@@ -63,6 +89,22 @@ defmodule Notesclub.GithubAPI do
 
       true ->
         prepare_data(fetch, response.body["items"])
+    end
+  end
+
+  defp extract_user_info(%GithubAPI{response: response, errors: errors}) do
+    with false <- errors[:github_api_key] == ["is missing"],
+         200 <- response.status do
+      user_info = %{
+        twitter_username: response.body["twitter_username"],
+        name: response.body["name"]
+      }
+
+      {:ok, user_info}
+    else
+      true -> {:error, :missing_api_key}
+      404 -> {:error, :not_found}
+      _ -> {:error, :uncaught_error}
     end
   end
 
@@ -130,6 +172,12 @@ defmodule Notesclub.GithubAPI do
     %GithubAPI{
       url:
         "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
+    }
+  end
+
+  defp build_url(username) do
+    %GithubAPI{
+      url: "https://api.github.com/users/#{username}"
     }
   end
 

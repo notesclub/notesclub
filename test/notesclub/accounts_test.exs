@@ -31,6 +31,26 @@ defmodule Notesclub.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
+    test "create_user/1 will only create a user without needing a sync" do
+      user_no_sync = %{
+        username: "test_login_name",
+        name: "test_real_name",
+        twitter_username: "test_twitter_name",
+        avatar_url: "avatar"
+      }
+
+      assert {:ok, %User{} = user} = Accounts.create_user(user_no_sync)
+      assert user.username == user_no_sync.username
+      refute_enqueued(worker: Notesclub.Workers.UserSyncWorker, args: %{user_id: user.id})
+    end
+
+    test "create_user/1 will create and enqueue a update workerif a sync is needed" do
+      user_sync = %{username: "test_login_name", avatar_url: "avatar"}
+      assert {:ok, %User{} = user} = Accounts.create_user(user_sync)
+      assert user.username == user_sync.username
+      assert_enqueued(worker: Notesclub.Workers.UserSyncWorker, args: %{user_id: user.id})
+    end
+
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       update_attrs = %{username: "some updated name"}

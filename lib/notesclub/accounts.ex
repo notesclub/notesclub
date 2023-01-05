@@ -7,6 +7,9 @@ defmodule Notesclub.Accounts do
   alias Notesclub.Repo
 
   alias Notesclub.Accounts.User
+  alias Notesclub.Workers.UserSyncWorker
+
+  require Logger
 
   @doc """
   Returns the list of users.
@@ -53,9 +56,52 @@ defmodule Notesclub.Accounts do
   """
   @spec create_user(map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   def create_user(attrs \\ %{}) do
+    attrs
+    |> Enum.into(%{
+      name: nil,
+      twitter_username: nil
+    })
+    |> create_user_and_enqueue_sync_if_necessary()
+  end
+
+  defp create_user_and_enqueue_sync_if_necessary(%{name: nil} = attrs),
+    do: create_user_and_enqueue_sync(attrs)
+
+  defp create_user_and_enqueue_sync_if_necessary(%{twitter_username: nil} = attrs),
+    do: create_user_and_enqueue_sync(attrs)
+
+  defp create_user_and_enqueue_sync_if_necessary(attrs) do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp create_user_and_enqueue_sync(attrs) do
+    changeset = User.changeset(%User{}, attrs)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:user, changeset)
+    |> Ecto.Multi.insert(
+      :user_default_branch_worker,
+      fn %{user: %User{id: user_id}} ->
+        UserSyncWorker.new(%{user_id: user_id})
+      end
+    )
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user}} ->
+        {:ok, user}
+
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
+
+      {:error, :user_default_branch_worker, changeset, _} ->
+        Logger.error(
+          "create_user failed in user_default_branch_worker. This should never happen. attrs: #{inspect(attrs)}"
+        )
+
+        {:error, changeset}
+    end
   end
 
   @doc """
