@@ -3,6 +3,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
   import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   import Notesclub.NotebooksFixtures
+  import Notesclub.AccountsFixtures
 
   test "GET /random loads notebooks", %{conn: conn} do
     count = 10
@@ -39,6 +40,16 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     Enum.each(1..10, fn i ->
       assert html =~ "whatever#{i}.livemd"
     end)
+  end
+
+  test "GET / returns name and username", %{conn: conn} do
+    user = user_fixture(%{name: "One person", username: "someone"})
+    notebook_fixture(%{user_id: user.id, github_owner_login: "someone"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render(view) =~ "One person"
+    assert render(view) =~ "@someone"
   end
 
   test "GET / does NOT include close filter button", %{conn: conn} do
