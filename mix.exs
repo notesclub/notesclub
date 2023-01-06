@@ -62,7 +62,8 @@ defmodule Notesclub.MixProject do
       {:faker, "~> 0.17", only: :test},
       {:oban, "2.13.6"},
       {:timex, "~> 3.0"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:redirect, "~> 0.4.0"}
     ]
   end
 

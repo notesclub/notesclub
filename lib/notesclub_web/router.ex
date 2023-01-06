@@ -1,5 +1,8 @@
 defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
+
+  import Redirect
+
   require Notesclub.Compile
 
   pipeline :browser do
@@ -34,6 +37,8 @@ defmodule NotesclubWeb.Router do
       Oban.Web.Router.oban_dashboard("/oban")
     end
   end
+
+  redirect("/last_week", "/", :permanent)
 
   scope "/", NotesclubWeb do
     pipe_through :browser
