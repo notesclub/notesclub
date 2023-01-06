@@ -33,58 +33,63 @@ defmodule Notesclub.Notebooks do
   def list_notebooks(opts \\ []) do
     preload = opts[:preload] || []
 
-    Enum.reduce(opts, from(n in Notebook, preload: ^preload), fn
-      {:order, :desc}, query ->
-        order_by(query, [notebook], -notebook.id)
+    Enum.reduce(
+      opts,
+      from(n in Notebook, join: u in User, on: n.user_id == u.id, preload: ^preload),
+      fn
+        {:order, :desc}, query ->
+          order_by(query, [notebook], -notebook.id)
 
-      {:order, :random}, query ->
-        order_by(query, [notebook], fragment("RANDOM()"))
+        {:order, :random}, query ->
+          order_by(query, [notebook], fragment("RANDOM()"))
 
-      {:github_filename, github_filename}, query ->
-        search = "%#{github_filename}%"
-        where(query, [notebook], ilike(notebook.github_filename, ^search))
+        {:github_filename, github_filename}, query ->
+          search = "%#{github_filename}%"
+          where(query, [notebook], ilike(notebook.github_filename, ^search))
 
-      {:searchable, searchable}, query ->
-        search = "%#{searchable}%"
+        {:searchable, searchable}, query ->
+          search = "%#{searchable}%"
 
-        where(
-          query,
-          [notebook],
-          fragment(
-            "CONCAT(?, ?, ?, ?) ilike ?",
-            notebook.title,
-            notebook.github_filename,
-            notebook.github_owner_login,
-            notebook.github_repo_name,
-            ^search
+          where(
+            query,
+            [notebook, u],
+            fragment(
+              "CONCAT(?, ?, ?, ?, ?) ilike ?",
+              notebook.title,
+              notebook.github_filename,
+              u.name,
+              notebook.github_owner_login,
+              notebook.github_repo_name,
+              ^search
+            )
           )
-        )
 
-      {:github_owner_login, github_owner_login}, query ->
-        where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
+        {:github_owner_login, github_owner_login}, query ->
+          where(query, [notebook], notebook.github_owner_login == ^github_owner_login)
 
-      {:github_repo_name, github_repo_name}, query ->
-        where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
+        {:github_repo_name, github_repo_name}, query ->
+          where(query, [notebook], notebook.github_repo_name == ^github_repo_name)
 
-      {:content, content}, query ->
-        search = "%#{content}%"
-        where(query, [notebook], ilike(notebook.content, ^search))
+        {:content, content}, query ->
+          search = "%#{content}%"
+          where(query, [notebook], ilike(notebook.content, ^search))
 
-      {:exclude_ids, exclude_ids}, query ->
-        where(query, [notebook], notebook.id not in ^exclude_ids)
+        {:exclude_ids, exclude_ids}, query ->
+          where(query, [notebook], notebook.id not in ^exclude_ids)
 
-      {:repo_id, repo_id}, query ->
-        where(query, [notebook], notebook.repo_id == ^repo_id)
+        {:repo_id, repo_id}, query ->
+          where(query, [notebook], notebook.repo_id == ^repo_id)
 
-      {:page, page}, query ->
-        case Keyword.fetch(opts, :per_page) do
-          {:ok, per_page} -> paginate(query, page, per_page)
-          :error -> paginate(query, page, @default_per_page)
-        end
+        {:page, page}, query ->
+          case Keyword.fetch(opts, :per_page) do
+            {:ok, per_page} -> paginate(query, page, per_page)
+            :error -> paginate(query, page, @default_per_page)
+          end
 
-      _, query ->
-        query
-    end)
+        _, query ->
+          query
+      end
+    )
     |> Repo.all()
   end
 

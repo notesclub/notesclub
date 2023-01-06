@@ -77,12 +77,15 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "list_notebooks/1 search by searchable" do
+      user = user_fixture(%{name: "Jose Valim"})
+      notebook_fixture(github_owner_login: "whatever", user_id: user.id)
+
       notebook_fixture(%{github_owner_login: "josevalim"})
       notebook_fixture()
       notebook_fixture(%{github_repo_name: "valim-ideas", github_owner_login: "someone"})
 
       assert Notebooks.list_notebooks(searchable: "valim", order: :asc)
-             |> Enum.map(& &1.github_owner_login) == ["josevalim", "someone"]
+             |> Enum.map(& &1.github_owner_login) == ["whatever", "josevalim", "someone"]
     end
 
     test "list_notebooks_since/1 returns notebooks since n days ago" do
