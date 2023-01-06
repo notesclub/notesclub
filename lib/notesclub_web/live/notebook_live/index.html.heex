@@ -40,9 +40,11 @@
                   <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
                 <% end %>
                 <div class="flex flex-col ml-4">
-                  <%= live_redirect "@#{notebook.github_owner_login}",
-                    to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
-                    class: "font-medium whitespace-nowrap" %>
+                  <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
+                    class: "font-medium whitespace-nowrap" do %>
+                    <%= notebook.user.name %>
+                    <span class="text-gray-400"><%= "@#{notebook.github_owner_login}" %></span>
+                  <% end %>
                   <%= live_redirect Notesclub.StringTools.truncate(notebook.github_repo_name, 25),
                     to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
                 </div>

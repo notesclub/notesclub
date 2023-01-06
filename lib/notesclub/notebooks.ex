@@ -31,7 +31,9 @@ defmodule Notesclub.Notebooks do
   """
   @spec list_notebooks(any) :: [%Notebook{}]
   def list_notebooks(opts \\ []) do
-    Enum.reduce(opts, from(n in Notebook), fn
+    preload = opts[:preload] || []
+
+    Enum.reduce(opts, from(n in Notebook, preload: ^preload), fn
       {:order, :desc}, query ->
         order_by(query, [notebook], -notebook.id)
 
