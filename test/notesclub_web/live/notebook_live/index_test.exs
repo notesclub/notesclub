@@ -181,4 +181,8 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     refute html =~ "whatever3.livemd"
     assert html =~ "whatever4.livemd"
   end
+
+  test "/last_week redirects to /", %{conn: conn} do
+    {:error, {:redirect, %{to: "/"}}} = live(conn, "/last_week")
+  end
 end
