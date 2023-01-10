@@ -11,6 +11,9 @@ jobs:
   continuous_integration:
     runs-on: ubuntu-22.04
 
+    env:
+      MIX_ENV: test
+
     services:
       postgres:
         image: postgres:15.0
