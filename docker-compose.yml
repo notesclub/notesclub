@@ -1,0 +1,18 @@
+version: '3.4'
+services:
+  postgres:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=notesclub_dev
+    # https://hub.docker.com/_/postgres
+    # This is the same Docker image as in the continuous integration
+    image: postgres:15.0
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # Cache PostgreSQL's data
+
+volumes:
+  # Cache PostgreSQL's data
+  postgres-data:
