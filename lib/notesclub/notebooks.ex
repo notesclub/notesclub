@@ -21,6 +21,14 @@ defmodule Notesclub.Notebooks do
   @default_per_page 15
 
   @doc """
+  Returns the latest notebook inserted
+  """
+  @spec get_latest_notebook() :: %Notebook{}
+  def get_latest_notebook() do
+    Notebook |> last(:inserted_at) |> Repo.one()
+  end
+
+  @doc """
   Returns the list of notebooks.
 
   ## Examples
