@@ -11,6 +11,9 @@ jobs:
   continuous_integration:
     runs-on: ubuntu-22.04
 
+    env:
+      MIX_ENV: test
+
     services:
       postgres:
         image: postgres:15.0
@@ -37,26 +40,7 @@ jobs:
           otp-version: '25.0.3'
           elixir-version: '1.13.4'
 
-      # Whenever a cache hit occurs for the exact `key` match defined below, this step sets the `cache-hit` outputs to 'true'.
-      # With `if: steps.cache.outputs.cache-hit != 'true'`, this can be used in steps to run or ignore them based on the cache hit.
-      # A partial key match via `restore-keys` or a cache miss will set `cache-hit` to 'false'.
-      - name: Restore dependencies from cache if possible
-        uses: actions/cache@v3
-        id: cache # To expose the `cache-hit` output through `steps.cache.outputs.cache-hit`
-        env:
-          cache-name: mix-${{ runner.os }}-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
-        with:
-          # deps -> where Mix downloads dependencies
-          # _build -> where Mix stores compiled artifacts
-          path: |
-            deps
-            _build
-          key: ${{ env.cache-name }}${{ hashFiles('**/mix.lock') }}
-          restore-keys: |
-            ${{ env.cache-name }}
-
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
         run: mix deps.get
 
       - name: Find unused dependencies # https://hexdocs.pm/mix/Mix.Tasks.Deps.Unlock.html
