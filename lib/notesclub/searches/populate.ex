@@ -75,10 +75,12 @@ defmodule Notesclub.Searches.Populate do
                page: page,
                per_page: per_page
              }) do
-          {:ok, search} ->
-            if search.response_notebooks_count == per_page do
-              save_notebooks(notebooks_data, search)
-            end
+          {:ok, search = %Search{response_notebooks_count: ^per_page}} ->
+            save_notebooks(notebooks_data, search)
+
+          {:ok, _search} ->
+            # Nothing to do...
+            :ok
 
           {:error, changeset} ->
             Logger.error(
