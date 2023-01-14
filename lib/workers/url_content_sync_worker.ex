@@ -11,12 +11,12 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
     queue: :default,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
-  alias Notesclub.Workers.RepoSyncWorker
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
   alias Notesclub.ReqTools
+  alias Notesclub.Workers.RepoSyncWorker
 
   @doc """
   Sync url and content depending on notebook's urls

@@ -3,11 +3,11 @@ defmodule RepoSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.Workers.RepoSyncWorker
-  alias Notesclub.ReposFixtures
+  alias Notesclub.Notebooks
   alias Notesclub.NotebooksFixtures
   alias Notesclub.Repos
-  alias Notesclub.Notebooks
+  alias Notesclub.ReposFixtures
+  alias Notesclub.Workers.RepoSyncWorker
 
   @github_repo_response %Req.Response{
     status: 200,

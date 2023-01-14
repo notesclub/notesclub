@@ -11,13 +11,13 @@ defmodule Notesclub.Searches.Populate do
   # public function so we can mock it in tests
   def daily_page_limit, do: @daily_page_limit
 
+  alias Notesclub.Accounts
+  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Searches
-  alias Notesclub.Accounts
   alias Notesclub.Repos
+  alias Notesclub.Searches
   alias Notesclub.Searches.Search
-  alias Notesclub.GithubAPI
 
   @doc """
   Makes a request to fetch new notebooks from Github

@@ -17,9 +17,9 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
 
   @repos Application.get_env(:notesclub, :ecto_repos, [])
 
+  alias Notesclub.Accounts
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Accounts
   alias Notesclub.Repos
 
   @shortdoc "Insert users and repos from notebooks and set user_id and repo_id"

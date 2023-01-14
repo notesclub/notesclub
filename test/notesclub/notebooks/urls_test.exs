@@ -1,12 +1,12 @@
 defmodule Notesclub.Notebooks.UrlsTest do
   use Notesclub.DataCase
 
+  alias Notesclub.AccountsFixtures
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksFixtures
-  alias Notesclub.AccountsFixtures
-  alias Notesclub.ReposFixtures
   alias Notesclub.Repos
+  alias Notesclub.ReposFixtures
 
   setup do
     user = AccountsFixtures.user_fixture(%{username: "elixir-nx"})

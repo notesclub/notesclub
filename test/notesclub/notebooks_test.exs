@@ -1,11 +1,11 @@
 defmodule Notesclub.NotebooksTest do
   use Notesclub.DataCase
 
-  alias Notesclub.Notebooks
-  alias Notesclub.SearchesFixtures
   alias Notesclub.AccountsFixtures
-  alias Notesclub.ReposFixtures
+  alias Notesclub.Notebooks
   alias Notesclub.Repos
+  alias Notesclub.ReposFixtures
+  alias Notesclub.SearchesFixtures
 
   import Notesclub.NotebooksFixtures
   import Notesclub.ReposFixtures

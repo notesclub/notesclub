@@ -3,10 +3,10 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
 
   import Mock
 
+  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Workers.UserNotebooksSyncWorker
-  alias Notesclub.GithubAPI
 
   @github_response %Req.Response{
     status: 200,

@@ -6,13 +6,13 @@ defmodule Notesclub.Notebooks do
   import Ecto.Query, warn: false
   alias Notesclub.Repo
 
-  alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Repos
   alias Notesclub.Accounts
   alias Notesclub.Accounts.User
-  alias Notesclub.Repos.Repo, as: RepoSchema
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
+  alias Notesclub.Repos
+  alias Notesclub.Repos.Repo, as: RepoSchema
 
   alias Notesclub.Workers.UrlContentSyncWorker
 

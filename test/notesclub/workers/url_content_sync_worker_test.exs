@@ -3,12 +3,12 @@ defmodule UrlContentSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.Workers.UrlContentSyncWorker
   alias Notesclub.AccountsFixtures
-  alias Notesclub.ReposFixtures
-  alias Notesclub.NotebooksFixtures
   alias Notesclub.Notebooks
+  alias Notesclub.NotebooksFixtures
+  alias Notesclub.ReposFixtures
   alias Notesclub.ReqTools
+  alias Notesclub.Workers.UrlContentSyncWorker
 
   @valid_response %Req.Response{
     status: 200,
