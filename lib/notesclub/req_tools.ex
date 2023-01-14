@@ -3,9 +3,6 @@ defmodule Notesclub.ReqTools do
   Makes an HTTP request unless we're in test env
   """
 
-  # TODO: Check how to disable all http requests by default in tests
-  # Cassettes? Mock Server depending on the url?
-  # Then, delete this
   def make_request(url) do
     case __MODULE__.requests_enabled?() do
       true -> Req.get(url)
