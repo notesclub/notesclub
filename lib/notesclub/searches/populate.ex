@@ -7,7 +7,7 @@ defmodule Notesclub.Searches.Populate do
   @default_per_page 5
 
   # public function so we can mock it in tests
-  def default_per_page(), do: @default_per_page
+  def default_per_page, do: @default_per_page
   # public function so we can mock it in tests
   def daily_page_limit, do: @daily_page_limit
 
@@ -26,7 +26,7 @@ defmodule Notesclub.Searches.Populate do
   When cron uses next(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
   @spec next :: map
-  def next() do
+  def next do
     if Application.get_env(:notesclub, :populate_enabled) do
       Logger.info("Populate.next() start. Downloading new notebooks.")
 
@@ -57,7 +57,7 @@ defmodule Notesclub.Searches.Populate do
   When cron uses next_loop(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
   @spec next_loop :: map
-  def next_loop() do
+  def next_loop do
     Logger.info("Populate.next_loop() start. Downloading new notebooks.")
 
     Searches.get_last_search_from_today()

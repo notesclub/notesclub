@@ -545,7 +545,7 @@ defmodule Notesclub.Notebooks do
   end
 
   @spec count :: number
-  def count() do
+  def count do
     from(n in Notebook,
       select: count(n.id)
     )
@@ -598,7 +598,7 @@ defmodule Notesclub.Notebooks do
     end
   end
 
-  def update_all_titles() do
+  def update_all_titles do
     list_notebooks()
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})

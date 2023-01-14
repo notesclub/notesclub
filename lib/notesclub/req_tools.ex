@@ -14,7 +14,7 @@ defmodule Notesclub.ReqTools do
   end
 
   # This function is mocked in some tests
-  def requests_enabled?() do
+  def requests_enabled? do
     case Application.get_env(:notesclub, :env) do
       :test -> false
       _ -> true
