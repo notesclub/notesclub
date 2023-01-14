@@ -27,7 +27,7 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     start_services()
 
     Notebooks.list_notebooks()
-    |> Enum.map(fn notebook ->
+    |> Enum.each(fn notebook ->
       notebook
       |> find_or_create_user()
       |> find_or_create_repo()
