@@ -15,7 +15,7 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     :ecto_sql
   ]
 
-  @repos Application.get_env(:notesclub, :ecto_repos, [])
+  @repos Application.compile_env(:notesclub, :ecto_repos, [])
 
   alias Notesclub.Accounts
   alias Notesclub.Notebooks
