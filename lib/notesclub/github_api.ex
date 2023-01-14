@@ -16,6 +16,14 @@ defmodule Notesclub.GithubAPI do
             url: nil,
             errors: %{}
 
+  @type t :: %__MODULE__{
+          notebooks_data: map(),
+          total_count: non_neg_integer(),
+          response: Req.Response.t(),
+          url: String.t(),
+          errors: map()
+        }
+
   @doc """
 
   Gets files with 'livemd' extension from GithubAPI.
@@ -52,7 +60,7 @@ defmodule Notesclub.GithubAPI do
   A common error happens when we reach GithubAPI's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  @spec get(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
+  @spec get(options()) :: {:ok, GithubAPI.t()} | {:error, GithubAPI.t()}
   def get(options) do
     options
     |> build_url()

@@ -29,7 +29,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  @spec list_notebooks(any) :: [%Notebook{}]
+  @spec list_notebooks(any) :: [Notebook.t()]
   def list_notebooks(opts \\ []) do
     preload = opts[:preload] || []
 
@@ -93,7 +93,7 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
-  @spec list_notebooks_since(integer()) :: [%Notebook{}]
+  @spec list_notebooks_since(integer()) :: [Notebook.t()]
   def list_notebooks_since(num_days_ago) when is_integer(num_days_ago) do
     from(n in Notebook,
       where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
@@ -111,8 +111,8 @@ defmodule Notesclub.Notebooks do
       {:ok, %{"notebook_1" =>  %Notesclub.Notebooks.Notebook{...}, ...}}
 
   """
-  @spec enqueue_url_and_content_sync(%RepoSchema{}) ::
-          {:ok, %{binary => %Notebook{}}} | {:error, %{binary => %Ecto.Changeset{}}}
+  @spec enqueue_url_and_content_sync(RepoSchema.t()) ::
+          {:ok, %{binary => Notebook.t()}} | {:error, %{binary => Ecto.Changeset.t()}}
   def enqueue_url_and_content_sync(%RepoSchema{id: repo_id}) do
     %{repo_id: repo_id}
     |> list_notebooks()
@@ -139,7 +139,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  @spec list_author_notebooks_desc(binary) :: [%Notebook{}] | nil
+  @spec list_author_notebooks_desc(binary) :: [Notebook.t()] | nil
   def list_author_notebooks_desc(author) when is_binary(author) do
     from(n in Notebook,
       where: n.github_owner_login == ^author,
@@ -157,7 +157,7 @@ defmodule Notesclub.Notebooks do
       [%Notebook{}, ...]
 
   """
-  @spec list_repo_author_notebooks_desc(binary, binary) :: [%Notebook{}]
+  @spec list_repo_author_notebooks_desc(binary, binary) :: [Notebook.t()]
   def list_repo_author_notebooks_desc(repo_name, author_login)
       when is_binary(repo_name) and is_binary(author_login) do
     from(n in Notebook,
@@ -199,7 +199,7 @@ defmodule Notesclub.Notebooks do
       nil
 
   """
-  @spec get_notebook(any) :: %Notebook{}
+  @spec get_notebook(any) :: Notebook.t()
   def get_notebook(id), do: Repo.get(Notebook, id)
 
   def get_notebook(id, preload: tables) do
@@ -224,7 +224,7 @@ defmodule Notesclub.Notebooks do
       ** (Ecto.NoResultsError)
 
   """
-  @spec get_notebook!(number) :: %Notebook{}
+  @spec get_notebook!(number) :: Notebook.t()
   def get_notebook!(id), do: Repo.get!(Notebook, id)
 
   def get_notebook!(id, preload: tables) do
@@ -244,7 +244,7 @@ defmodule Notesclub.Notebooks do
     true
 
   """
-  @spec get_by([...]) :: %Notebook{} | nil
+  @spec get_by([...]) :: Notebook.t() | nil
   def get_by(ops) do
     Enum.reduce(ops, from(n in Notebook), fn
       {:github_filename, github_filename}, query ->
@@ -282,7 +282,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec create_notebook(any) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  @spec create_notebook(any) :: {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
   def create_notebook(attrs \\ %{}) do
     %Notebook{}
     |> Notebook.changeset(attrs)
@@ -407,7 +407,7 @@ defmodule Notesclub.Notebooks do
   iex> save_notebook(%{field: bad_value})
   {:error, %Ecto.Changeset{}}
   """
-  @spec save_notebook(map) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  @spec save_notebook(map) :: {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
   def save_notebook(attrs) do
     attrs = attrs |> put_repo_id() |> put_url()
 
@@ -498,7 +498,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec update_notebook(%Notebook{}, map()) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  @spec update_notebook(Notebook.t(), map()) :: {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
   def update_notebook(%Notebook{} = notebook, attrs) do
     notebook
     |> Notebook.changeset(attrs)
@@ -517,7 +517,7 @@ defmodule Notesclub.Notebooks do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec delete_notebook(%Notebook{}) :: {:ok, %Notebook{}} | {:error, %Ecto.Changeset{}}
+  @spec delete_notebook(Notebook.t()) :: {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
   def delete_notebook(%Notebook{} = notebook) do
     Repo.delete(notebook)
   end
@@ -539,7 +539,7 @@ defmodule Notesclub.Notebooks do
       %Ecto.Changeset{data: %Notebook{}}
 
   """
-  @spec change_notebook(%Notebook{}, map()) :: %Ecto.Changeset{}
+  @spec change_notebook(Notebook.t(), map()) :: Ecto.Changeset.t()
   def change_notebook(%Notebook{} = notebook, attrs \\ %{}) do
     Notebook.changeset(notebook, attrs)
   end

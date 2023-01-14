@@ -30,7 +30,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
       {:cancel, "..."}
 
   """
-  @spec perform(%Oban.Job{}) :: {:ok, :synced} | {:cancel, binary()}
+  @spec perform(Oban.Job.t()) :: {:ok, :synced} | {:cancel, binary()}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
