@@ -33,19 +33,17 @@ defmodule Notesclub.Searches.Populate do
       last_search_from_today = Searches.get_last_search_from_today()
       daily_page_limit = __MODULE__.daily_page_limit()
 
-      cond do
-        last_search_from_today && last_search_from_today.page >= daily_page_limit ->
-          Logger.info(
-            "Populate.next() end — reached #{daily_page_limit} daily pages. Do NOT fetch Github anymore for today"
-          )
+      if last_search_from_today && last_search_from_today.page >= daily_page_limit do
+        Logger.info(
+          "Populate.next() end — reached #{daily_page_limit} daily pages. Do NOT fetch Github anymore for today"
+        )
 
-          %{created: 0, updated: 0, downloaded: 0}
-
-        true ->
-          last_search_from_today
-          |> next_options()
-          |> populate()
-          |> log_info("Populate.next() end")
+        %{created: 0, updated: 0, downloaded: 0}
+      else
+        last_search_from_today
+        |> next_options()
+        |> populate()
+        |> log_info("Populate.next() end")
       end
     end
   end
