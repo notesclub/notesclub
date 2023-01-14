@@ -18,6 +18,7 @@ defmodule Notesclub.Searches.Populate do
   alias Notesclub.Repos
   alias Notesclub.Searches
   alias Notesclub.Searches.Search
+  alias Notesclub.Workers.UrlContentSyncWorker
 
   @doc """
   Makes a request to fetch new notebooks from Github
@@ -193,7 +194,7 @@ defmodule Notesclub.Searches.Populate do
   defp enqueue_url_content_sync({_, %Notebook{} = notebook} = data) do
     {:ok, _job} =
       %{notebook_id: notebook.id}
-      |> Notesclub.Workers.UrlContentSyncWorker.new()
+      |> UrlContentSyncWorker.new()
       |> Oban.insert()
 
     data

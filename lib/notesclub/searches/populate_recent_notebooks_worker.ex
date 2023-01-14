@@ -5,9 +5,11 @@ defmodule Notesclub.Workers.PopulateRecentNotebooksWorker do
 
   use Oban.Worker, queue: :github_search, priority: 2
 
+  alias Notesclub.Searches.Populate
+
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    result = Notesclub.Searches.Populate.next()
+    result = Populate.next()
     {:ok, result}
   end
 end

@@ -5,6 +5,8 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
 
   alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
+  alias Notesclub.Workers.UrlContentSyncWorker
+  alias Notesclub.Workers.UserNotebooksSyncWorker
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -56,7 +58,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
       {:ok, notebook} = Notebooks.save_notebook(notebook_data)
 
       %{notebook_id: notebook.id}
-      |> Notesclub.Workers.UrlContentSyncWorker.new()
+      |> UrlContentSyncWorker.new()
       |> Oban.insert()
 
       notebook.id
@@ -83,7 +85,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
           per_page: per_page,
           already_saved_ids: already_saved_ids
         }
-        |> Notesclub.Workers.UserNotebooksSyncWorker.new(priority: 2)
+        |> UserNotebooksSyncWorker.new(priority: 2)
         |> Oban.insert()
 
         {:ok, "done and enqueued another page"}
