@@ -3,7 +3,6 @@ defmodule Notesclub.Notebooks.Urls do
   Generate Github notebooks' urls from github_html_url
   """
   alias Notesclub.Accounts.User
-  alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
