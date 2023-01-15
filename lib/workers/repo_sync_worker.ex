@@ -18,8 +18,11 @@ defmodule Notesclub.Workers.RepoSyncWorker do
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
     with %Repo{} = repo <- Repos.get_repo(repo_id),
          %Req.Response{status: 200} = response <- fetch_repo(repo),
-         attrs <- prepare_attrs(response) do
-      update_repo(attrs, repo)
+         attrs <- prepare_attrs(response),
+         :ok <- validate_default_branch(attrs.default_branch),
+         {:ok, repo} <- Repos.update_repo(repo, attrs),
+         {:ok, _} <- Notebooks.enqueue_url_and_content_sync(repo) do
+      :ok
     else
       nil -> {:ok, "repo doesn't exist. Skipping."}
       error -> {:error, error}
@@ -48,22 +51,7 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     }
   end
 
-  defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}
-  defp update_repo(%{default_branch: ""}, _), do: {:error, "default_branch is empty"}
-  defp update_repo(%{fork: nil}, _), do: {:error, "fork is nil"}
-  defp update_repo(%{fork: ""}, _), do: {:error, "fork is empty"}
-  defp update_repo(%{name: nil}, _), do: {:error, "name is nil"}
-  defp update_repo(%{name: ""}, _), do: {:error, "name is empty"}
-  defp update_repo(%{full_name: nil}, _), do: {:error, "full_name is nil"}
-  defp update_repo(%{full_name: ""}, _), do: {:error, "full_name is empty"}
-
-  defp update_repo(attrs, repo) do
-    case Repos.update_repo(repo, attrs) do
-      {:ok, repo} ->
-        Notebooks.enqueue_url_and_content_sync(repo)
-
-      {:error, error} ->
-        {:error, error}
-    end
-  end
+  defp validate_default_branch(nil), do: :error
+  defp validate_default_branch(""), do: :error
+  defp validate_default_branch(_), do: :ok
 end
