@@ -53,7 +53,6 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     {:error, "response status: #{status}, msg: #{response.body["message"]}"}
   end
 
-  defp update_repo({:error, error}), do: {:error, error}
   defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}
   defp update_repo(%{default_branch: ""}, _), do: {:error, "default_branch is empty"}
   defp update_repo(%{fork: nil}, _), do: {:error, "fork is nil"}
