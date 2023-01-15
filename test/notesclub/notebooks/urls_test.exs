@@ -51,17 +51,19 @@ defmodule Notesclub.Notebooks.UrlsTest do
       assert Urls.get_urls(notebook) == {:error, "notebook must include user and repo preloaded."}
     end
 
-    test "get_urls/1 complains when NO notebook.repo.default_branch", %{notebook: notebook} do
-      # Complains when repo is nil
+    test "get_urls/1 complains when NO notebook.repo.default_branch" do
+      repo = ReposFixtures.repo_fixture(%{default_branch: nil})
+
+      notebook = NotebooksFixtures.notebook_fixture(%{repo_id: repo.id})
+      notebook = Notebooks.get_notebook!(notebook.id, preload: [:user, :repo])
       notebook2 = Map.put(notebook, :repo, nil)
 
+      # Complains when repo.default_branch is nil
+      assert Urls.get_urls(notebook) == {:error, "repo.default_branch can't be nil"}
+
+      # Complains when repo is nil
       assert Urls.get_urls(notebook2) ==
                {:error, "notebook must include user and repo preloaded."}
-
-      # Complains when repo.default_branch is nil
-      {:ok, _repo} = Repos.update_repo(notebook.repo, %{default_branch: nil})
-      notebook3 = Notebooks.get_notebook!(notebook.id, preload: [:user, :repo])
-      assert Urls.get_urls(notebook3) == {:error, "repo.default_branch can't be nil"}
     end
 
     test "raw_url/1 generates raw_url" do

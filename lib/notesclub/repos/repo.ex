@@ -14,12 +14,23 @@ defmodule Notesclub.Repos.Repo do
     timestamps()
   end
 
-  @doc false
-  def changeset(repo, attrs) do
+  @doc """
+  Update changeset
+  We can NOT make :default_branch required
+  because GithubAPI.get/1 does NOT return it
+  RepoSyncWorker sets it later in an update
+  """
+  def create_changeset(repo, attrs) do
     repo
     |> cast(attrs, [:name, :user_id, :full_name, :default_branch, :fork])
-    # We do not make :default_branch required because GitHub Search API does not return it
     |> validate_required([:name, :full_name, :fork])
     |> unique_constraint([:name, :user_id, :full_name])
+  end
+
+  @doc false
+  def update_changeset(repo, attrs) do
+    repo
+    |> create_changeset(attrs)
+    |> validate_required(:default_branch)
   end
 end

@@ -19,7 +19,6 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     with %Repo{} = repo <- Repos.get_repo(repo_id),
          %Req.Response{status: 200} = response <- fetch_repo(repo),
          attrs <- prepare_attrs(response),
-         :ok <- validate_default_branch(attrs.default_branch),
          {:ok, repo} <- Repos.update_repo(repo, attrs),
          {:ok, _} <- Notebooks.enqueue_url_and_content_sync(repo) do
       :ok
@@ -50,8 +49,4 @@ defmodule Notesclub.Workers.RepoSyncWorker do
       full_name: body["full_name"]
     }
   end
-
-  defp validate_default_branch(nil), do: :error
-  defp validate_default_branch(""), do: :error
-  defp validate_default_branch(_), do: :ok
 end
