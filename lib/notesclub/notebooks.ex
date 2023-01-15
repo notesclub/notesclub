@@ -23,7 +23,7 @@ defmodule Notesclub.Notebooks do
   @doc """
   Returns the latest notebook inserted
   """
-  @spec get_latest_notebook :: %Notebook{}
+  @spec get_latest_notebook :: Notebook.t()
   def get_latest_notebook do
     Notebook |> last(:inserted_at) |> Repo.one()
   end
