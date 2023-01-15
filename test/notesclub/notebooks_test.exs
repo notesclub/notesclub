@@ -23,6 +23,12 @@ defmodule Notesclub.NotebooksTest do
       search: nil
     }
 
+    test "get_latest_notebook/0" do
+      _notebook1 = notebook_fixture(%{inserted_at: ~N[2022-12-31 20:00:00]})
+      notebook2 = notebook_fixture(%{inserted_at: ~N[2023-01-01 20:00:00]})
+      assert Notebooks.get_latest_notebook() == notebook2
+    end
+
     test "list_notebooks/0 ascending order" do
       notebook1 = notebook_fixture()
       notebook2 = notebook_fixture()
