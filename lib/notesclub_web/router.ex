@@ -43,8 +43,7 @@ defmodule NotesclubWeb.Router do
   scope "/", NotesclubWeb do
     pipe_through :browser
 
-    # Used for uptime monitoring and zero-downtime deploys
-    get "/ok", StatusController, :ok
+    get "/status", StatusController, :status
 
     live "/", NotebookLive.Index, :home
     live "/search", NotebookLive.Index, :search
