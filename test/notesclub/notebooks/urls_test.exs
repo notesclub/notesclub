@@ -5,7 +5,6 @@ defmodule Notesclub.Notebooks.UrlsTest do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksFixtures
-  alias Notesclub.Repos
   alias Notesclub.ReposFixtures
 
   setup do
