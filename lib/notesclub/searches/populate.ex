@@ -1,5 +1,9 @@
-# This is going to be shortened and refactored after we do https://github.com/notesclub/notesclub/issues/40
 defmodule Notesclub.Searches.Populate do
+  @moduledoc """
+  Downloads new notebooks from GitHub Search API
+  GitHub Search API sometimes does not return the page size so
+  we use Searches to keep a log and retry.
+  """
   require Logger
 
   #  max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"

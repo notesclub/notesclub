@@ -1,4 +1,8 @@
 defmodule NotesclubWeb.Telemetry do
+  @moduledoc """
+  Telemetry metrics
+  """
+
   use Supervisor
   import Telemetry.Metrics
 

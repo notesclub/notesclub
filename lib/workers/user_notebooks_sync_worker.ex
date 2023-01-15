@@ -1,4 +1,8 @@
 defmodule Notesclub.Workers.UserNotebooksSyncWorker do
+  @moduledoc """
+  Downloads and creates or updates notebooks by the given username
+  """
+
   use Oban.Worker,
     queue: :github_search,
     priority: 3

@@ -1,4 +1,8 @@
 defmodule Notesclub.Searches.Delete do
+  @moduledoc """
+  Deletes old Search entries
+  """
+
   require Logger
 
   alias Notesclub.Searches

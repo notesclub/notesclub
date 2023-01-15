@@ -1,4 +1,8 @@
 defmodule Notesclub.Notebooks.Notebook do
+  @moduledoc """
+  Notebook schema
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

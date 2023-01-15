@@ -1,4 +1,8 @@
 defmodule Notesclub.GithubAPI do
+  @moduledoc """
+  Fetches new notebooks from Github Search API and user data from Github Rest API
+  """
+
   alias Notesclub.GithubAPI
 
   require Logger
@@ -70,17 +74,17 @@ defmodule Notesclub.GithubAPI do
 
   @doc """
 
-  Using a given username, look up the corresponding user record from Github API 
+  Using a given username, look up the corresponding user record from Github API
 
   ## Example
   iex> Notesclub.GithubAPI.get_user_info("octocat")
   {:ok, %{twitter_username: "twitter_octo", name: "octo realname"}
 
   iex> Notesclub.GithubAPI.get_user_info(-1)
-  {:error, :not_found} 
+  {:error, :not_found}
 
   Arguments:
-  - username can be a string or a positive integer 
+  - username can be a string or a positive integer
   """
   @spec get_user_info(String.t()) :: {:ok, map()} | {:error, atom()}
   def get_user_info(username) do
