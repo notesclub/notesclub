@@ -20,7 +20,7 @@ defmodule Notesclub.Accounts do
       [%User{}, ...]
 
   """
-  @spec list_users :: [%User{}]
+  @spec list_users :: [User.t()]
   def list_users do
     Repo.all(User)
   end
@@ -39,7 +39,7 @@ defmodule Notesclub.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  @spec get_user!(integer) :: %User{}
+  @spec get_user!(integer) :: User.t()
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
@@ -54,7 +54,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec create_user(map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec create_user(map) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def create_user(attrs \\ %{}) do
     attrs
     |> Enum.into(%{
@@ -116,7 +116,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec update_user(%User{}, map) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec update_user(User.t(), map) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user(%User{} = user, attrs) do
     user
     |> User.changeset(attrs)
@@ -135,7 +135,7 @@ defmodule Notesclub.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec delete_user(%User{}) :: {:ok, %User{}} | {:error, %Ecto.Changeset{}}
+  @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(%User{} = user) do
     Repo.delete(user)
   end
@@ -150,7 +150,7 @@ defmodule Notesclub.Accounts do
 
   """
 
-  @spec change_user(%User{}, map) :: %Ecto.Changeset{}
+  @spec change_user(User.t(), map) :: Ecto.Changeset.t()
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
@@ -170,7 +170,7 @@ defmodule Notesclub.Accounts do
   """
   def get_by_username(nil), do: nil
 
-  @spec get_by_username(binary) :: %User{} | nil
+  @spec get_by_username(binary) :: User.t() | nil
   def get_by_username(username) do
     Repo.get_by(User, username: username)
   end

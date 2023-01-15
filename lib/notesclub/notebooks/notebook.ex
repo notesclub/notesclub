@@ -1,10 +1,14 @@
 defmodule Notesclub.Notebooks.Notebook do
+  @moduledoc """
+  Notebook schema
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Notesclub.Searches.Search
   alias Notesclub.Accounts.User
   alias Notesclub.Repos.Repo
+  alias Notesclub.Searches.Search
 
   @optional ~w(search_id inserted_at user_id repo_id url content title)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a

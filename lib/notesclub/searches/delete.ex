@@ -1,4 +1,8 @@
 defmodule Notesclub.Searches.Delete do
+  @moduledoc """
+  Deletes old Search entries
+  """
+
   require Logger
 
   alias Notesclub.Searches
@@ -7,11 +11,11 @@ defmodule Notesclub.Searches.Delete do
 
   # public function so we can mock it in tests
   @spec number_of_days_to_keep_search_results :: integer
-  def number_of_days_to_keep_search_results(),
+  def number_of_days_to_keep_search_results,
     do: @number_of_days_to_keep_search_results
 
   @spec eliminate :: {:ok, integer}
-  def eliminate() do
+  def eliminate do
     {count, nil} =
       Timex.now()
       |> Timex.beginning_of_day()

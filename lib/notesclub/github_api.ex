@@ -1,4 +1,8 @@
 defmodule Notesclub.GithubAPI do
+  @moduledoc """
+  Fetches new notebooks from Github Search API and user data from Github Rest API
+  """
+
   alias Notesclub.GithubAPI
 
   require Logger
@@ -15,6 +19,14 @@ defmodule Notesclub.GithubAPI do
             response: nil,
             url: nil,
             errors: %{}
+
+  @type t :: %__MODULE__{
+          notebooks_data: map(),
+          total_count: non_neg_integer(),
+          response: Req.Response.t(),
+          url: String.t(),
+          errors: map()
+        }
 
   @doc """
 
@@ -52,7 +64,7 @@ defmodule Notesclub.GithubAPI do
   A common error happens when we reach GithubAPI's rate limit.
   The first .livemd file should be structs.livemd — at least on 2022-08-15.
   """
-  @spec get(options()) :: {:ok, %GithubAPI{}} | {:error, %GithubAPI{}}
+  @spec get(options()) :: {:ok, GithubAPI.t()} | {:error, GithubAPI.t()}
   def get(options) do
     options
     |> build_url()
@@ -62,17 +74,17 @@ defmodule Notesclub.GithubAPI do
 
   @doc """
 
-  Using a given username, look up the corresponding user record from Github API 
+  Using a given username, look up the corresponding user record from Github API
 
   ## Example
   iex> Notesclub.GithubAPI.get_user_info("octocat")
   {:ok, %{twitter_username: "twitter_octo", name: "octo realname"}
 
   iex> Notesclub.GithubAPI.get_user_info(-1)
-  {:error, :not_found} 
+  {:error, :not_found}
 
   Arguments:
-  - username can be a string or a positive integer 
+  - username can be a string or a positive integer
   """
   @spec get_user_info(String.t()) :: {:ok, map()} | {:error, atom()}
   def get_user_info(username) do
@@ -83,12 +95,10 @@ defmodule Notesclub.GithubAPI do
   end
 
   defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
-    cond do
-      errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() ->
-        {:error, fetch}
-
-      true ->
-        prepare_data(fetch, response.body["items"])
+    if errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() do
+      {:error, fetch}
+    else
+      prepare_data(fetch, response.body["items"])
     end
   end
 
@@ -184,21 +194,19 @@ defmodule Notesclub.GithubAPI do
   defp make_request(%GithubAPI{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
 
-    cond do
-      github_api_key == nil && __MODULE__.check_github_api_key() ->
-        Map.put(fetch, :errors, %{github_api_key: ["is missing"]})
+    if github_api_key == nil && __MODULE__.check_github_api_key() do
+      Map.put(fetch, :errors, %{github_api_key: ["is missing"]})
+    else
+      response =
+        Req.get!(
+          fetch.url,
+          headers: [
+            Accept: ["application/vnd.github+json"],
+            Authorization: ["token #{github_api_key}"]
+          ]
+        )
 
-      true ->
-        response =
-          Req.get!(
-            fetch.url,
-            headers: [
-              Accept: ["application/vnd.github+json"],
-              Authorization: ["token #{github_api_key}"]
-            ]
-          )
-
-        Map.put(fetch, :response, response)
+      Map.put(fetch, :response, response)
     end
   end
 

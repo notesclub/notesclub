@@ -1,5 +1,9 @@
-# This is going to be shortened and refactored after we do https://github.com/notesclub/notesclub/issues/40
 defmodule Notesclub.Searches.Populate do
+  @moduledoc """
+  Downloads new notebooks from GitHub Search API
+  GitHub Search API sometimes does not return the page size so
+  we use Searches to keep a log and retry.
+  """
   require Logger
 
   #  max: 200 when per_page=5. Afterwards Github returns "Only the first 1000 search results are available"
@@ -7,17 +11,18 @@ defmodule Notesclub.Searches.Populate do
   @default_per_page 5
 
   # public function so we can mock it in tests
-  def default_per_page(), do: @default_per_page
+  def default_per_page, do: @default_per_page
   # public function so we can mock it in tests
   def daily_page_limit, do: @daily_page_limit
 
+  alias Notesclub.Accounts
+  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Searches
-  alias Notesclub.Accounts
   alias Notesclub.Repos
+  alias Notesclub.Searches
   alias Notesclub.Searches.Search
-  alias Notesclub.GithubAPI
+  alias Notesclub.Workers.UrlContentSyncWorker
 
   @doc """
   Makes a request to fetch new notebooks from Github
@@ -26,26 +31,24 @@ defmodule Notesclub.Searches.Populate do
   When cron uses next(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
   @spec next :: map
-  def next() do
+  def next do
     if Application.get_env(:notesclub, :populate_enabled) do
       Logger.info("Populate.next() start. Downloading new notebooks.")
 
       last_search_from_today = Searches.get_last_search_from_today()
       daily_page_limit = __MODULE__.daily_page_limit()
 
-      cond do
-        last_search_from_today && last_search_from_today.page >= daily_page_limit ->
-          Logger.info(
-            "Populate.next() end — reached #{daily_page_limit} daily pages. Do NOT fetch Github anymore for today"
-          )
+      if last_search_from_today && last_search_from_today.page >= daily_page_limit do
+        Logger.info(
+          "Populate.next() end — reached #{daily_page_limit} daily pages. Do NOT fetch Github anymore for today"
+        )
 
-          %{created: 0, updated: 0, downloaded: 0}
-
-        true ->
-          last_search_from_today
-          |> next_options()
-          |> populate()
-          |> log_info("Populate.next() end")
+        %{created: 0, updated: 0, downloaded: 0}
+      else
+        last_search_from_today
+        |> next_options()
+        |> populate()
+        |> log_info("Populate.next() end")
       end
     end
   end
@@ -57,7 +60,7 @@ defmodule Notesclub.Searches.Populate do
   When cron uses next_loop(), every day we fetch the last @daily_page_limit indexed by GitHub
   """
   @spec next_loop :: map
-  def next_loop() do
+  def next_loop do
     Logger.info("Populate.next_loop() start. Downloading new notebooks.")
 
     Searches.get_last_search_from_today()
@@ -77,10 +80,12 @@ defmodule Notesclub.Searches.Populate do
                page: page,
                per_page: per_page
              }) do
-          {:ok, search} ->
-            if search.response_notebooks_count == per_page do
-              save_notebooks(notebooks_data, search)
-            end
+          {:ok, search = %Search{response_notebooks_count: ^per_page}} ->
+            save_notebooks(notebooks_data, search)
+
+          {:ok, _search} ->
+            # Nothing to do...
+            :ok
 
           {:error, changeset} ->
             Logger.error(
@@ -193,7 +198,7 @@ defmodule Notesclub.Searches.Populate do
   defp enqueue_url_content_sync({_, %Notebook{} = notebook} = data) do
     {:ok, _job} =
       %{notebook_id: notebook.id}
-      |> Notesclub.Workers.UrlContentSyncWorker.new()
+      |> UrlContentSyncWorker.new()
       |> Oban.insert()
 
     data

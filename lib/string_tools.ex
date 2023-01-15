@@ -1,4 +1,8 @@
 defmodule Notesclub.StringTools do
+  @moduledoc """
+  Truncate strings
+  """
+
   def truncate(nil, _), do: ""
 
   def truncate(input, max_length) when is_binary(input) do

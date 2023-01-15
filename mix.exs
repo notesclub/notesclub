@@ -63,7 +63,8 @@ defmodule Notesclub.MixProject do
       {:oban, "2.13.6"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:redirect, "~> 0.4.0"}
+      {:redirect, "~> 0.4.0"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 

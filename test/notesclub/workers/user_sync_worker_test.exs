@@ -3,9 +3,9 @@ defmodule UserSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.{Accounts, AccountsFixtures, GithubAPI}
-  alias Notesclub.Workers.UserSyncWorker
   alias Notesclub.GithubAPI
+  alias Notesclub.Workers.UserSyncWorker
+  alias Notesclub.{Accounts, AccountsFixtures, GithubAPI}
 
   @github_user_response %Req.Response{
     status: 200,

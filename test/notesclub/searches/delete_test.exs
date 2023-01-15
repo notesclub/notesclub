@@ -1,10 +1,10 @@
 defmodule Notesclub.Searches.DeleteTest do
   use Notesclub.DataCase
 
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Repo
   alias Notesclub.Searches.Delete
   alias Notesclub.Searches.Search
-  alias Notesclub.Notebooks.Notebook
 
   import Notesclub.SearchesFixtures
   import Notesclub.NotebooksFixtures

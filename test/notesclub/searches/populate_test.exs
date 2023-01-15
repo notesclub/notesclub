@@ -1,12 +1,12 @@
 defmodule Notesclub.Searches.PopulateTest do
   use Notesclub.DataCase
 
-  alias Notesclub.Searches
-  alias Notesclub.Searches.Search
-  alias Notesclub.Searches.Populate
   alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Searches
+  alias Notesclub.Searches.Populate
+  alias Notesclub.Searches.Search
 
   import Mock
 

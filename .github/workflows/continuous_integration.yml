@@ -55,5 +55,8 @@ jobs:
       - name: Ensure the Elixir code compiles # https://hexdocs.pm/mix/Mix.Tasks.Compile.html
         run: mix compile --all-warnings --warning-as-errors
 
+      - name: Lint Elixir code to enforce code consistency # Credo's strict analysis: https://hexdocs.pm/credo/basic_usage.html#strict-analysis
+        run: mix credo --strict
+
       - name: Run tests # https://hexdocs.pm/mix/Mix.Tasks.Test.html
         run: mix test

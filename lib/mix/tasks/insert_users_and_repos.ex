@@ -15,11 +15,11 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     :ecto_sql
   ]
 
-  @repos Application.get_env(:notesclub, :ecto_repos, [])
+  @repos Application.compile_env(:notesclub, :ecto_repos, [])
 
+  alias Notesclub.Accounts
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Accounts
   alias Notesclub.Repos
 
   @shortdoc "Insert users and repos from notebooks and set user_id and repo_id"
@@ -27,7 +27,7 @@ defmodule Mix.Tasks.InsertUsersAndRepos do
     start_services()
 
     Notebooks.list_notebooks()
-    |> Enum.map(fn notebook ->
+    |> Enum.each(fn notebook ->
       notebook
       |> find_or_create_user()
       |> find_or_create_repo()

@@ -10,8 +10,8 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     queue: :github_rest,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
-  alias Notesclub.Repos
   alias Notesclub.Notebooks
+  alias Notesclub.Repos
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do

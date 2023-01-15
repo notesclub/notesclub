@@ -2,11 +2,11 @@ defmodule Notesclub.Notebooks.Urls do
   @moduledoc """
   Generate Github notebooks' urls from github_html_url
   """
+  alias Notesclub.Accounts.User
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
-  alias Notesclub.Accounts.User
 
   defstruct [
     :notebook,
@@ -15,6 +15,14 @@ defmodule Notesclub.Notebooks.Urls do
     :default_branch_url,
     :raw_default_branch_url
   ]
+
+  @type t :: %__MODULE__{
+          notebook: Notebook.t(),
+          commit_url: String.t(),
+          raw_commit_url: String.t(),
+          default_branch_url: String.t(),
+          raw_default_branch_url: String.t()
+        }
 
   @doc """
   Generate the four notebook urls that we need
@@ -30,7 +38,7 @@ defmodule Notesclub.Notebooks.Urls do
       }}
 
   """
-  @spec get_urls(%Notebook{}) :: {:ok, %Urls{}} | {:error, binary()}
+  @spec get_urls(Notebook.t()) :: {:ok, Urls.t()} | {:error, binary()}
   def get_urls(nil), do: {:error, "notebook can't be nil"}
 
   def get_urls(%Notebook{repo: %Repo{default_branch: nil}}),

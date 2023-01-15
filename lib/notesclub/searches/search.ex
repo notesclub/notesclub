@@ -1,4 +1,8 @@
 defmodule Notesclub.Searches.Search do
+  @moduledoc """
+  Schema to log Github Search API queries as it is unreliable
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
