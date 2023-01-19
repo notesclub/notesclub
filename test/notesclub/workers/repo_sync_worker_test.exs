@@ -27,7 +27,7 @@ defmodule RepoSyncWorkerTest do
         repo = ReposFixtures.repo_fixture()
 
         # Run worker:
-        {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
+        :ok = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
         # It should have updated repo:
         repo = Repos.get_repo!(repo.id)
@@ -71,7 +71,7 @@ defmodule RepoSyncWorkerTest do
 
         Oban.Testing.with_testing_mode(:inline, fn ->
           # Sync & update urls from repo:
-          {:ok, _job} = perform_job(RepoSyncWorker, %{repo_id: repo.id})
+          :ok = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
           # It should have changed the first three notebooks
           assert Notebooks.get_notebook!(notebook1.id).url ==

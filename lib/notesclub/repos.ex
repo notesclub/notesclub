@@ -99,12 +99,12 @@ defmodule Notesclub.Repos do
   defp create_repo_and_enqueue_sync_if_necessary(attrs) do
     # All fields — no need to enqueue sync
     %RepoSchema{}
-    |> RepoSchema.changeset(attrs)
+    |> RepoSchema.create_changeset(attrs)
     |> Repo.insert()
   end
 
   defp create_repo_and_enqueue_sync(attrs) do
-    changeset = RepoSchema.changeset(%RepoSchema{}, attrs)
+    changeset = RepoSchema.create_changeset(%RepoSchema{}, attrs)
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:repo, changeset)
@@ -150,7 +150,7 @@ defmodule Notesclub.Repos do
   @spec update_repo(RepoSchema.t(), map()) :: {:ok, RepoSchema.t()} | {:error, Ecto.Changeset.t()}
   def update_repo(%RepoSchema{} = repo, attrs) do
     repo
-    |> RepoSchema.changeset(attrs)
+    |> RepoSchema.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -182,7 +182,7 @@ defmodule Notesclub.Repos do
   """
   @spec change_repo(RepoSchema.t(), map) :: Ecto.Changeset.t()
   def change_repo(%RepoSchema{} = repo, attrs \\ %{}) do
-    RepoSchema.changeset(repo, attrs)
+    RepoSchema.update_changeset(repo, attrs)
   end
 
   @doc """

@@ -8,7 +8,7 @@ defmodule Notesclub.ReposTest do
 
     import Notesclub.ReposFixtures
 
-    @valid_attrs %{name: "myrepo", full_name: "myuser/myrepo"}
+    @valid_attrs %{name: "myrepo", full_name: "myuser/myrepo", fork: false}
     @invalid_attrs %{name: nil}
 
     test "list_repos/0 returns all repos" do

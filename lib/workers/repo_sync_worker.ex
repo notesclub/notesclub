@@ -12,25 +12,26 @@ defmodule Notesclub.Workers.RepoSyncWorker do
 
   alias Notesclub.Notebooks
   alias Notesclub.Repos
+  alias Notesclub.Repos.Repo
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
-    case Repos.get_repo(repo_id, preload: :user) do
-      nil ->
-        {:ok, "repo doesn't exist anymore. Skipping"}
-
-      repo ->
-        "#{repo.user.username}/#{repo.name}"
-        |> fetch_repo()
-        |> prepare_attrs()
-        |> update_repo(repo)
+    with %Repo{} = repo <- Repos.get_repo(repo_id),
+         %Req.Response{status: 200} = response <- fetch_repo(repo),
+         attrs <- prepare_attrs(response),
+         {:ok, repo} <- Repos.update_repo(repo, attrs),
+         {:ok, _} <- Notebooks.enqueue_url_and_content_sync(repo) do
+      :ok
+    else
+      nil -> {:ok, "repo doesn't exist. Skipping."}
+      error -> {:error, error}
     end
   end
 
-  defp fetch_repo(full_name) do
+  defp fetch_repo(%Repo{} = repo) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
 
-    Req.get!("https://api.github.com/repos/" <> full_name,
+    Req.get!("https://api.github.com/repos/" <> repo.full_name,
       headers: [
         Accept: ["application/vnd.github+json"],
         Authorization: ["token #{github_api_key}"]
@@ -47,28 +48,5 @@ defmodule Notesclub.Workers.RepoSyncWorker do
       name: body["name"],
       full_name: body["full_name"]
     }
-  end
-
-  defp prepare_attrs(%Req.Response{status: status} = response) do
-    {:error, "response status: #{status}, msg: #{response.body["message"]}"}
-  end
-
-  defp update_repo(%{default_branch: nil}, _), do: {:error, "default_branch is empty"}
-  defp update_repo(%{default_branch: ""}, _), do: {:error, "default_branch is empty"}
-  defp update_repo(%{fork: nil}, _), do: {:error, "fork is nil"}
-  defp update_repo(%{fork: ""}, _), do: {:error, "fork is empty"}
-  defp update_repo(%{name: nil}, _), do: {:error, "name is nil"}
-  defp update_repo(%{name: ""}, _), do: {:error, "name is empty"}
-  defp update_repo(%{full_name: nil}, _), do: {:error, "full_name is nil"}
-  defp update_repo(%{full_name: ""}, _), do: {:error, "full_name is empty"}
-
-  defp update_repo(attrs, repo) do
-    case Repos.update_repo(repo, attrs) do
-      {:ok, repo} ->
-        Notebooks.enqueue_url_and_content_sync(repo)
-
-      {:error, error} ->
-        {:error, error}
-    end
   end
 end
