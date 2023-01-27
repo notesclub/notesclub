@@ -3,10 +3,10 @@ defmodule Notesclub.Accounts.User do
   User schema
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
 
-  schema "users" do
+  typed_schema "users" do
     field :username, :string
     field :avatar_url, :string
     field :name, :string

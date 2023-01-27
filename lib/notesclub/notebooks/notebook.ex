@@ -3,7 +3,7 @@ defmodule Notesclub.Notebooks.Notebook do
   Notebook schema
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
 
   alias Notesclub.Accounts.User
@@ -13,7 +13,7 @@ defmodule Notesclub.Notebooks.Notebook do
   @optional ~w(search_id inserted_at user_id repo_id url content title)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
-  schema "notebooks" do
+  typed_schema "notebooks" do
     field :url, :string
     field :content, :string
     field :title, :string, default: ""
