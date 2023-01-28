@@ -3,12 +3,12 @@ defmodule Notesclub.Searches.Search do
   Schema to log Github Search API queries as it is unreliable
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
 
   alias Notesclub.Notebooks.Notebook
 
-  schema "searches" do
+  typed_schema "searches" do
     field :order, :string
     field :page, :integer
     field :per_page, :integer

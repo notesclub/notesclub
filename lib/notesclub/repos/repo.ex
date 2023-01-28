@@ -1,9 +1,9 @@
 defmodule Notesclub.Repos.Repo do
-  use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
   alias Notesclub.Accounts.User
 
-  schema "repos" do
+  typed_schema "repos" do
     field :name, :string
     field :full_name, :string
     field :default_branch, :string
