@@ -58,22 +58,31 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
   end
 
-  def handle_event("search", %{"q" => ""}, socket) do
+  def handle_event("search", %{"value" => ""}, socket) do
     {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
   end
 
   def handle_event("search", params, socket) do
-    %{"timestamp" => timestamp, "value" => q} = params
+    timestamp = params["timestamp"]
 
-    if timestamp > socket.assigns.last_search_time do
-      socket =
-        socket
-        |> assign(timestamp: timestamp)
-        |> push_patch(to: Routes.notebook_index_path(socket, :search, q: q))
+    cond do
+      timestamp && timestamp > socket.assigns.last_search_time ->
+        socket =
+          socket
+          |> assign(timestamp: timestamp)
+          |> push_patch(to: Routes.notebook_index_path(socket, :search, q: params["value"]))
 
-      {:noreply, socket}
-    else
-      {:noreply, socket}
+        {:noreply, socket}
+
+      timestamp ->
+        {:noreply, socket}
+
+      true ->
+        # In LiveView tests we do NOT run js so timestamp=nil
+        socket =
+          push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: params["value"]))
+
+        {:noreply, socket}
     end
   end
 
