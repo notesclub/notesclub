@@ -2,20 +2,26 @@
   <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl">
   <%= link "Notesclub", to: "/" %>
   </header>
-  <h1 class="text-4xl text-center mt-16 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
+  <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
   <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
-    Updated every day.
-    <%= link("Contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %> and join the <%= link "conversation in the elixir forum", to: "https://elixirforum.com/t/notesclub-discover-livebook-notebooks/49698", class: "text-blue-600", target: "_blank" %>.
+    Updated every day. Feel free to
+    <%= link("contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %>
+    or
+    <%= link("sponsor us", to: "mailto:hec@hecperez.com", class: "text-blue-600", target: "_blank") %>.
   </p>
-  <form id="search" class="flex justify-center my-12" phx-submit="search">
-    <input type="text" name="q" value={@search} autofocus phx-debounce="400" phx-keydown="search"
-      class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-    <input type="submit" name="Submit" value="Search"
-      class="ml-2 cursor-pointer inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-    <a phx-click="random" class="cursor-pointer ml-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
+  <form id="search" class="px-4 sm:flex sm:justify-center mt-4 mb-4 sm:mb-8" phx-submit="search">
+    <div>
+      <input type="text" name="q" value={@search} autofocus phx-debounce="400" phx-keydown="search"
+        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+    </div>
+    <div class="pt-2 sm:pt-0 sm:pl-4">
+      <input type="submit" name="Submit" value="Search"
+        class="cursor-pointer items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <a phx-click="random" class="cursor-pointer ml-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
+    </div>
   </form>
 
-  <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-scroll">
+  <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
       <.live_component
         module={NotesclubWeb.NotebookLive.CloseFilterComponent}
@@ -23,55 +29,63 @@
         repo={@repo}
         id="f"
       />
-      <table class="table-auto divide-y divide-gray-300 w-full mx-auto text-sm">
-        <thead class="bg-gray-100 font-semibold text-gray-900">
-          <td class="p-4" align="left" scope="col">Author/Repo</td>
-          <td align="left" scope="col">
-            File
-          </td>
-          <td align="left" scope="col">Date</td>
-          <td align="left" scope="col">Actions</td>
-        </thead>
-        <%= for notebook <- @notebooks do %>
-          <tbody class="h-20 bg-white">
-            <td>
-              <article class="flex w-min-max p-4 min-w-max">
-                <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login) do %>
-                  <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
-                <% end %>
-                <div class="flex flex-col ml-4">
-                  <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
-                    class: "font-medium whitespace-nowrap" do %>
-                    <%= notebook.user.name %>
-                    <span class="text-gray-400"><%= "@#{notebook.github_owner_login}" %></span>
-                  <% end %>
-                  <%= live_redirect Notesclub.StringTools.truncate(notebook.github_repo_name, 25),
-                    to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
+      <div class="overflow-hidden bg-white shadow sm:rounded-md">
+        <ul role="list" class="divide-y divide-gray-200">
+          <%= for notebook <- @notebooks do %>
+            <li>
+              <div class="flex-1 lg:flex p-4">
+                <div class="flex min-w-0 flex-1 px-4">
+                  <div class="flex-shrink-0 mt-1">
+                    <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login) do %>
+                      <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+                    <% end %>
+                  </div>
+                  <div class="ml-8">
+                    <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
+                      class: "font-medium whitespace-nowrap" do %>
+                      <%= notebook.user.name %>
+                      <span class="text-gray-400"><%= "@#{notebook.github_owner_login}" %></span>
+                    <% end %>
+                    <div>
+                      <%= live_redirect StringTools.truncate(notebook.github_repo_name, 25),
+                        to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
+                    </div>
+                  </div>
                 </div>
-              </article>
-            </td>
-            <td>
-              <p>
-                <%= link Notesclub.StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
-              </p>
-              <p class="text-gray-400">
-                <%= link Notesclub.StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
-              </p>
-              <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
-                <p class="text-gray-400">
-                  <%= Notesclub.Notebooks.content_fragment(notebook, @search) %>
-                </p>
-              <% end %>
-            </td>
-            <td>
-              <%= format_date(notebook) %>
-            </td>
-            <td>
-              <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
-            </td>
-          </tbody>
-        <% end %>
-      </table>
+                <div class="min-w-0 flex-1 pl-4">
+                  <div class="flex-shrink-0">
+                    <div class="pt-4 mx-auto md:pt-0 md:pt-0">
+                      <div>
+                        <p class="text-xl text-gray-900">
+                          <%= link StringTools.truncate(notebook.title, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+                        </p>
+                        <p class="text-gray-400">
+                          <%= link StringTools.truncate(notebook.github_filename, 50), to: notebook.url || notebook.github_html_url, target: "_blank" %>
+                        </p>
+                        <%= if assigns[:search] && !String.contains?(notebook.github_filename, @search) do %>
+                          <p class="text-gray-400">
+                            <%= Notebooks.content_fragment(notebook, @search) %>
+                          </p>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4 pt-4 sm:pt-0">
+                  <div class="flex">
+                    <!-- Heroicon name: mini/calendar -->
+                    <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd" />
+                    </svg>
+                    <p><%= format_date(notebook) %></p>
+                  </div>
+                  <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{notebook.github_html_url}", target: "_blank" %>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   </section>
   <footer class="p-8 w-full">
