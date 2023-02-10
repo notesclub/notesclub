@@ -6,6 +6,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.StringTools
 
   @per_page 20
 
