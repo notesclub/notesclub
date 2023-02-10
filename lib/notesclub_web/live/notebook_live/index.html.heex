@@ -26,8 +26,8 @@
       <div class="overflow-hidden bg-white shadow sm:rounded-md">
         <ul role="list" class="divide-y divide-gray-200">
           <%= for notebook <- @notebooks do %>
-            <li class="pt-4">
-              <div class="flex-1 lg:flex px-4 py-4">
+            <li>
+              <div class="flex-1 lg:flex p-4">
                 <div class="flex min-w-0 flex-1 px-4">
                   <div class="flex-shrink-0 mt-1">
                     <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login) do %>
@@ -65,7 +65,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="p-4">
+                <div class="pr-4">
                   <div class="flex">
                     <!-- Heroicon name: mini/calendar -->
                     <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
