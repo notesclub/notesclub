@@ -1,0 +1,8 @@
+<div class="font-medium text-xs mb-2 sm:pb-2 bg-white sm:bg-inherit rounded-lg sm:rounded-none p-1 leading-6">
+  <span>Featured:</span>
+  <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-800"><%= link "@livebook-dev", to: Routes.notebook_index_path(@socket, :author, "livebook-dev") %></span>
+  <span class="rounded-full bg-red-100 px-2.5 py-0.5 text-red-800"><%= link "@elixir-nx", to: Routes.notebook_index_path(@socket, :author, "elixir-nx") %></span>
+  <span class="rounded-full bg-yellow-100 px-2.5 py-0.5 text-yellow-800"><%= link "@josevalim", to: Routes.notebook_index_path(@socket, :author, "josevalim") %></span>
+  <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-green-800"><%= link "@DockYard-Academy", to: Routes.notebook_index_path(@socket, :author, "DockYard-Academy") %></span>
+  <span class="rounded-full bg-indigo-100 px-2.5 py-0.5 text-indigo-800"><%= link "@BrooklinJazz", to: Routes.notebook_index_path(@socket, :author, "BrooklinJazz") %></span>
+</div>

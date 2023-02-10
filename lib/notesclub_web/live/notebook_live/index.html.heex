@@ -24,6 +24,11 @@
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
       <.live_component
+        module={NotesclubWeb.NotebookLive.FeaturedComponent}
+        id="f"
+      />
+
+      <.live_component
         module={NotesclubWeb.NotebookLive.CloseFilterComponent}
         author={@author}
         repo={@repo}

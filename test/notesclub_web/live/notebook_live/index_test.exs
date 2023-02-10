@@ -213,6 +213,19 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ "whatever4.livemd"
   end
 
+  test "GET / includes featured users", %{conn: conn} do
+    notebook_fixture()
+
+    {:ok, _view, html} = live(conn, "/")
+
+    assert html =~ "Featured:"
+    assert html =~ "@livebook-dev</a>"
+    assert html =~ "@elixir-nx</a>"
+    assert html =~ "@josevalim</a>"
+    assert html =~ "@DockYard-Academy</a>"
+    assert html =~ "@BrooklinJazz</a>"
+  end
+
   test "/last_week redirects to /", %{conn: conn} do
     {:error, {:redirect, %{to: "/"}}} = live(conn, "/last_week")
   end
