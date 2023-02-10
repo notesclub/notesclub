@@ -23,10 +23,12 @@
 
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-      <.live_component
-        module={NotesclubWeb.NotebookLive.FeaturedComponent}
-        id="f"
-      />
+      <%= if !@author && !@repo do %>
+        <.live_component
+          module={NotesclubWeb.NotebookLive.FeaturedComponent}
+          id="f"
+        />
+      <% end %>
 
       <.live_component
         module={NotesclubWeb.NotebookLive.CloseFilterComponent}
@@ -34,7 +36,8 @@
         repo={@repo}
         id="f"
       />
-      <div class="overflow-hidden bg-white shadow sm:rounded-md">
+
+      <div class="overflow-hidden bg-white shadow">
         <ul role="list" class="divide-y divide-gray-200">
           <%= for notebook <- @notebooks do %>
             <li>
