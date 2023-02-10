@@ -77,6 +77,26 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     refute html =~ "not_present.livemd"
   end
 
+  test "GET /search empty search should change the path to /", %{conn: conn} do
+    notebook_fixture(%{github_filename: "found.livemd"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # When we search "ecto", the path is "/search?q=ecto"
+    assert view
+           |> form("#search", value: "ecto")
+           |> render_submit()
+
+    assert_patch(view, "/search?q=ecto")
+
+    # When we search "", the path is "/"
+    assert view
+           |> form("#search", value: "")
+           |> render_submit()
+
+    assert_patch(view, "/")
+  end
+
   test "GET /search without query returns all notebooks", %{conn: conn} do
     notebook_fixture(%{github_filename: "one.livemd"})
     notebook_fixture(%{github_filename: "two.livemd"})
