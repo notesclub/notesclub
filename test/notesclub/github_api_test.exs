@@ -64,8 +64,7 @@ defmodule Notesclub.GithubAPITest do
   describe "GithubAPI.Search" do
     test "get/3 returns notebooks" do
       with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]},
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+        {Req, [:passthrough], [get!: fn _url, _options -> @valid_reponse end]}
       ]) do
         total_count = @valid_reponse.body["total_count"]
 
@@ -131,8 +130,7 @@ defmodule Notesclub.GithubAPITest do
   describe "get_user_info/1" do
     test "should return success response on 200" do
       with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]},
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+        {Req, [:passthrough], [get!: fn _url, _options -> @valid_user_reponse end]}
       ]) do
         assert {:ok,
                 %{
@@ -144,8 +142,7 @@ defmodule Notesclub.GithubAPITest do
 
     test "should return error response on 404" do
       with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @invalid_user_reponse end]},
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+        {Req, [:passthrough], [get!: fn _url, _options -> @invalid_user_reponse end]}
       ]) do
         assert {:error, :not_found} = GithubAPI.get_user_info(-1)
       end

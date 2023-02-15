@@ -1,7 +1,6 @@
 defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
   use Notesclub.DataCase
 
-  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Workers.RecentNotebooksWorker
@@ -134,8 +133,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
 
   test "downloads notebooks and enqueue next page" do
     with_mocks([
-      {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]},
-      {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]}
     ]) do
       assert {:ok, _} = perform_job(RecentNotebooksWorker, %{page: 1})
 
@@ -150,16 +148,15 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
                %Notebook{github_filename: "collections2.livemd"},
                %Notebook{github_filename: "collections3.livemd"},
                %Notebook{github_filename: "collections4.livemd"}
-             ] = Notebooks.list_notebooks()
+             ] = Notebooks.list_notebooks(order: :asc)
 
       assert_enqueued(worker: Notesclub.Workers.RecentNotebooksWorker, args: %{page: 2})
     end
   end
 
-  test "retry if we get less elements than we asked" do
+  test "retry when GitHub's returned data != per_page" do
     with_mocks([
-      {Req, [:passthrough], [get!: fn _url, _options -> @invalid_response end]},
-      {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      {Req, [:passthrough], [get!: fn _url, _options -> @invalid_response end]}
     ]) do
       assert {:error, "Retry. Returned data did NOT match per_page."} =
                perform_job(RecentNotebooksWorker, %{page: 1})

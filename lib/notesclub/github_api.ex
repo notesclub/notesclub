@@ -194,23 +194,15 @@ defmodule Notesclub.GithubAPI do
   defp make_request(%GithubAPI{} = fetch) do
     github_api_key = Application.get_env(:notesclub, :github_api_key)
 
-    if github_api_key == nil && __MODULE__.check_github_api_key() do
-      Map.put(fetch, :errors, %{github_api_key: ["is missing"]})
-    else
-      response =
-        Req.get!(
-          fetch.url,
-          headers: [
-            Accept: ["application/vnd.github+json"],
-            Authorization: ["token #{github_api_key}"]
-          ]
-        )
+    response =
+      Req.get!(
+        fetch.url,
+        headers: [
+          Accept: ["application/vnd.github+json"],
+          Authorization: ["token #{github_api_key}"]
+        ]
+      )
 
-      Map.put(fetch, :response, response)
-    end
+    Map.put(fetch, :response, response)
   end
-
-  # We can mock this in tests
-  @spec check_github_api_key :: true
-  def check_github_api_key, do: true
 end
