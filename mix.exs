@@ -57,16 +57,16 @@ defmodule Notesclub.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.3.1"},
       {:mock, "~> 0.3.7"},
-      {:quantum, "~> 3.5.0"},
-      {:appsignal, "~> 2.2.16"},
-      {:appsignal_phoenix, "~> 2.1.2"},
+      {:appsignal, "~> 2.5.3"},
+      {:appsignal_phoenix, "~> 2.3.0"},
       {:faker, "~> 0.17", only: :test},
       {:oban, "2.13.6"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:redirect, "~> 0.4.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false}
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+      {:earmark, "~> 1.4"}
     ]
   end
 

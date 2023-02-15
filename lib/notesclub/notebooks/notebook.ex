@@ -8,9 +8,8 @@ defmodule Notesclub.Notebooks.Notebook do
 
   alias Notesclub.Accounts.User
   alias Notesclub.Repos.Repo
-  alias Notesclub.Searches.Search
 
-  @optional ~w(search_id inserted_at user_id repo_id url content title)a
+  @optional ~w(inserted_at user_id repo_id url content title)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
   typed_schema "notebooks" do
@@ -25,7 +24,6 @@ defmodule Notesclub.Notebooks.Notebook do
     field :github_owner_login, :string
     field :github_repo_name, :string
 
-    belongs_to :search, Search
     belongs_to :user, User
     belongs_to :repo, Repo
 

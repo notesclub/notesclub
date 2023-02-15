@@ -58,11 +58,6 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-config :notesclub, Notesclub.Scheduler,
-  jobs: [
-    {"@daily", {Notesclub.Searches.Delete, :eliminate, []}}
-  ]
-
 if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
   config :notesclub, Oban,
     engine: Oban.Pro.Queue.SmartEngine,
@@ -70,7 +65,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     plugins: [
       {Oban.Plugins.Cron,
        crontab: [
-         {"* * * * *", Notesclub.Workers.PopulateRecentNotebooksWorker},
+         {"0 0 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}},
          {"0 3 * * MON", Notesclub.Workers.AllUserNotebooksSyncWorker,
           queue: :scheduled, tags: ["mondays"]}
        ]},
