@@ -134,8 +134,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
 
   test "downloads notebooks and enqueue next page" do
     with_mocks([
-      {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]},
-      {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      {Req, [:passthrough], [get!: fn _url, _options -> @valid_response end]}
     ]) do
       assert {:ok, _} = perform_job(RecentNotebooksWorker, %{page: 1})
 
@@ -158,7 +157,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
 
   test "retry if we get less elements than we asked" do
     with_mocks([
-      {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+      {Req, [:passthrough], [get!: fn _url, _options -> @invalid_response end]}
     ]) do
       assert {:error, "Retry. \"Returned data did NOT match per_page.\""} =
                perform_job(RecentNotebooksWorker, %{page: 1})
