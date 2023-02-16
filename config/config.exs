@@ -93,8 +93,9 @@ else
     ]
 end
 
-{revision, _exitcode} = System.cmd("git", ["log", "--pretty=format:%h", "-n 1"])
-config :appsignal, :config, revision: revision
+if config_env() == :prod do
+  config :appsignal, :config, revision: System.get_env("APP_REVISION")
+end
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
