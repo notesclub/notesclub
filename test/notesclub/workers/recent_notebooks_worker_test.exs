@@ -159,7 +159,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
     with_mocks([
       {Req, [:passthrough], [get!: fn _url, _options -> @invalid_response end]}
     ]) do
-      assert {:error, "Retry. \"Returned data did NOT match per_page.\""} =
+      assert {:error, "Retry. Returned data did NOT match per_page."} =
                perform_job(RecentNotebooksWorker, %{page: 1})
 
       # It didn't create any notebooks:
