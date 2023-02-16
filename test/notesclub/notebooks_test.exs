@@ -5,7 +5,6 @@ defmodule Notesclub.NotebooksTest do
   alias Notesclub.Notebooks
   alias Notesclub.Repos
   alias Notesclub.ReposFixtures
-  alias Notesclub.SearchesFixtures
 
   import Notesclub.NotebooksFixtures
   import Notesclub.ReposFixtures
@@ -125,7 +124,6 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "create_notebook/1 with repo_id saves user_id=repo.user_id" do
-      search = SearchesFixtures.search_fixture()
       repo = ReposFixtures.repo_fixture()
 
       valid_attrs = %{
@@ -138,8 +136,7 @@ defmodule Notesclub.NotebooksTest do
         github_owner_login: "some_github_owner_login",
         github_repo_name: "some_github_repo_name",
         github_repo_full_name: "some_github_owner_login/some_github_repo_name",
-        github_repo_fork: true,
-        search_id: search.id
+        github_repo_fork: true
       }
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
@@ -148,8 +145,6 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "create_notebook/1 with valid data creates a notebook, a repo and a user" do
-      search = SearchesFixtures.search_fixture()
-
       valid_attrs = %{
         url: "some url",
         content: "whatever",
@@ -159,8 +154,7 @@ defmodule Notesclub.NotebooksTest do
         github_owner_login: "some_github_owner_login",
         github_repo_name: "some_github_repo_name",
         github_repo_full_name: "some_github_owner_login/some_github_repo_name",
-        github_repo_fork: true,
-        search_id: search.id
+        github_repo_fork: true
       }
 
       assert {:ok, %Notebook{} = notebook} = Notebooks.create_notebook(valid_attrs)
@@ -171,7 +165,6 @@ defmodule Notesclub.NotebooksTest do
       assert notebook.github_owner_avatar_url == "some github_owner_avatar_url"
       assert notebook.github_owner_login == "some_github_owner_login"
       assert notebook.github_repo_name == "some_github_repo_name"
-      assert notebook.search_id == search.id
       assert notebook.repo_id != nil
       assert notebook.user_id != nil
       assert notebook.user_id == notebook.repo.user_id

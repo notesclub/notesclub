@@ -5,10 +5,12 @@ defmodule Notesclub.Application do
 
   use Application
 
+  alias Appsignal.Phoenix.LiveView
+
   @impl true
   def start(_type, _args) do
     # Attach the LiveView Telemetry handlers
-    Appsignal.Phoenix.LiveView.attach()
+    LiveView.attach()
 
     children = [
       # Start the Ecto repository
@@ -19,8 +21,6 @@ defmodule Notesclub.Application do
       {Phoenix.PubSub, name: Notesclub.PubSub},
       # Start the Endpoint (http/https)
       NotesclubWeb.Endpoint,
-      # Cron scheduler
-      Notesclub.Scheduler,
       # Oban
       {Oban, Application.fetch_env!(:notesclub, Oban)}
     ]
