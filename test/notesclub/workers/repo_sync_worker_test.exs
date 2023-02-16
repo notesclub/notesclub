@@ -38,6 +38,24 @@ defmodule RepoSyncWorkerTest do
       end
     end
 
+    test "perform/1 downloads data using user.username/repo.name instead of repo.full_name" do
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _options -> @github_repo_response end]}
+      ]) do
+        repo = ReposFixtures.repo_fixture(%{full_name: "wrong"})
+
+        # Run worker:
+        :ok = perform_job(RepoSyncWorker, %{repo_id: repo.id})
+
+        # It should have updated repo:
+        repo = Repos.get_repo!(repo.id)
+        assert repo.default_branch == "mybranch"
+        assert repo.name == "repo1"
+        assert repo.full_name == "user1/repo1"
+        assert repo.fork == true
+      end
+    end
+
     test "perform/1 enqueue_url_and_content_sync" do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> @github_repo_response end]}
