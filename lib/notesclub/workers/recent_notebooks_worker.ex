@@ -58,6 +58,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
     {:error, "Returned data did NOT match per_page."}
   end
 end
+
 defmodule Notesclub.Workers.RecentNotebooksWorker do
   @moduledoc """
     Fetch and create or update recent notebooks from Github
@@ -92,7 +93,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
   defp enqueue_next_page(page) do
     if @per_page * page < 2000 do
       %{page: page + 1}
-      |> Notesclub.Workers.RecentNotebooksWorker.new()
+      |> RecentNotebooksWorker.new()
       |> Oban.insert()
 
       {:ok, "Done and enqueued another page"}
