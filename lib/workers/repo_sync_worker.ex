@@ -10,13 +10,12 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     queue: :github_rest,
     unique: [period: 300, states: [:available, :scheduled, :executing]]
 
-  alias Notesclub.{Accounts, Accounts.User, Notebooks, Repos, Repos.Repo}
+  alias Notesclub.{Accounts.User, Notebooks, Repos, Repos.Repo}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"repo_id" => repo_id}}) do
-    with %Repo{} = repo <- Repos.get_repo(repo_id),
-         %User{} = user <- Accounts.get_user!(repo.user_id),
-         %Req.Response{status: 200} = response <- fetch_repo(repo, user),
+    with %Repo{} = repo <- Repos.get_repo(repo_id, preload: [:user]),
+         %Req.Response{status: 200} = response <- fetch_repo(repo, repo.user),
          attrs <- prepare_attrs(response),
          {:ok, repo} <- Repos.update_repo(repo, attrs),
          {:ok, _} <- Notebooks.enqueue_url_and_content_sync(repo) do
