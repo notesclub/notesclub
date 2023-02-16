@@ -174,13 +174,4 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
     searchable_matches ++ content_matches
   end
-
-  def render_markdown(nil), do: ""
-
-  def render_markdown(content) do
-    content
-    |> String.trim()
-    |> Earmark.as_html!(code_class_prefix: "lang- language-")
-    |> Phoenix.HTML.raw()
-  end
 end
