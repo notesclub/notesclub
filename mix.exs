@@ -65,8 +65,7 @@ defmodule Notesclub.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:redirect, "~> 0.4.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
-      {:earmark, "~> 1.4"}
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false}
     ]
   end
 
