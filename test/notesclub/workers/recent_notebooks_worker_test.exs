@@ -150,7 +150,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
                %Notebook{github_filename: "collections4.livemd"}
              ] = Notebooks.list_notebooks()
 
-      assert_enqueued(worker: Notesclub.Workers.RecentNotebooksWorker, args: %{page: 2})
+      assert_enqueued(worker: RecentNotebooksWorker, args: %{page: 2})
     end
   end
 
@@ -158,14 +158,14 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
     with_mocks([
       {Req, [:passthrough], [get!: fn _url, _options -> @invalid_response end]}
     ]) do
-      assert {:error, "Retry. Returned data did NOT match per_page."} =
+      assert {:error, "Retry. \"Returned data did NOT match per_page.\""} =
                perform_job(RecentNotebooksWorker, %{page: 1})
 
       # It didn't create any notebooks:
       assert [] = Notebooks.list_notebooks()
 
       # It didn't enqueue the next page
-      refute_enqueued(worker: Notesclub.Workers.RecentNotebooksWorker, args: %{page: 2})
+      refute_enqueued(worker: RecentNotebooksWorker, args: %{page: 2})
     end
   end
 end

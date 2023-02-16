@@ -3,7 +3,7 @@ defmodule RepoSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.{Notebooks, NotebooksFixtures, Repos, ReposFixtures}
+  alias Notesclub.{NotebooksFixtures, Repos, ReposFixtures}
   alias Notesclub.Workers.{RepoSyncWorker, UrlContentSyncWorker}
 
   @github_repo_response %Req.Response{

@@ -33,7 +33,7 @@ defmodule UrlContentSyncWorkerTest do
         user_id: user.id,
         repo_id: repo.id,
         content: "My Elixir notebook",
-        url: "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+        url: "https://old-url.com"
       })
 
     %{notebook: notebook, user: user, repo: repo}
@@ -58,6 +58,7 @@ defmodule UrlContentSyncWorkerTest do
         assert notebook.content == @valid_response.body
         assert notebook.title == "Classifying handwritten digits"
 
+        # It has not updated the url
         assert notebook.url ==
                  "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
       end
@@ -74,8 +75,8 @@ defmodule UrlContentSyncWorkerTest do
       notebook = Notebooks.get_notebook!(notebook.id)
       assert notebook.content == "My Elixir notebook"
 
-      assert notebook.url ==
-               "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+      # It has NOT changed the URL:
+      assert notebook.url == "https://old-url.com"
     end
 
     test "perform/1 cancels when repo is nil", %{notebook: notebook} do
@@ -88,8 +89,8 @@ defmodule UrlContentSyncWorkerTest do
       notebook = Notebooks.get_notebook!(notebook.id)
       assert notebook.content == "My Elixir notebook"
 
-      assert notebook.url ==
-               "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+      # it has not updated the URL:
+      assert notebook.url == "https://old-url.com"
     end
 
     test "performs/1 enqueues RepoSyncWorker when repo default branch is nil" do
