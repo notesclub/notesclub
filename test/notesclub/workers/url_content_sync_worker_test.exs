@@ -3,11 +3,7 @@ defmodule UrlContentSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.AccountsFixtures
-  alias Notesclub.Notebooks
-  alias Notesclub.NotebooksFixtures
-  alias Notesclub.ReposFixtures
-  alias Notesclub.ReqTools
+  alias Notesclub.{AccountsFixtures, Notebooks, NotebooksFixtures, ReposFixtures}
   alias Notesclub.Workers.UrlContentSyncWorker
 
   @valid_response %Req.Response{
@@ -37,7 +33,7 @@ defmodule UrlContentSyncWorkerTest do
         user_id: user.id,
         repo_id: repo.id,
         content: "My Elixir notebook",
-        url: "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+        url: "https://old-url.com"
       })
 
     %{notebook: notebook, user: user, repo: repo}
@@ -46,7 +42,6 @@ defmodule UrlContentSyncWorkerTest do
   describe "UrlContentSyncWorker" do
     test "perform/1 downloads url content and updates notebook", %{notebook: notebook} do
       with_mocks([
-        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
            get:
@@ -63,6 +58,7 @@ defmodule UrlContentSyncWorkerTest do
         assert notebook.content == @valid_response.body
         assert notebook.title == "Classifying handwritten digits"
 
+        # It has not updated the url
         assert notebook.url ==
                  "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
       end
@@ -79,8 +75,8 @@ defmodule UrlContentSyncWorkerTest do
       notebook = Notebooks.get_notebook!(notebook.id)
       assert notebook.content == "My Elixir notebook"
 
-      assert notebook.url ==
-               "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+      # It has NOT changed the URL:
+      assert notebook.url == "https://old-url.com"
     end
 
     test "perform/1 cancels when repo is nil", %{notebook: notebook} do
@@ -93,8 +89,8 @@ defmodule UrlContentSyncWorkerTest do
       notebook = Notebooks.get_notebook!(notebook.id)
       assert notebook.content == "My Elixir notebook"
 
-      assert notebook.url ==
-               "https://github.com/elixir-nx/axon/blob/main/notebooks/vision/mnist.livemd"
+      # it has not updated the URL:
+      assert notebook.url == "https://old-url.com"
     end
 
     test "performs/1 enqueues RepoSyncWorker when repo default branch is nil" do
@@ -115,7 +111,6 @@ defmodule UrlContentSyncWorkerTest do
     test "perform/1 when request to default_branch_url returns 404, request github_html_url and set url=nil",
          %{notebook: notebook} do
       with_mocks([
-        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
            get: fn url ->

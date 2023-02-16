@@ -3,9 +3,8 @@ defmodule UserSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.GithubAPI
   alias Notesclub.Workers.UserSyncWorker
-  alias Notesclub.{Accounts, AccountsFixtures, GithubAPI}
+  alias Notesclub.{Accounts, AccountsFixtures}
 
   @github_user_response %Req.Response{
     status: 200,
@@ -25,8 +24,7 @@ defmodule UserSyncWorkerTest do
   describe "perform/1" do
     test "should look up a users github info and update the user" do
       with_mocks([
-        {Req, [:passthrough], [get!: fn _url, _options -> @github_user_response end]},
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]}
+        {Req, [:passthrough], [get!: fn _url, _options -> @github_user_response end]}
       ]) do
         user = AccountsFixtures.user_fixture()
 

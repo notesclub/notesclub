@@ -3,7 +3,6 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Workers.UserNotebooksSyncWorker
@@ -59,7 +58,6 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
         "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
 
       with_mocks([
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]},
         {Req, [:passthrough], [get!: fn _url, _ -> @github_response end]}
       ]) do
         # Run job
@@ -116,7 +114,6 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
         "https://api.github.com/search/code?q=user:#{username}+extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
 
       with_mocks([
-        {GithubAPI, [:passthrough], [check_github_api_key: fn -> false end]},
         {Req, [:passthrough], [get!: fn _url, _ -> @github_response end]}
       ]) do
         # Run job

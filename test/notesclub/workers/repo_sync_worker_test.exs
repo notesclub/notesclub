@@ -3,11 +3,8 @@ defmodule RepoSyncWorkerTest do
 
   import Mock
 
-  alias Notesclub.Notebooks
-  alias Notesclub.NotebooksFixtures
-  alias Notesclub.Repos
-  alias Notesclub.ReposFixtures
-  alias Notesclub.Workers.RepoSyncWorker
+  alias Notesclub.{NotebooksFixtures, Repos, ReposFixtures}
+  alias Notesclub.Workers.{RepoSyncWorker, UrlContentSyncWorker}
 
   @github_repo_response %Req.Response{
     status: 200,
@@ -18,6 +15,8 @@ defmodule RepoSyncWorkerTest do
       "full_name" => "user1/repo1"
     }
   }
+
+  @github_content_response %Req.Response{status: 200, body: "whatever content"}
 
   describe "RepoSyncWorker" do
     test "perform/1 downloads default_branch, name, full_name, fork" do
@@ -58,6 +57,7 @@ defmodule RepoSyncWorkerTest do
 
     test "perform/1 enqueue_url_and_content_sync" do
       with_mocks([
+        # Req from RepoSyncWorker
         {Req, [:passthrough], [get!: fn _url, _options -> @github_repo_response end]}
       ]) do
         repo = ReposFixtures.repo_fixture(%{default_branch: "mybranch"})
@@ -87,23 +87,16 @@ defmodule RepoSyncWorkerTest do
             github_html_url: "https://github.com/user/repo/blob/4f1d1ab2e6c8a3/whatever4.livemd"
           })
 
-        Oban.Testing.with_testing_mode(:inline, fn ->
-          # Sync & update urls from repo:
-          :ok = perform_job(RepoSyncWorker, %{repo_id: repo.id})
+        # Sync & update urls from repo:
+        :ok = perform_job(RepoSyncWorker, %{repo_id: repo.id})
 
-          # It should have changed the first three notebooks
-          assert Notebooks.get_notebook!(notebook1.id).url ==
-                   "https://github.com/user/repo/blob/#{repo.default_branch}/whatever1.livemd"
+        # It should have changed the first three notebooks
+        assert_enqueued(worker: UrlContentSyncWorker, args: %{notebook_id: notebook1.id})
+        assert_enqueued(worker: UrlContentSyncWorker, args: %{notebook_id: notebook2.id})
+        assert_enqueued(worker: UrlContentSyncWorker, args: %{notebook_id: notebook3.id})
 
-          assert Notebooks.get_notebook!(notebook2.id).url ==
-                   "https://github.com/user/repo/blob/#{repo.default_branch}/whatever2.livemd"
-
-          assert Notebooks.get_notebook!(notebook3.id).url ==
-                   "https://github.com/user/repo/blob/#{repo.default_branch}/whatever3.livemd"
-
-          # And should have NOT changed the last notebook url
-          assert Notebooks.get_notebook!(notebook4.id).url == "https://whatever.com"
-        end)
+        # And should have NOT changed the last notebook url
+        refute_enqueued(worker: UrlContentSyncWorker, args: %{notebook_id: notebook4.id})
       end
     end
   end
