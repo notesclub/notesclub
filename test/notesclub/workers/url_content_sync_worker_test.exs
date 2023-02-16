@@ -7,7 +7,6 @@ defmodule UrlContentSyncWorkerTest do
   alias Notesclub.Notebooks
   alias Notesclub.NotebooksFixtures
   alias Notesclub.ReposFixtures
-  alias Notesclub.ReqTools
   alias Notesclub.Workers.UrlContentSyncWorker
 
   @valid_response %Req.Response{
@@ -46,7 +45,6 @@ defmodule UrlContentSyncWorkerTest do
   describe "UrlContentSyncWorker" do
     test "perform/1 downloads url content and updates notebook", %{notebook: notebook} do
       with_mocks([
-        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
            get:
@@ -115,7 +113,6 @@ defmodule UrlContentSyncWorkerTest do
     test "perform/1 when request to default_branch_url returns 404, request github_html_url and set url=nil",
          %{notebook: notebook} do
       with_mocks([
-        {ReqTools, [:passthrough], [requests_enabled?: fn -> true end]},
         {Req, [:passthrough],
          [
            get: fn url ->

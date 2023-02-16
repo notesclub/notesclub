@@ -15,7 +15,6 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
-  alias Notesclub.ReqTools
   alias Notesclub.Workers.RepoSyncWorker
 
   @doc """
@@ -76,7 +75,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp attrs_for_update(notebook, urls) do
-    case ReqTools.make_request(urls.raw_default_branch_url) do
+    case Req.get(urls.raw_default_branch_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         title = Notebooks.extract_title(body)
         {:ok, %{content: body, title: title, url: urls.default_branch_url}}
@@ -91,7 +90,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp attrs_from_commit(notebook, urls) do
-    case ReqTools.make_request(urls.raw_commit_url) do
+    case Req.get(urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         title = Notebooks.extract_title(body)
         {:ok, %{content: body, title: title, url: nil}}
