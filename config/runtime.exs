@@ -89,6 +89,3 @@ if config_env() == :prod do
   github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
   config :notesclub, :github_api_key, github_api_key
 end
-
-populate_enabled = System.get_env("POPULATE_ENABLED")
-config :notesclub, :populate_enabled, populate_enabled

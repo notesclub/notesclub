@@ -5,8 +5,13 @@ defmodule Notesclub.Application do
 
   use Application
 
+  alias Appsignal.Phoenix.LiveView
+
   @impl true
   def start(_type, _args) do
+    # Attach the LiveView Telemetry handlers
+    LiveView.attach()
+
     children = [
       # Start the Ecto repository
       Notesclub.Repo,
