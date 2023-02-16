@@ -98,6 +98,9 @@ else
     ]
 end
 
+{revision, _exitcode} = System.cmd("git", ["log", "--pretty=format:%h", "-n 1"])
+config :appsignal, :config, revision: revision
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
