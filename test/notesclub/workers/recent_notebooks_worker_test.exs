@@ -1,7 +1,6 @@
 defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
   use Notesclub.DataCase
 
-  alias Notesclub.GithubAPI
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Workers.RecentNotebooksWorker
