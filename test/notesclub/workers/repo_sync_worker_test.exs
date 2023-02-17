@@ -16,8 +16,6 @@ defmodule RepoSyncWorkerTest do
     }
   }
 
-  @github_content_response %Req.Response{status: 200, body: "whatever content"}
-
   describe "RepoSyncWorker" do
     test "perform/1 downloads default_branch, name, full_name, fork" do
       with_mocks([
