@@ -53,9 +53,10 @@
                       class: "font-medium whitespace-nowrap" do %>
                       <%= notebook.user.name %>
                     <% end %>
-                    <div class="text-gray-400">
-                      <%= "@#{notebook.github_owner_login}" %>
-                    </div>
+                    <%= live_redirect to: Routes.notebook_index_path(@socket, :author, notebook.github_owner_login),
+                      class: "text-gray-400" do %>
+                      <div><%= "@#{notebook.github_owner_login}" %></div>
+                    <% end %>
                     <div>
                       <%= live_redirect StringTools.truncate(notebook.github_repo_name, 25),
                         to: Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name) %>
