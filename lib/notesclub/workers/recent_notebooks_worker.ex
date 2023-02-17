@@ -11,6 +11,8 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
   #  per_page is only 5 because GitHub Search API with high per_page
   #  often returns less files than we asked and in a different order
   @per_page 5
+  # When GitHub returns less than @per_page results, we retry the job
+  @retry_in_seconds 5
   #  Only the first 1000 search results are available via GitHub Search API
   @max 1000
 
@@ -19,9 +21,13 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
     options = [per_page: @per_page, page: page, order: "desc"]
 
     with {:ok, %GithubAPI{notebooks_data: data}} <- GithubAPI.get(options),
-         :ok <- save_and_enqueue_content_sync(data, length(data)) do
+         :ok <- validate_data(length(data)),
+         :ok <- save_and_enqueue_content_sync(data) do
       enqueue_next_page(page)
     else
+      {:error, :data_does_not_match_per_page} ->
+        {:snooze, @retry_in_seconds}
+
       {:error, error} ->
         {:error, "Retry. #{inspect(error)}"}
 
@@ -42,7 +48,10 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
     end
   end
 
-  defp save_and_enqueue_content_sync(notebooks_data, @per_page) do
+  defp validate_data(@per_page), do: :ok
+  defp validate_data(_), do: {:error, :data_does_not_match_per_page}
+
+  defp save_and_enqueue_content_sync(notebooks_data) do
     Enum.each(notebooks_data, fn notebook_data ->
       {:ok, notebook} = Notebooks.save_notebook(notebook_data)
 
@@ -52,9 +61,5 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
     end)
 
     :ok
-  end
-
-  defp save_and_enqueue_content_sync(_, _) do
-    {:error, "Returned data did NOT match per_page."}
   end
 end
