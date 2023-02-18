@@ -80,7 +80,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
       # Github REST API allows us to make 5000 req/h
       github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]],
       # Github Search API allows us to make 10 req/min
-      github_search: [global_limit: 1, rate_limit: [allowed: 5, period: {1, :minute}]]
+      github_search: [global_limit: 1, rate_limit: [allowed: 4, period: {1, :minute}]]
     ]
 else
   config :notesclub, Oban,
