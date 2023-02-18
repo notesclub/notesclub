@@ -400,7 +400,7 @@ defmodule Notesclub.NotebooksTest do
       """
 
       notebook = notebook_fixture(%{content: content})
-      assert Notebooks.content_fragment(notebook, "advent") == "...advent of code 2021 🎄🤶🏽..."
+      assert Notebooks.content_fragment(notebook, "advent") == "...# advent of code 2021 🎄🤶🏽..."
       assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
     end
 
