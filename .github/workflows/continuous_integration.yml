@@ -38,7 +38,7 @@ jobs:
         id: setup-beam
         with:
           otp-version: '25.0.3'
-          elixir-version: '1.13.4'
+          elixir-version: '1.14.3'
 
       - name: Install dependencies
         run: mix deps.get
