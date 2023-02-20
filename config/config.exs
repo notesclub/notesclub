@@ -67,7 +67,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
        crontab: [
          {"0 0 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}},
          {"0 3 * * MON", Notesclub.Workers.AllUserNotebooksSyncWorker,
-          queue: :scheduled, tags: ["mondays"]}
+          queue: :default, tags: ["mondays"]}
        ]},
       # seconds
       {Oban.Plugins.Pruner, max_age: 300},
