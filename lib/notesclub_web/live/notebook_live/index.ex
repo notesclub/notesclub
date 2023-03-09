@@ -59,7 +59,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   end
 
   def handle_event("search", %{"value" => ""}, socket) do
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
+    {:noreply, push_patch(socket, to: ~p"/")}
   end
 
   def handle_event("search", params, socket) do
@@ -70,7 +70,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         socket =
           socket
           |> assign(timestamp: timestamp)
-          |> push_patch(to: Routes.notebook_index_path(socket, :search, q: params["value"]))
+          |> push_patch(to: ~p"/search?q=#{params["value"]}")
 
         {:noreply, socket}
 
@@ -79,19 +79,18 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
       true ->
         # In LiveView tests we do NOT run js so timestamp=nil
-        socket =
-          push_patch(socket, to: Routes.notebook_index_path(socket, :search, q: params["value"]))
+        socket = push_patch(socket, to: ~p"/search?q=#{params["value"]}")
 
         {:noreply, socket}
     end
   end
 
   def handle_event("random", _, socket) do
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :random))}
+    {:noreply, push_patch(socket, to: ~p"/random")}
   end
 
   def handle_event("home", _, socket) do
-    {:noreply, push_patch(socket, to: Routes.notebook_index_path(socket, :home))}
+    {:noreply, push_patch(socket, to: ~p"/")}
   end
 
   def handle_event("load-more", _, socket) do
