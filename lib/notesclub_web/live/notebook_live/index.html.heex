@@ -42,21 +42,21 @@
               <div class="flex-1 lg:flex p-4">
                 <div class="flex min-w-0 flex-1 px-4">
                   <div class="flex-shrink-0 mt-1">
-                    <.link navigate={Routes.notebook_index_path(@socket, :author, notebook.github_owner_login)}>
+                    <.link navigate={~p"/#{notebook.github_owner_login}"}>
                       <%= img_tag notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
                     </.link>
                   </div>
                   <div class="ml-8">
-                    <.link navigate={Routes.notebook_index_path(@socket, :author, notebook.github_owner_login)} class="font-medium whitespace-nowrap">
+                    <.link navigate={~p"/#{notebook.github_owner_login}"} class="font-medium whitespace-nowrap">
                       <%= notebook.user.name %>
                     </.link>
                     <div>
-                      <.link navigate={Routes.notebook_index_path(@socket, :author, notebook.github_owner_login)} class="text-gray-400">
+                      <.link navigate={~p"/#{notebook.github_owner_login}"} class="text-gray-400">
                         <%= "@#{notebook.github_owner_login}" %>
                       </.link>
                     </div>
                     <div>
-                      <.link navigate={Routes.notebook_index_path(@socket, :repo, notebook.github_owner_login, notebook.github_repo_name)}>
+                      <.link navigate={~p"/#{notebook.github_owner_login}/#{notebook.github_repo_name}"}>
                         <%= StringTools.truncate(notebook.github_repo_name, 25) %>
                       </.link>
                     </div>

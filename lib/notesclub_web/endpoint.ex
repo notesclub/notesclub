@@ -1,6 +1,5 @@
 defmodule NotesclubWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :notesclub
-  use Appsignal.Phoenix
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -21,7 +20,7 @@ defmodule NotesclubWeb.Endpoint do
     at: "/",
     from: :notesclub,
     gzip: false,
-    only: ~w(assets fonts images favicon.ico robots.txt)
+    only: NotesclubWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

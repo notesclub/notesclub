@@ -29,6 +29,8 @@ defmodule NotesclubWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint NotesclubWeb.Endpoint
+
+      use NotesclubWeb, :verified_routes
     end
   end
 
