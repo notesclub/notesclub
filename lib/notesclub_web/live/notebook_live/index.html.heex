@@ -1,6 +1,7 @@
 <section id="infiniteScroll" phx-hook="infiniteScroll" class="relative min-h-screen bg-split-gray overflow-scroll max-h-screen">
-  <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl">
-  <%= link "Notesclub", to: "/" %>
+  <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl flex justify-between items-center">
+    <%= link "Notesclub", to: "/" %>
+    <div class="text-sm pr-4">created by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></div>
   </header>
   <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
   <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
@@ -100,6 +101,5 @@
   </section>
   <footer class="p-8 w-full">
     <h2 class="text-center text-gray-400 font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
-    <h2 class="pt-4 text-center text-gray-400 font-semibold">Founded by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></h2>
   </footer>
 </section>
