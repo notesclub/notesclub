@@ -1,9 +1,13 @@
 defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
+  @moduledoc """
+  Raw of the Index
+  """
+
   use NotesclubWeb, :live_component
 
-  alias Notesclub.StringTools
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.StringTools
 
   defp truncated_title(notebook) do
     StringTools.truncate(notebook.title, 50)
