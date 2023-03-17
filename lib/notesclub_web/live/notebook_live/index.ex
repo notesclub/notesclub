@@ -5,8 +5,6 @@ defmodule NotesclubWeb.NotebookLive.Index do
   import Phoenix.LiveView
 
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.Notebook
-  alias Notesclub.StringTools
 
   @per_page 20
 
@@ -104,11 +102,6 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks ++ get_notebooks(socket, live_action, next_page),
        page: next_page
      )}
-  end
-
-  defp format_date(%Notebook{inserted_at: inserted_at}) do
-    %NaiveDateTime{year: year, month: month, day: day} = inserted_at
-    "#{year}-#{month}-#{day}"
   end
 
   defp get_notebooks(_socket, :home, page) do
