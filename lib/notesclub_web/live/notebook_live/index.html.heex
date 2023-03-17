@@ -1,12 +1,14 @@
 <section id="infiniteScroll" phx-hook="infiniteScroll" class="relative min-h-screen bg-split-gray overflow-scroll max-h-screen">
   <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl flex justify-between items-center">
-    <%= link "Notesclub", to: "/" %>
+    <.link navigate={~p"/"}>Notesclub</.link>
     <div class="text-sm pr-4">created by <%= link "hec", to: "https://hecperez.com", class: "underline underline-offset-2" %></div>
   </header>
   <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
   <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
     Updated every day. Feel free to
-    <%= link("contribute on Github", to: "https://github.com/notesclub/notesclub", class: "text-blue-600", target: "_blank") %>.
+    <.link navigate="https://github.com/notesclub/notesclub" class="text-blue-600" target="_blank" >
+    contribute on Github
+    </.link>.
   </p>
   <form id="search" class="px-4 sm:flex sm:justify-center mt-4 mb-4 sm:mb-8" phx-submit="search">
     <div>
