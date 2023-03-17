@@ -77,7 +77,6 @@ defmodule Notesclub.Notebooks.Urls do
         ~r|/blob/|,
         "/"
       )
-      |> URI.encode()
     end
   end
 

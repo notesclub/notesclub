@@ -71,5 +71,12 @@ defmodule Notesclub.Notebooks.UrlsTest do
              ) ==
                "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd"
     end
+
+    test "raw_url/1 with escaped url generates raw_url" do
+      assert Urls.raw_url(
+               "https://github.com/ByeongUkChoi/learn_with_me_elixir/blob/main/Binaries%20(%238).livemd"
+             ) ==
+               "https://raw.githubusercontent.com/ByeongUkChoi/learn_with_me_elixir/main/Binaries%20(%238).livemd"
+    end
   end
 end
