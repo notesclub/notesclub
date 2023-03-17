@@ -1,0 +1,55 @@
+<li>
+  <div class="flex-1 lg:flex p-4">
+    <div class="flex min-w-0 flex-1 px-4">
+      <div class="flex-shrink-0 mt-1">
+        <.link navigate={~p"/#{@notebook.github_owner_login}"}>
+          <%= img_tag @notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+        </.link>
+      </div>
+      <div class="ml-8">
+        <.link navigate={~p"/#{@notebook.github_owner_login}"} class="font-medium whitespace-nowrap">
+          <%= @notebook.user.name %>
+        </.link>
+        <div>
+          <.link navigate={~p"/#{@notebook.github_owner_login}"} class="text-gray-400">
+            <%= "@#{@notebook.github_owner_login}" %>
+          </.link>
+        </div>
+        <div>
+          <.link navigate={~p"/#{@notebook.github_owner_login}/#{@notebook.github_repo_name}"}>
+            <%= StringTools.truncate(@notebook.github_repo_name, 25) %>
+          </.link>
+        </div>
+      </div>
+    </div>
+    <div class="min-w-0 flex-1 pl-4">
+      <div class="flex-shrink-0">
+        <div class="pt-4 mx-auto md:pt-0 md:pt-0">
+          <div>
+            <p class="text-xl text-gray-900">
+              <%= link StringTools.truncate(@notebook.title, 50), to: @notebook.url || @notebook.github_html_url, target: "_blank" %>
+            </p>
+            <p class="text-gray-400">
+              <%= link StringTools.truncate(@notebook.github_filename, 50), to: @notebook.url || @notebook.github_html_url, target: "_blank" %>
+            </p>
+            <%= if assigns[:search] && !String.contains?(@notebook.github_filename, @search) do %>
+              <p class="text-gray-400">
+                <%= Notebooks.content_fragment(@notebook, @search) %>
+              </p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-4 sm:pt-0">
+      <div class="flex">
+        <!-- Heroicon name: mini/calendar -->
+        <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd" />
+        </svg>
+        <p><%= format_date(@notebook) %></p>
+      </div>
+      <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{@notebook.github_html_url}", target: "_blank" %>
+    </div>
+  </div>
+</li>
