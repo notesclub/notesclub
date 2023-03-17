@@ -27,10 +27,14 @@
         <div class="pt-4 mx-auto md:pt-0 md:pt-0">
           <div>
             <p class="text-xl text-gray-900">
-              <%= link truncated_title(@notebook), to: @notebook.url || @notebook.github_html_url, target: "_blank" %>
+              <.link navigate={@notebook.url || @notebook.github_html_url} target="_blank">
+                <%= truncated_title(@notebook) %>
+              </.link>
             </p>
             <p class="text-gray-400">
-              <%= link truncated_filename(@notebook), to: @notebook.url || @notebook.github_html_url, target: "_blank" %>
+              <.link navigate={@notebook.url || @notebook.github_html_url} target="_blank">
+                <%= truncated_filename(@notebook) %>
+              </.link>
             </p>
             <%= search_fragment(assigns) %>
           </div>
@@ -45,7 +49,9 @@
         </svg>
         <p><%= format_date(@notebook) %></p>
       </div>
-      <%= link "Run in Livebook", to: "https://livebook.dev/run?url=#{@notebook.github_html_url}", target: "_blank" %>
+      <.link navigate={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
+        Run in Livebook
+      </.link>
     </div>
   </div>
 </li>
