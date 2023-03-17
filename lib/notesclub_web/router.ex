@@ -6,23 +6,23 @@ defmodule NotesclubWeb.Router do
   require Notesclub.Compile
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, {NotesclubWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, {NotesclubWeb.LayoutView, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   Notesclub.Compile.only_if_loaded :oban_web do
     require Oban.Web.Router
 
     pipeline :oban_web_auth do
-      plug :auth
+      plug(:auth)
 
       defp auth(conn, _opts) do
         username = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
@@ -32,25 +32,13 @@ defmodule NotesclubWeb.Router do
     end
 
     scope "/", NotesclubWeb do
-      pipe_through [:browser, :oban_web_auth]
+      pipe_through([:browser, :oban_web_auth])
 
       Oban.Web.Router.oban_dashboard("/oban")
     end
   end
 
   redirect("/last_week", "/", :permanent)
-
-  scope "/", NotesclubWeb do
-    pipe_through :browser
-
-    get "/status", StatusController, :status
-
-    live "/", NotebookLive.Index, :home
-    live "/search", NotebookLive.Index, :search
-    live "/random", NotebookLive.Index, :random
-    live "/:author", NotebookLive.Index, :author
-    live "/:author/:repo", NotebookLive.Index, :repo
-  end
 
   # Enables LiveDashboard only for development
   #
@@ -63,9 +51,9 @@ defmodule NotesclubWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
+      pipe_through(:browser)
 
-      live_dashboard "/dashboard", metrics: NotesclubWeb.Telemetry
+      live_dashboard("/dashboard", metrics: NotesclubWeb.Telemetry)
     end
   end
 
@@ -75,9 +63,22 @@ defmodule NotesclubWeb.Router do
   # node running the Phoenix server.
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through :browser
+      pipe_through(:browser)
 
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
+      forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
+  end
+
+  scope "/", NotesclubWeb do
+    pipe_through(:browser)
+
+    get("/status", StatusController, :status)
+
+    live("/", NotebookLive.Index, :home)
+    live("/search", NotebookLive.Index, :search)
+    live("/random", NotebookLive.Index, :random)
+    live("/:author", NotebookLive.Index, :author)
+    live("/:author/:repo", NotebookLive.Index, :repo)
+    live("/*file", NotebookLive.Show, :show)
   end
 end
