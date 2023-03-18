@@ -69,7 +69,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-plt-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
 
-        - name: Setup Dialyzer
+      - name: Setup Dialyzer
         if: steps.cache.outputs.cache-hit != 'true'
         run: mix dialyzer --plt
 
