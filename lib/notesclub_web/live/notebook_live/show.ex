@@ -4,7 +4,11 @@ defmodule NotesclubWeb.NotebookLive.Show do
   import Phoenix.Component
 
   alias Notesclub.Notebooks
+  alias Phoenix.LiveView.Socket
 
+  # This can raise an exception and render 404
+  # so we add the typespec no_return() so Dialyzer doesn't complain
+  @spec handle_params(map(), binary(), Socket.t()) :: no_return()
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     notebook = Notebooks.get_by!(url: "https://github.com#{path}", preload: [:user, :repo])
