@@ -5,7 +5,7 @@ defmodule NotesclubWeb.DummyErrorController do
 
   use NotesclubWeb, :controller
 
-  def raise_error(conn, _params) do
+  def raise_error(_conn, _params) do
     raise "An error has occurred"
   end
 end

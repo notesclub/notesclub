@@ -4,8 +4,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
   import Phoenix.Component
   import Phoenix.LiveView
 
-  alias Notesclub.Notebooks
   alias Notesclub.Accounts
+  alias Notesclub.Notebooks
 
   @per_page 20
 
