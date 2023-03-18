@@ -27,6 +27,10 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
     """
   end
 
+  defp notebook_path(notebook) do
+    String.replace(notebook.url || notebook.github_html_url, "https://github.com", "")
+  end
+
   defp format_date(%Notebook{inserted_at: inserted_at}) do
     %NaiveDateTime{year: year, month: month, day: day} = inserted_at
     "#{year}-#{month}-#{day}"

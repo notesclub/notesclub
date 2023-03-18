@@ -1,38 +1,21 @@
 <li>
   <div class="flex-1 lg:flex p-4">
-    <div class="flex min-w-0 flex-1 px-4">
-      <div class="flex-shrink-0 mt-1">
-        <.link navigate={~p"/#{@notebook.github_owner_login}"}>
-          <%= img_tag @notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
-        </.link>
-      </div>
-      <div class="ml-8">
-        <.link navigate={~p"/#{@notebook.github_owner_login}"} class="font-medium whitespace-nowrap">
-          <%= @notebook.user.name %>
-        </.link>
-        <div>
-          <.link navigate={~p"/#{@notebook.github_owner_login}"} class="text-gray-400">
-            <%= "@#{@notebook.github_owner_login}" %>
-          </.link>
-        </div>
-        <div>
-          <.link navigate={~p"/#{@notebook.github_owner_login}/#{@notebook.github_repo_name}"}>
-            <%= StringTools.truncate(@notebook.github_repo_name, 25) %>
-          </.link>
-        </div>
-      </div>
-    </div>
+    <.live_component
+      module={NotesclubWeb.NotebookLive.UserComponent}
+      notebook={@notebook}
+      id={@notebook.id}
+    />
     <div class="min-w-0 flex-1 pl-4">
       <div class="flex-shrink-0">
         <div class="pt-4 mx-auto md:pt-0 md:pt-0">
           <div>
             <p class="text-xl text-gray-900">
-              <.link navigate={@notebook.url || @notebook.github_html_url} target="_blank">
+              <.link navigate={notebook_path(@notebook)}>
                 <%= truncated_title(@notebook) %>
               </.link>
             </p>
             <p class="text-gray-400">
-              <.link navigate={@notebook.url || @notebook.github_html_url} target="_blank">
+              <.link navigate={notebook_path(@notebook)}>
                 <%= truncated_filename(@notebook) %>
               </.link>
             </p>
@@ -49,9 +32,6 @@
         </svg>
         <p><%= format_date(@notebook) %></p>
       </div>
-      <.link navigate={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
-        Run in Livebook
-      </.link>
     </div>
   </div>
 </li>

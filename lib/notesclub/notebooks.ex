@@ -252,9 +252,23 @@ defmodule Notesclub.Notebooks do
     true
 
   """
+
   @spec get_by([...]) :: Notebook.t() | nil
   def get_by(ops) do
-    Enum.reduce(ops, from(n in Notebook), fn
+    get_by_query(ops)
+    |> Repo.one()
+  end
+
+  @spec get_by!([...]) :: Notebook.t()
+  def get_by!(ops) do
+    get_by_query(ops)
+    |> Repo.one!()
+  end
+
+  defp get_by_query(ops) do
+    preload = ops[:preload] || []
+
+    Enum.reduce(ops, from(n in Notebook, preload: ^preload), fn
       {:github_filename, github_filename}, query ->
         where(query, [notebook], notebook.github_filename == ^github_filename)
 
@@ -273,7 +287,6 @@ defmodule Notesclub.Notebooks do
       _, query ->
         query
     end)
-    |> Repo.one()
   end
 
   @doc """
