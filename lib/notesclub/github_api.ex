@@ -99,16 +99,20 @@ defmodule Notesclub.GithubAPI do
   end
 
   defp extract_user_info(%GithubAPI{response: response}) do
-    with 200 <- response.status do
-      user_info = %{
-        twitter_username: response.body["twitter_username"],
-        name: response.body["name"]
-      }
+    case response.status do
+      200 ->
+        user_info = %{
+          twitter_username: response.body["twitter_username"],
+          name: response.body["name"]
+        }
 
-      {:ok, user_info}
-    else
-      404 -> {:error, :not_found}
-      _ -> {:error, :uncaught_error}
+        {:ok, user_info}
+
+      404 ->
+        {:error, :not_found}
+
+      _ ->
+        {:error, :uncaught_error}
     end
   end
 
