@@ -65,11 +65,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: _build/test/dialyxir_*_plt
-          key: ${{ runner.os }}-${{ env.MIX_ENV }}-plt-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-plt-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ env.MIX_ENV }}-plt-
+            ${{ runner.os }}-plt-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
 
-      - name: Setup Dialyzer
+        - name: Setup Dialyzer
         if: steps.cache.outputs.cache-hit != 'true'
         run: mix dialyzer --plt
 
