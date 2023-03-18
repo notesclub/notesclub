@@ -5,6 +5,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   import Phoenix.LiveView
 
   alias Notesclub.Notebooks
+  alias Notesclub.Accounts
 
   @per_page 20
 
@@ -25,6 +26,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
   end
 
   defp run_action(%{"author" => author}, :author, socket) do
+    # Render 404 if author does not exist
+    Accounts.get_by_username!(author)
     socket = assign(socket, author: author, repo: nil)
     notebooks = get_notebooks(socket, :author, 0)
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}

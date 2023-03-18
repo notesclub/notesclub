@@ -1,14 +1,23 @@
 defmodule NotesclubWeb.ErrorViewTest do
   use NotesclubWeb.ConnCase, async: true
 
-  # Bring render/3 and render_to_string/3 for testing custom views
-  import Phoenix.View
+  test "renders 404 page" do
+    response =
+      assert_error_sent(:not_found, fn ->
+        get(build_conn(), "/non-existent")
+      end)
 
-  test "renders 404.html" do
-    assert render_to_string(NotesclubWeb.ErrorView, "404.html", []) == "Not Found"
+    {404, [_h | _t], html} = response
+    assert html =~ "This Livebook doesn't exist"
   end
 
-  test "renders 500.html" do
-    assert render_to_string(NotesclubWeb.ErrorView, "500.html", []) == "Internal Server Error"
+  test "renders 500 page" do
+    response =
+      assert_error_sent(500, fn ->
+        get(build_conn(), "/dummy/raise_error")
+      end)
+
+    {500, [_h | _t], html} = response
+    assert html =~ "Oops. There was an error."
   end
 end

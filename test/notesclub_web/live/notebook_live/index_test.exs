@@ -130,6 +130,8 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
   end
 
   test "GET /:author filters notebooks", %{conn: conn} do
+    user_fixture(%{username: "someone"})
+
     notebook_fixture(%{
       github_filename: "whatever1.livemd",
       github_owner_login: "someone"
@@ -159,6 +161,8 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
   end
 
   test "GET /:author includes close filter button", %{conn: conn} do
+    user_fixture(%{username: "someone"})
+
     notebook_fixture(%{
       github_filename: "whatever1.livemd",
       github_owner_login: "someone"
