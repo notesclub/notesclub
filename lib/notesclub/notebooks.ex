@@ -259,7 +259,16 @@ defmodule Notesclub.Notebooks do
     |> Repo.one()
   end
 
-  @spec get_by!([...]) :: Notebook.t()
+  @type get_by_ops ::
+          [
+            github_filename: binary(),
+            github_owner_login: binary(),
+            github_html_url: binary(),
+            github_repo_name: binary(),
+            url: binary()
+          ]
+
+  @spec get_by!(get_by_ops()) :: Notebook.t()
   def get_by!(ops) do
     get_by_query(ops)
     |> Repo.one!()
@@ -462,7 +471,7 @@ defmodule Notesclub.Notebooks do
          username: username
        ) do
     notebook =
-      case Repos.get_by(full_name: "#{username}/#{repo_name}") do
+      case Repos.get_by(%{full_name: "#{username}/#{repo_name}"}) do
         nil ->
           nil
 

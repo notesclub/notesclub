@@ -21,7 +21,7 @@ defmodule Notesclub.GithubAPI do
             errors: %{}
 
   @type t :: %__MODULE__{
-          notebooks_data: map(),
+          notebooks_data: [any()] | nil,
           total_count: non_neg_integer(),
           response: Req.Response.t(),
           url: String.t(),
@@ -94,27 +94,25 @@ defmodule Notesclub.GithubAPI do
     |> extract_user_info()
   end
 
-  defp extract_notebooks_data(%GithubAPI{response: response, errors: errors} = fetch) do
-    if errors[:github_api_key] == ["is missing"] && __MODULE__.check_github_api_key() do
-      {:error, fetch}
-    else
-      prepare_data(fetch, response.body["items"])
-    end
+  defp extract_notebooks_data(%GithubAPI{response: response} = fetch) do
+    prepare_data(fetch, response.body["items"])
   end
 
-  defp extract_user_info(%GithubAPI{response: response, errors: errors}) do
-    with false <- errors[:github_api_key] == ["is missing"],
-         200 <- response.status do
-      user_info = %{
-        twitter_username: response.body["twitter_username"],
-        name: response.body["name"]
-      }
+  defp extract_user_info(%GithubAPI{response: response}) do
+    case response.status do
+      200 ->
+        user_info = %{
+          twitter_username: response.body["twitter_username"],
+          name: response.body["name"]
+        }
 
-      {:ok, user_info}
-    else
-      true -> {:error, :missing_api_key}
-      404 -> {:error, :not_found}
-      _ -> {:error, :uncaught_error}
+        {:ok, user_info}
+
+      404 ->
+        {:error, :not_found}
+
+      _ ->
+        {:error, :uncaught_error}
     end
   end
 
