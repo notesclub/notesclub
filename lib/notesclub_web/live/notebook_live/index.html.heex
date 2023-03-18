@@ -24,13 +24,13 @@
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
       <%= if !@author && !@repo do %>
         <.live_component
-          module={NotesclubWeb.NotebookLive.FeaturedComponent}
+          module={NotesclubWeb.NotebookLive.Index.FeaturedComponent}
           id="f"
         />
       <% end %>
 
       <.live_component
-        module={NotesclubWeb.NotebookLive.CloseFilterComponent}
+        module={NotesclubWeb.NotebookLive.Index.CloseFilterComponent}
         author={@author}
         repo={@repo}
         id="f"
