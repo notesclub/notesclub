@@ -61,5 +61,17 @@ jobs:
       - name: Run tests # https://hexdocs.pm/mix/Mix.Tasks.Test.html
         run: mix test
 
+      - name: Cache Dialyzer PLTs
+        uses: actions/cache@v3
+        with:
+          path: _build/test/dialyxir_*_plt
+          key: ${{ runner.os }}-${{ env.MIX_ENV }}-plt-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIX_ENV }}-plt-
+
+      - name: Setup Dialyzer
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
       - name: Run Dialyzer
         run: mix dialyzer
