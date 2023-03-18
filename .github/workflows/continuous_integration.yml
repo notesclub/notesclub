@@ -64,7 +64,7 @@ jobs:
       - name: Cache Dialyzer PLTs
         uses: actions/cache@v3
         with:
-          path: _build/test/dialyxir_*_plt
+          path: priv/plts
           key: ${{ runner.os }}-plt-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-plt-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
