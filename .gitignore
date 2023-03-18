@@ -42,3 +42,7 @@ mix.lock
 
 # optional dev_secrets.exs, test_secrets.exs, etc.
 /config/*secrets.exs
+
+# Dialyzer PLTs
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
