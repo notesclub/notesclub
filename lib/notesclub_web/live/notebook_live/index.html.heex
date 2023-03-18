@@ -50,7 +50,8 @@
       </div>
     </div>
   </section>
-  <footer class="p-8 w-full">
-    <h2 class="text-center text-gray-400 font-semibold"><%= @notebooks_count %> Livebook Notebooks</h2>
-  </footer>
+  <.live_component
+    module={NotesclubWeb.NotebookLive.FooterComponent}
+    id="f"
+  />
 </section>
