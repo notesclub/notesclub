@@ -1,0 +1,17 @@
+<main class="bg-gray-50 min-h-screen">
+  <section class="relative min-h-screen overflow-scroll max-h-screen">
+    <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl justify-between items-center">
+      <.link navigate={~p"/"}>Notesclub</.link>
+    </header>
+
+    <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Sorry. This Livebook doesn't exist</h1>
+    <div class="text-center pt-4">
+      <.link navigate={~p"/"} class="text-sm text-gray-900 mt-4 cursor-pointer rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        Back to notebooks
+      </.link>
+    </div>
+    <div class="pt-8">
+      <%= img_tag static_path(@conn, "/images/404-turtle.png"), class: "w-60 h-60 mx-auto", alt: "turtle" %>
+    </div>
+  </section>
+</main>

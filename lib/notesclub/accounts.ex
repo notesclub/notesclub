@@ -174,4 +174,9 @@ defmodule Notesclub.Accounts do
   def get_by_username(username) do
     Repo.get_by(User, username: username)
   end
+
+  @spec get_by_username!(binary) :: User.t() | no_return()
+  def get_by_username!(username) do
+    Repo.get_by!(User, username: username)
+  end
 end

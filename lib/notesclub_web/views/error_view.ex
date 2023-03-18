@@ -1,11 +1,17 @@
 defmodule NotesclubWeb.ErrorView do
   use NotesclubWeb, :view
 
-  # If you want to customize a particular status code
-  # for a certain format, you may uncomment below.
-  # def render("500.html", _assigns) do
-  #   "Internal Server Error"
-  # end
+  def render("404.html", assigns) do
+    Phoenix.View.render_layout NotesclubWeb.LayoutView, "root.html", assigns do
+      render("404_not_found.html", assigns)
+    end
+  end
+
+  def render("500.html", assigns) do
+    Phoenix.View.render_layout NotesclubWeb.LayoutView, "root.html", assigns do
+      render("500_internal_error.html", assigns)
+    end
+  end
 
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.html" becomes
