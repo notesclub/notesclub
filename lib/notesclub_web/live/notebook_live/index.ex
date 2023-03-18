@@ -109,12 +109,17 @@ defmodule NotesclubWeb.NotebookLive.Index do
       per_page: @per_page,
       page: page,
       order: :desc,
-      preload: [:user]
+      preload: [:user, :repo]
     )
   end
 
   defp get_notebooks(_socket, :random, page) do
-    Notebooks.list_notebooks(per_page: @per_page, page: page, order: :random, preload: [:user])
+    Notebooks.list_notebooks(
+      per_page: @per_page,
+      page: page,
+      order: :random,
+      preload: [:user, :repo]
+    )
   end
 
   defp get_notebooks(%{assigns: %{repo: repo, author: author}}, :repo, page) do
@@ -124,7 +129,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       per_page: @per_page,
       page: page,
       order: :desc,
-      preload: [:user]
+      preload: [:user, :repo]
     )
   end
 
@@ -134,7 +139,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       per_page: @per_page,
       page: page,
       order: :desc,
-      preload: [:user]
+      preload: [:user, :repo]
     )
   end
 
@@ -149,7 +154,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         page: page,
         order: :desc,
         exclude_ids: exclude_ids,
-        preload: [:user]
+        preload: [:user, :repo]
       )
 
     exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
@@ -161,7 +166,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         page: page,
         order: :desc,
         exclude_ids: exclude_ids,
-        preload: [:user]
+        preload: [:user, :repo]
       )
 
     searchable_matches ++ content_matches

@@ -1,7 +1,7 @@
 <div class="flex min-w-0 flex-1 pl-4">
   <div class="flex-shrink-0 mt-1">
-    <.link navigate={~p"/#{@notebook.github_owner_login}"}>
-      <%= img_tag @notebook.github_owner_avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
+    <.link navigate={~p"/#{@notebook.user.username}"}>
+      <%= img_tag @notebook.user.avatar_url, class: "h-10 w-10 rounded-full", alt: "avatar" %>
     </.link>
   </div>
   <div class="ml-4">
@@ -14,8 +14,8 @@
       </.link>
     </div>
     <div>
-      <.link navigate={~p"/#{@notebook.github_owner_login}/#{@notebook.github_repo_name}"}>
-        <%= StringTools.truncate(@notebook.github_repo_name, 25) %>
+      <.link navigate={~p"/#{@notebook.user.username}/#{@notebook.repo.name}"}>
+        <%= StringTools.truncate(@notebook.repo.name, 25) %>
       </.link>
     </div>
   </div>

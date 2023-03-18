@@ -12,15 +12,16 @@ defmodule NotesclubWeb.NotebookLive.ShowTest do
 
     path = "hectorperez/myrepo/blob/main/a.livemd"
 
-    notebook_fixture(%{
-      content: "# Something\n\netc.",
-      title: "Something",
-      url: "https://github.com/#{path}",
-      user_id: user.id,
-      repo_id: repo.id
-    })
+    notebook =
+      notebook_fixture(%{
+        content: "# Something\n\netc.",
+        title: "Something",
+        url: "https://github.com/#{path}",
+        user_id: user.id,
+        repo_id: repo.id
+      })
 
-    %{path: path}
+    %{user: user, repo: repo, path: path, notebook: notebook}
   end
 
   test "GET notebook returns content and user", %{path: path, conn: conn} do
@@ -28,8 +29,9 @@ defmodule NotesclubWeb.NotebookLive.ShowTest do
 
     assert render(view) =~ "Something"
     assert render(view) =~ "etc."
-    assert render(view) =~ "Hec"
-    assert render(view) =~ "@hectorperez"
+    assert has_element?(view, "a[href=\"/hectorperez\"]", "Hec")
+    assert has_element?(view, "a[href=\"/hectorperez\"]", "@hectorperez")
+    assert has_element?(view, "a[href=\"/hectorperez/myrepo\"]", "myrepo")
   end
 
   test "GET notebook has More notebooks link", %{path: path, conn: conn} do

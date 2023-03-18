@@ -7,7 +7,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
-    notebook = Notebooks.get_by!(url: "https://github.com#{path}", preload: :user)
+    notebook = Notebooks.get_by!(url: "https://github.com#{path}", preload: [:user, :repo])
     {:noreply, assign(socket, notebook: notebook)}
   end
 
