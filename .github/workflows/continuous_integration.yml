@@ -50,6 +50,7 @@ jobs:
         run: mix hex.audit
 
       - name: Cache compiled files
+        id: cache
         uses: actions/cache@v3
         with:
           path: _build
@@ -58,6 +59,7 @@ jobs:
             ${{ runner.os }}-build-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
 
       - name: Ensure the Elixir code compiles
+        if: steps.cache.outputs.cache-hit != 'true'
         run: mix compile --all-warnings --warning-as-errors
 
       - name: Check format of Elixir code
