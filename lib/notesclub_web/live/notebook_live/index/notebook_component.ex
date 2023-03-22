@@ -7,6 +7,7 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.Urls
   alias Notesclub.StringTools
 
   defp truncated_title(notebook) do
@@ -28,7 +29,7 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
   end
 
   defp notebook_path(notebook) do
-    String.replace(notebook.url || notebook.github_html_url, "https://github.com", "")
+    Urls.url_to_path(notebook.url || notebook.github_html_url)
   end
 
   defp format_date(%Notebook{inserted_at: inserted_at}) do
