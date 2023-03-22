@@ -4,6 +4,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   import Phoenix.Component
 
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Urls
   alias Phoenix.LiveView.Socket
 
   # This can raise an exception and render 404
@@ -11,7 +12,8 @@ defmodule NotesclubWeb.NotebookLive.Show do
   @spec handle_params(map(), binary(), Socket.t()) :: no_return()
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
-    notebook = Notebooks.get_by!(url: "https://github.com#{path}", preload: [:user, :repo])
+    url = Urls.path_to_url(path)
+    notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
     {:noreply, assign(socket, notebook: notebook)}
   end
 
