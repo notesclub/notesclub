@@ -116,7 +116,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   @doc """
-  Returns the GitHub url given a Notesclub path
+  Returns the Notesclub path given a GitHub url
   If the url contains /blob/main/ we remove blob/main and .livemd
   """
   def url_to_path(url) do
@@ -132,7 +132,7 @@ defmodule Notesclub.Notebooks.Urls do
   end
 
   @doc """
-  Returns the Notesclub path given a GitHub url
+  Returns the GitHub url given a Notesclub path
   If the path does NOT contain .livemd, we add blob/main and .livemd
   """
   def path_to_url(path) do
