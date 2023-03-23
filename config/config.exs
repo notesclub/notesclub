@@ -94,7 +94,11 @@ else
 end
 
 if config_env() == :prod do
-  config :appsignal, :config, revision: System.get_env("APP_REVISION")
+  config :appsignal, :config,
+    revision: System.get_env("APP_REVISION"),
+    ignore_errors: [
+      "Ecto.NoResultsError"
+    ]
 end
 
 # Import environment specific config. This must remain at the bottom
