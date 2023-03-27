@@ -358,18 +358,3 @@
 .highlight .vm {
   @apply text-gray-50;
 }
-
-.your_turn {
-  @apply bg-purple-900 bg-opacity-30;
-  display: block;
-  @apply text-gray-50;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  text-decoration: none !important;
-  /* This was being overrwritten by our .markdown css for anchor tags*/
-  margin-top: 1rem;
-}
-
-.your_turn:hover {
-  @apply bg-purple-800 bg-opacity-30;
-}
