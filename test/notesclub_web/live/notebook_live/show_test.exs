@@ -39,4 +39,21 @@ defmodule NotesclubWeb.NotebookLive.ShowTest do
 
     assert has_element?(view, "a[href=\"/\"]", "More notebooks")
   end
+
+  test "GET notebook escapes js to prevent XSS", %{conn: conn, user: user, repo: repo} do
+    content = "<script>alert('hi')</script>"
+    path = "hectorperez/myrepo/blob/main/b.livemd"
+
+    notebook_fixture(%{
+      content: content,
+      title: "",
+      url: "https://github.com/#{path}",
+      user_id: user.id,
+      repo_id: repo.id
+    })
+
+    {:ok, view, _html} = live(conn, "/#{path}")
+    refute render(view) =~ ~r/<script>[\s\n]*alert\('hi'\)<\/script>/
+    refute render(view) =~ ~r/<script>/
+  end
 end

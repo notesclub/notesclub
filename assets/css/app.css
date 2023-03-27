@@ -1,3 +1,6 @@
+@import "./markdown.css";
+@import "./code.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
