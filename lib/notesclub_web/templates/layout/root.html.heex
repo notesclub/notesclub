@@ -12,6 +12,10 @@
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
       mermaid.initialize({ startOnLoad: true, theme: 'forest' });
     </script>
+    <script type="module">
+      import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.mjs"
+      customElements.define("latex-js", LaTeXJSComponent)
+    </script>
     <script defer data-domain="notes.club" src="https://plausible.io/js/plausible.js"></script>
   </head>
   <body>
