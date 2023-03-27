@@ -9,6 +9,7 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
     |> HtmlSanitizeEx.markdown_html()
     |> Earmark.as_html!()
     |> highlight_code_blocks()
+    |> unescape_html()
     |> Phoenix.HTML.raw()
   end
 
@@ -22,7 +23,6 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
 
   defp highlight_code_block(_, "elixir", code) do
     code
-    |> unescape_html()
     |> IO.iodata_to_binary()
     |> Makeup.highlight()
   end
