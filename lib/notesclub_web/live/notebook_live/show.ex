@@ -5,6 +5,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Urls
+  alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
   # This can raise an exception and render 404

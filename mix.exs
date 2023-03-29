@@ -69,7 +69,11 @@ defmodule Notesclub.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false}
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+      {:earmark, "~> 1.4"},
+      {:makeup, "~> 1.0"},
+      {:makeup_elixir, "0.15.2"},
+      {:html_sanitize_ex, "~> 1.4"}
     ]
   end
 

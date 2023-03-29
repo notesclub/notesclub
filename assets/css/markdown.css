@@ -1,0 +1,77 @@
+.markdown h1 {
+  @apply pb-2 text-4xl;
+}
+
+.markdown h2 {
+  @apply pb-2 mt-10 text-3xl;
+}
+
+.markdown h3 {
+  @apply pb-2 mt-8 text-2xl;
+}
+
+.markdown p {
+  line-height: 1.8rem;
+  margin-top: 1rem;
+}
+
+latex-js {
+  display: inline-block;
+  text-indent: 0;
+  /* overwriting the libraries default */
+  --parindent: 0;
+  transform: scale(1.1);
+  margin: 0 0.5rem;
+}
+
+latex-js,
+.markdown code.inline {
+  padding: 2px 10px;
+  border-radius: 10px;
+  background-color: rgb(31, 41, 55);
+  color: white;
+}
+
+.markdown code.inline {
+  @apply text-sm;
+}
+
+.markdown pre {
+  @apply flex overflow-auto mt-4;
+}
+
+.markdown code.elixir {
+  @apply bg-gray-800 rounded-lg p-4 my-10 w-full;
+  @apply text-base text-lg;
+}
+
+.markdown code.mermaid {
+  @apply p-4 w-full;
+}
+
+
+.markdown a {
+  @apply mt-6;
+}
+
+.markdown li {
+  @apply list-disc;
+  @apply ml-8;
+  @apply mb-2;
+}
+
+.markdown p {
+  @apply text-base text-lg;
+}
+
+.markdown details {
+  @apply text-black
+}
+
+.markdown table {
+  width: 100%;
+}
+
+.markdown td a {
+  text-decoration: underline;
+}
