@@ -21,7 +21,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
     socket = assign(socket, author: author, repo: repo)
-    notebooks = get_notebooks(socket, :repo, 0)
+    notebooks = get_notebooks(socket, :repo, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
@@ -29,14 +29,14 @@ defmodule NotesclubWeb.NotebookLive.Index do
     # Render 404 if author does not exist
     Accounts.get_by_username!(author)
     socket = assign(socket, author: author, repo: nil)
-    notebooks = get_notebooks(socket, :author, 0)
+    notebooks = get_notebooks(socket, :author, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
 
   defp run_action(%{"q" => search}, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
     socket = assign(socket, search: search, notebooks: [])
-    notebooks = get_notebooks(socket, :search, 0)
+    notebooks = get_notebooks(socket, :search, 0, [])
 
     {:noreply,
      assign(socket, page: 0, search: search, notebooks: notebooks, author: nil, repo: nil)}
@@ -44,18 +44,18 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp run_action(_, :search, socket) do
     socket = assign(socket, search: nil, notebooks: [])
-    notebooks = get_notebooks(socket, :search, 0)
+    notebooks = get_notebooks(socket, :search, 0, [])
 
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, author: nil, repo: nil)}
   end
 
   defp run_action(_params, :home, socket) do
-    notebooks = get_notebooks(socket, :home, 0)
+    notebooks = get_notebooks(socket, :home, 0, [])
     {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
   end
 
   defp run_action(_params, :random, socket) do
-    notebooks = get_notebooks(socket, :random, 0)
+    notebooks = get_notebooks(socket, :random, 0, [])
     {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
   end
 
@@ -98,57 +98,61 @@ defmodule NotesclubWeb.NotebookLive.Index do
     %{assigns: %{page: page, notebooks: notebooks, live_action: live_action}} = socket
 
     next_page = page + 1
+    exclude_ids = Enum.map(notebooks, & &1.id)
 
     {:noreply,
      assign(
        socket,
-       notebooks: notebooks ++ get_notebooks(socket, live_action, next_page),
+       notebooks: notebooks ++ get_notebooks(socket, live_action, next_page, exclude_ids),
        page: next_page
      )}
   end
 
-  defp get_notebooks(_socket, :home, page) do
+  defp get_notebooks(_socket, :home, page, exclude_ids) do
     Notebooks.list_notebooks(
       per_page: @per_page,
       page: page,
       order: :desc,
+      exclude_ids: exclude_ids,
       preload: [:user, :repo]
     )
   end
 
-  defp get_notebooks(_socket, :random, page) do
+  defp get_notebooks(_socket, :random, page, exclude_ids) do
     Notebooks.list_notebooks(
       per_page: @per_page,
       page: page,
       order: :random,
+      exclude_ids: exclude_ids,
       preload: [:user, :repo]
     )
   end
 
-  defp get_notebooks(%{assigns: %{repo: repo, author: author}}, :repo, page) do
+  defp get_notebooks(%{assigns: %{repo: repo, author: author}}, :repo, page, exclude_ids) do
     Notebooks.list_notebooks(
       github_repo_name: repo,
       github_owner_login: author,
       per_page: @per_page,
       page: page,
       order: :desc,
+      exclude_ids: exclude_ids,
       preload: [:user, :repo]
     )
   end
 
-  defp get_notebooks(%{assigns: %{author: author}}, :author, page) do
+  defp get_notebooks(%{assigns: %{author: author}}, :author, page, exclude_ids) do
     Notebooks.list_notebooks(
       github_owner_login: author,
       per_page: @per_page,
       page: page,
       order: :desc,
+      exclude_ids: exclude_ids,
       preload: [:user, :repo]
     )
   end
 
-  defp get_notebooks(%{assigns: %{search: search, notebooks: notebooks}}, :search, page) do
+  defp get_notebooks(%{assigns: %{search: search}}, :search, page, exclude_ids) do
     per_page = trunc(@per_page / 2)
-    exclude_ids = Enum.map(notebooks, & &1.id)
 
     searchable_matches =
       Notebooks.list_notebooks(
