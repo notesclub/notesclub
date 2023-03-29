@@ -22,8 +22,8 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     assert Livemd.render("<a href=\"javascript:alert('hi');\">hey</a>") == {:safe, "<a>hey</a>"}
   end
 
-  # DockYard-Academy's notebook have many links like the following:
-  # https://notes.club/DockYard-Academy/curriculum/exercises/timer
+  # DockYard-Academy has many notebooks with navigation links at the bottom
+  # Example: https://notes.club/DockYard-Academy/curriculum/exercises/timer
   test "render/1 removes local .livemd links" do
     assert Livemd.render("[Score Tracker](../exercises/score_tracker.livemd)") ==
              {:safe, "<p>\n<a href=\"../exercises/score_tracker\">Score Tracker</a></p>\n"}
