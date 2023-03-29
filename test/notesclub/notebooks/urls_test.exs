@@ -78,25 +78,5 @@ defmodule Notesclub.Notebooks.UrlsTest do
              ) ==
                "https://raw.githubusercontent.com/ByeongUkChoi/learn_with_me_elixir/main/Binaries%20(%238).livemd"
     end
-
-    test "url_to_path/1 with main branch removes /blob/main and .livemd" do
-      assert Urls.url_to_path("https://github.com/user/repo/blob/main/sth/whatever.livemd") ==
-               "/user/repo/sth/whatever"
-    end
-
-    test "url_to_path/1 without main branch does NOT remove /blob/main/ and .livemd" do
-      assert Urls.url_to_path("https://github.com/user/repo/blob/master/sth/whatever.livemd") ==
-               "/user/repo/blob/master/sth/whatever.livemd"
-    end
-
-    test "path_to_url/1 without .livemd adds /blob/main" do
-      assert Urls.path_to_url("/user/repo/sth/whatever") ==
-               "https://github.com/user/repo/blob/main/sth/whatever.livemd"
-    end
-
-    test "path_to_url/1 with .livemd only adds github.com" do
-      assert Urls.path_to_url("/user/repo/blob/master/sth/whatever.livemd") ==
-               "https://github.com/user/repo/blob/master/sth/whatever.livemd"
-    end
   end
 end

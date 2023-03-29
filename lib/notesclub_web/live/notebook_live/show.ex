@@ -4,7 +4,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   import Phoenix.Component
 
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.Urls
+  alias Notesclub.Notebooks.Paths
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
@@ -13,7 +13,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   @spec handle_params(map(), binary(), Socket.t()) :: no_return()
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
-    url = Urls.path_to_url(path)
+    url = Paths.path_to_url(path)
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
     {:noreply, assign(socket, notebook: notebook)}
   end
