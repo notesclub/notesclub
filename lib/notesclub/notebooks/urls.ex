@@ -145,4 +145,12 @@ defmodule Notesclub.Notebooks.Urls do
 
     "https://github.com#{path}"
   end
+
+  @doc """
+  Remove .livemd from local links. E.g. ../whatever.livemd -> ../whatever
+  External links are kept. E.g. https://github.com/a/b/whatever.livemd is not replaced
+  """
+  def remove_livemd_extension_from_links(text) do
+    String.replace(text, ~r/(\.\..+)\.livemd/, "\\1", global: true)
+  end
 end

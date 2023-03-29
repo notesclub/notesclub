@@ -1,12 +1,15 @@
 defmodule NotesclubWeb.NotebookLive.Show.Livemd do
   @moduledoc false
 
+  alias Notesclub.Notebooks.Urls
+
   @doc """
   Renders markdown and highlights elixir code blocks
   """
   def render(content) do
     content
     |> HtmlSanitizeEx.markdown_html()
+    |> Urls.remove_livemd_extension_from_links()
     |> Earmark.as_html!()
     |> highlight_code_blocks()
     |> unescape_html()
