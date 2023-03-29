@@ -35,6 +35,10 @@
     <div class="px-4 markdown">
       <%= Livemd.render(@notebook.content) %>
     </div>
+
+    <div class="p-4 underline">
+      <.link navigate={~p"/"}>Back</.link>
+    </div>
   </section>
 
   <.live_component
