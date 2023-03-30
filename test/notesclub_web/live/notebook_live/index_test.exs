@@ -42,6 +42,16 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     end)
   end
 
+  test "GET / returns number of notebooks" do
+    count = 3
+
+    for i <- 1..count do
+      notebook_fixture(%{github_filename: "whatever#{i}.livemd"})
+    end
+
+    assert "#{count} notebooks and counting"
+  end
+
   test "GET / returns name and username", %{conn: conn} do
     user = user_fixture(%{name: "One person", username: "someone"})
     notebook_fixture(%{user_id: user.id, github_owner_login: "someone"})
