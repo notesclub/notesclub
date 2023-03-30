@@ -36,28 +36,37 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
           username: username
         })
 
-      #  We match the message to make sure we don't delete notebooks when we shouldn't
       {:error,
        %Notesclub.GithubAPI{
          response: %Req.Response{
-           body: %{
-             "errors" => [
-               %{
-                 "code" => "invalid",
-                 "message" =>
-                   "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
-               }
-             ]
-           }
+           body: %{"errors" => [%{"code" => "invalid", "message" => message}]}
          }
-       }} ->
-        # The user could have changed the username or changed the permissions
-        {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: []})
-        {:ok, "User does NOT exist or we do not have permissions. #{n} notebooks deleted"}
+       } = error} ->
+        may_delete_notebooks(username, message, error)
 
       error ->
         {:error, "Retrying. Unknown error: #{inspect(error)}"}
     end
+  end
+
+  # The user could have changed the username or changed the permissions
+  #  We match the message to make sure we don't delete notebooks that we shouldn't
+  defp may_delete_notebooks(username, message, error) do
+    case message do
+      "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them." ->
+        delete_notebooks(username)
+
+      "The listed users, orgs, or repositories cannot be searched either because the resources do not exist or you do not have permission to view them." ->
+        delete_notebooks(username)
+
+      _ ->
+        {:error, "Retrying. Unknown error: #{inspect(error)}"}
+    end
+  end
+
+  def delete_notebooks(username) do
+    {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: []})
+    {:ok, "User does NOT exist or we do not have permissions. #{n} notebooks deleted"}
   end
 
   defp save_notebooks_and_enqueue_content_sync(notebooks_data) do
