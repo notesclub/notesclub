@@ -50,7 +50,9 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
            }
          }
        }} ->
-        {:ok, "Skipping. User does NOT exist or we do not have permissions."}
+        # The user could have changed the username or changed the permissions
+        {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: []})
+        {:ok, "User does NOT exist or we do not have permissions. #{n} notebooks deleted"}
 
       error ->
         {:error, "Retrying. Unknown error: #{inspect(error)}"}
