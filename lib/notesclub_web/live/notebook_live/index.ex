@@ -12,7 +12,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   def per_page, do: @per_page
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, last_search_time: 0)}
+    {:ok, assign(socket, last_search_time: 0, notebooks_count: Notebooks.count())}
   end
 
   def handle_params(params, _url, %{assigns: %{live_action: live_action}} = socket) do
