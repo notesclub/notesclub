@@ -26,8 +26,12 @@ ENV APP_REVISION=$revision
 RUN echo $revision > APP_REVISION
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
+RUN apt-get update -y && apt-get install -y build-essential git curl \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# Install Node.js and npm
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+  && apt-get -y install nodejs
 
 # prepare build dir
 WORKDIR /app
@@ -66,6 +70,8 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
+
+RUN npm install --prefix assets
 
 # compile assets
 RUN mix assets.deploy
