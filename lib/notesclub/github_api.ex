@@ -116,10 +116,7 @@ defmodule Notesclub.GithubAPI do
     end
   end
 
-  defp prepare_data(%GithubAPI{response: response} = fetch, nil) do
-    Logger.error("GithubAPI.Search, response: " <> inspect(response))
-    {:error, fetch}
-  end
+  defp prepare_data(fetch, nil), do: {:error, fetch}
 
   defp prepare_data(%GithubAPI{response: response} = fetch, items) do
     notebooks_data =
