@@ -36,6 +36,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
           username: username
         })
 
+      #  We match the message to make sure we don't delete notebooks when we shouldn't
       {:error,
        %Notesclub.GithubAPI{
          response: %Req.Response{
@@ -44,7 +45,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
                %{
                  "code" => "invalid",
                  "message" =>
-                   "The listed users, orgs, or repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
+                   "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
                }
              ]
            }
