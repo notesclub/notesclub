@@ -64,7 +64,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
         delete_notebooks(username)
 
       _ ->
-        {:error, "Retrying. Unknown error: #{inspect(error)}"}
+        {:error, "Retrying. Invalid code but unknown message: #{inspect(error)}"}
     end
   end
 
