@@ -25,16 +25,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
 
     case GithubAPI.get(options) do
       {:ok, %GithubAPI{notebooks_data: notebooks_data, total_count: total_count}} ->
-        saved_ids = save_notebooks_and_enqueue_content_sync(notebooks_data)
-        already_saved_ids = already_saved_ids ++ saved_ids
-
-        enqueue_next_and_delete_old_if_required(%{
-          per_page: per_page,
-          page: page,
-          total_count: total_count,
-          already_saved_ids: already_saved_ids,
-          username: username
-        })
+        save_notebooks(notebooks_data, total_count, username, already_saved_ids, page, per_page)
 
       {:error,
        %Notesclub.GithubAPI{
@@ -47,6 +38,19 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
       error ->
         {:error, "Retrying. Unknown error: #{inspect(error)}"}
     end
+  end
+
+  defp save_notebooks(notebooks_data, total_count, username, already_saved_ids, page, per_page) do
+    saved_ids = save_notebooks_and_enqueue_content_sync(notebooks_data)
+    already_saved_ids = already_saved_ids ++ saved_ids
+
+    enqueue_next_and_delete_old_if_required(%{
+      per_page: per_page,
+      page: page,
+      total_count: total_count,
+      already_saved_ids: already_saved_ids,
+      username: username
+    })
   end
 
   # The user could have changed the username or changed the permissions
