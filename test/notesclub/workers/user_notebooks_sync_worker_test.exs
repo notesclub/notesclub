@@ -2,6 +2,9 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
   use Notesclub.DataCase
 
   import Mock
+  import Notesclub.AccountsFixtures
+  import Notesclub.NotebooksFixtures
+  import Notesclub.ReposFixtures
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
@@ -44,6 +47,19 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
         }
       ],
       "total_count" => 2446
+    }
+  }
+
+  @github_invalid_response %Req.Response{
+    status: 422,
+    body: %{
+      "errors" => [
+        %{
+          "code" => "invalid",
+          "message" =>
+            "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
+        }
+      ]
     }
   }
 
@@ -101,6 +117,36 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
                    args: %{"notebook_id" => ^n1_id}
                  }
                ] = all_enqueued()
+      end
+    end
+
+    # The user could have changed their username or changed their permissions
+    test "deletes all user notebooks because the user is invalid" do
+      user1 = user_fixture(%{username: "one"})
+      user2 = user_fixture(%{username: "two"})
+      repo1 = repo_fixture(%{user_id: user1.id})
+      repo2 = repo_fixture(%{user_id: user2.id})
+      notebook_fixture(%{user: user1, repo: repo1, github_owner_login: user1.username})
+      notebook_fixture(%{user: user1, repo: repo1, github_owner_login: user1.username})
+      n3 = notebook_fixture(%{user: user2, repo: repo2, github_owner_login: user2.username})
+
+      assert Notebooks.count() == 3
+
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _ -> @github_invalid_response end]}
+      ]) do
+        assert {:ok, _} =
+                 perform_job(UserNotebooksSyncWorker, %{
+                   username: user1.username,
+                   page: 1,
+                   per_page: 10,
+                   already_saved_ids: []
+                 })
+
+        assert Notebooks.count() == 1
+
+        # We did not delete the notebooks from other users
+        assert Notebooks.get_notebook(n3.id).id == n3.id
       end
     end
 
