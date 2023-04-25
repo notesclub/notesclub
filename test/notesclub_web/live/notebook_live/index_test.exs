@@ -121,14 +121,28 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
 
   test "GET /search returns notebooks with emojis", %{conn: conn} do
     notebook_fixture(%{github_filename: "one.livemd", content: "# One 🎄🤶\n ..."})
-    notebook_fixture(%{github_filename: "two.livemd", content: ""})
-    notebook_fixture(%{github_filename: "three.livemd"})
+    notebook_fixture(%{github_filename: "two.livemd", content: "no emojis"})
+    notebook_fixture(%{github_filename: "three.livemd", content: "whatever"})
 
     {:ok, _view, html} = live(conn, "/search")
 
     assert html =~ "one.livemd"
     assert html =~ "two.livemd"
     assert html =~ "three.livemd"
+  end
+
+  test "GET /search excludes notebooks without content", %{conn: conn} do
+    notebook_fixture(%{github_filename: "one.livemd", content: "One"})
+    notebook_fixture(%{github_filename: "no-content.livemd", content: nil})
+    notebook_fixture(%{github_filename: "two.livemd", content: "whatever"})
+
+    {:ok, _view, html} = live(conn, "/search")
+
+    assert html =~ "one.livemd"
+    assert html =~ "two.livemd"
+
+    # Excludes notebooks with content: nil
+    refute html =~ "no-content.livemd"
   end
 
   test "GET /search does NOT include close filter button", %{conn: conn} do
