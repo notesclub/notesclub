@@ -114,6 +114,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       page: page,
       order: :desc,
       exclude_ids: exclude_ids,
+      require_content: true,
       preload: [:user, :repo]
     )
   end
@@ -124,6 +125,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       page: page,
       order: :random,
       exclude_ids: exclude_ids,
+      require_content: true,
       preload: [:user, :repo]
     )
   end
@@ -136,6 +138,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       page: page,
       order: :desc,
       exclude_ids: exclude_ids,
+      require_content: true,
       preload: [:user, :repo]
     )
   end
@@ -147,6 +150,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       page: page,
       order: :desc,
       exclude_ids: exclude_ids,
+      require_content: true,
       preload: [:user, :repo]
     )
   end
@@ -161,6 +165,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         page: page,
         order: :desc,
         exclude_ids: exclude_ids,
+        require_content: true,
         preload: [:user, :repo]
       )
 
@@ -173,6 +178,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         page: page,
         order: :desc,
         exclude_ids: exclude_ids,
+        require_content: true,
         preload: [:user, :repo]
       )
 

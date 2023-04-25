@@ -45,6 +45,9 @@ defmodule Notesclub.Notebooks do
       opts,
       from(n in Notebook, join: u in User, on: n.user_id == u.id, preload: ^preload),
       fn
+        {:require_content, true}, query ->
+          where(query, [notebook], not is_nil(notebook.content))
+
         {:order, :desc}, query ->
           order_by(query, [notebook], -notebook.id)
 
