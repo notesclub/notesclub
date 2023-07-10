@@ -75,7 +75,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp attrs_for_update(notebook, urls) do
-    case Req.get(urls.raw_default_branch_url) do
+    case make_get_request(urls.raw_default_branch_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         title = Notebooks.extract_title(body)
         {:ok, %{content: body, title: title, url: urls.default_branch_url}}
@@ -90,7 +90,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   end
 
   defp attrs_from_commit(notebook, urls) do
-    case Req.get(urls.raw_commit_url) do
+    case make_get_request(urls.raw_commit_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         title = Notebooks.extract_title(body)
         {:ok, %{content: body, title: title, url: nil}}
@@ -114,5 +114,11 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
         #  Retry job several times
         {:error, "Error saving the notebook id #{notebook.id}, attrs: #{inspect(attrs)}"}
     end
+  end
+
+  defp make_get_request(url) do
+    url
+    |> URI.encode()
+    |> Req.get()
   end
 end
