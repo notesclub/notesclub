@@ -6,6 +6,14 @@ alias Notesclub.Notebooks
 alias Notesclub.Accounts
 alias Notesclub.Repos
 
+content = """
+# Dummy content
+
+```elixir
+1+1
+```
+"""
+
 {:ok, user} =
   Accounts.create_user(%{
     username: "livebook-dev",
@@ -23,6 +31,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "livebook-dev",
     github_repo_name: "livebook",
     github_filename: "intro_to_maplibre.livemd",
@@ -52,6 +61,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "DockYard-Academy",
     github_repo_name: "beta_curriculum",
     github_filename: "ranges.livemd",
@@ -80,6 +90,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "podium",
     github_repo_name: "elixir-secure-coding",
     github_filename: "7-anti-patterns.livemd",
@@ -108,6 +119,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "elixir-nx",
     github_repo_name: "axon",
     github_filename: "mnist.livemd",
@@ -136,6 +148,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "BrooklinJazz",
     github_repo_name: "talks",
     github_filename: "ets.livemd",
@@ -164,6 +177,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "hectorperez",
     github_repo_name: "livebook-notebooks",
     github_filename: "chat_with_openai_and_kino.livemd",
@@ -193,6 +207,7 @@ alias Notesclub.Repos
 
 {:ok, _} =
   Notebooks.create_notebook(%{
+    content: content,
     github_owner_login: "fly-apps",
     github_repo_name: "tictac",
     github_filename: "game_state.livemd",
