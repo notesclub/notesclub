@@ -8,7 +8,7 @@
   <h2 class="text-sm text-center text-gray-900 mt-4"><%= file(@notebook) %></h2>
 
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden pt-8">
-    <div class="flex flex-1 pb-4">
+    <div class="flex flex-1 pb-4 flex-col md:flex-row">
       <div class="flex-shrink-0">
         <.live_component
           module={NotesclubWeb.NotebookLive.UserComponent}
@@ -16,20 +16,22 @@
           id="u"
         />
       </div>
-      <div class="pt-2 pl-4">
-        <.link href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
-          <%= img_tag static_path(@socket, "/images/run_in_livebook.svg"), class: "h-8 rounded-full", alt: "avatar" %>
-        </.link>
-      </div>
-      <div class="pt-2 pl-4">
-        <.link href={@notebook.github_html_url} target="_blank">
-          <%= img_tag static_path(@socket, "/images/github-logo.svg"), class: "h-8 rounded-full", alt: "avatar" %>
-        </.link>
-      </div>
-      <div class="pt-3 pl-4">
-        <.link navigate={~p"/"} class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          More notebooks
-        </.link>
+      <div class="flex flex-wrap">
+        <div class="pt-2 pl-4">
+          <.link href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
+            <%= img_tag static_path(@socket, "/images/run_in_livebook.svg"), class: "h-8 rounded-full", alt: "avatar" %>
+          </.link>
+        </div>
+        <div class="pt-2 pl-4">
+          <.link href={@notebook.github_html_url} target="_blank">
+            <%= img_tag static_path(@socket, "/images/github-logo.svg"), class: "h-8 rounded-full", alt: "avatar" %>
+          </.link>
+        </div>
+        <div class="pt-3 pl-4">
+          <.link navigate={~p"/"} class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            More notebooks
+          </.link>
+        </div>
       </div>
     </div>
     <div class="px-4 markdown" id="content" phx-hook="mermaidDiagrams">
