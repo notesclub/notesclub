@@ -13,7 +13,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   @spec handle_params(map(), binary(), Socket.t()) :: no_return()
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
-    url = Paths.path_to_url(path)
+    url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
     {:noreply, assign(socket, notebook: notebook)}
   end
