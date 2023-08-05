@@ -69,8 +69,12 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
          {"0 3 * * MON", Notesclub.Workers.AllUserNotebooksSyncWorker,
           queue: :default, tags: ["mondays"]}
        ]},
-      # seconds
-      {Oban.Plugins.Pruner, max_age: 300},
+      {Oban.Pro.Plugins.DynamicPruner,
+       state_overrides: [
+         completed: {:max_age, {1, :hour}},
+         cancelled: {:max_age, {1, :week}},
+         discarded: {:max_age, {1, :month}}
+       ]},
       Oban.Plugins.Gossip,
       Oban.Web.Plugins.Stats,
       Oban.Pro.Plugins.DynamicLifeline
