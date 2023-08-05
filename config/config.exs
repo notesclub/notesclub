@@ -71,8 +71,8 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
        ]},
       {Oban.Pro.Plugins.DynamicPruner,
        state_overrides: [
-         completed: {:max_age, {1, :hour}},
-         cancelled: {:max_age, {1, :week}},
+         completed: {:max_age, {5, :minutes}},
+         cancelled: {:max_age, {1, :month}},
          discarded: {:max_age, {1, :month}}
        ]},
       Oban.Plugins.Gossip,
