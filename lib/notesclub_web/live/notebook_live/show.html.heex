@@ -18,7 +18,7 @@
       </div>
       <div class="flex flex-wrap">
         <div class="pt-2 pl-4">
-          <.link href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
+          <.link phx-click="run-in-livebook" phx-value-notebook_id={@notebook.id} href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
             <%= img_tag static_path(@socket, "/images/run_in_livebook.svg"), class: "h-8 rounded-full", alt: "avatar" %>
           </.link>
         </div>
