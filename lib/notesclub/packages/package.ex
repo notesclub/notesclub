@@ -1,4 +1,8 @@
 defmodule Notesclub.Packages.Package do
+  @moduledoc """
+  Schema for hex packages
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
