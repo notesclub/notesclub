@@ -5,6 +5,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
+  alias Notesclub.Notebooks.RunInLivebookServer
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
@@ -16,6 +17,15 @@ defmodule NotesclubWeb.NotebookLive.Show do
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
     {:noreply, assign(socket, notebook: notebook)}
+  end
+
+  def handle_event("run-in-livebook", %{"notebook-id" => notebook_id}, socket) do
+    {:ok, _} =
+      notebook_id
+      |> String.to_integer()
+      |> RunInLivebookServer.increase_count()
+
+    {:noreply, socket}
   end
 
   defp file(notebook) do
