@@ -16,16 +16,21 @@ defmodule NotesclubWeb.NotebookLive.Show do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
-    {:noreply, assign(socket, notebook: notebook)}
+
+    {:noreply,
+     assign(socket, notebook: notebook, run_in_livebook_count: notebook.run_in_livebook_count)}
   end
 
-  def handle_event("run-in-livebook", %{"notebook-id" => notebook_id}, socket) do
+  def handle_event("run-in-livebook", params, socket) do
+    notebook_id = params["notebook_id"] || params["notebook-id"]
+    %{assigns: %{run_in_livebook_count: run_in_livebook_count}} = socket
+
     {:ok, _} =
       notebook_id
       |> String.to_integer()
       |> RunInLivebookServer.increase_count()
 
-    {:noreply, socket}
+    {:noreply, assign(socket, run_in_livebook_count: run_in_livebook_count + 1)}
   end
 
   defp file(notebook) do
