@@ -10,8 +10,12 @@ content = """
 # Dummy content
 
 ```elixir
-1+1
+Mix.install([
+  {:req, "~> 0.3.11"},
+  {:jason, "~> 1.4"}
+])
 ```
+...
 """
 
 {:ok, user} =

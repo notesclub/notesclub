@@ -22,7 +22,7 @@
 
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-      <%= if !@author && !@repo do %>
+      <%= if !@author && !@repo && !@package do %>
         <.live_component
           module={NotesclubWeb.NotebookLive.Index.FeaturedComponent}
           id="f"
@@ -33,6 +33,7 @@
         module={NotesclubWeb.NotebookLive.Index.CloseFilterComponent}
         author={@author}
         repo={@repo}
+        package={@package}
         id="f"
       />
 

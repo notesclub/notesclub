@@ -52,6 +52,12 @@ defmodule Notesclub.Packages do
     Repo.get_by(Package, name: name)
   end
 
+  @spec get_by_name(binary, list) :: Package.t() | nil
+  def get_by_name(name, preload: tables) do
+    package = Repo.get_by(Package, name: name)
+    package && Repo.preload(package, tables)
+  end
+
   @doc """
   Gets a package by its name. If it doesn't exist, creates a new package with the given name.
 

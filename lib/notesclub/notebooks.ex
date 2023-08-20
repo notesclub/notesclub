@@ -11,6 +11,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
+  alias Notesclub.Packages
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
 
@@ -40,6 +41,7 @@ defmodule Notesclub.Notebooks do
   @spec list_notebooks(any) :: [Notebook.t()]
   def list_notebooks(opts \\ []) do
     preload = opts[:preload] || []
+    opts = replace_package_name_with_ids(opts, opts[:package_name])
 
     Enum.reduce(
       opts,
@@ -85,6 +87,9 @@ defmodule Notesclub.Notebooks do
           search = "%#{content}%"
           where(query, [notebook], ilike(notebook.content, ^search))
 
+        {:ids, ids}, query ->
+          where(query, [notebook], notebook.id in ^ids)
+
         {:exclude_ids, exclude_ids}, query ->
           where(query, [notebook], notebook.id not in ^exclude_ids)
 
@@ -102,6 +107,23 @@ defmodule Notesclub.Notebooks do
       end
     )
     |> Repo.all()
+  end
+
+  @spec replace_package_name_with_ids(list, binary | nil) :: list
+  defp replace_package_name_with_ids(opts, nil), do: opts
+
+  defp replace_package_name_with_ids(opts, package_name) do
+    case Packages.get_by_name(package_name, preload: :notebooks) do
+      nil ->
+        opts
+
+      package ->
+        notebook_ids = Enum.map(package.notebooks, & &1.id)
+
+        opts
+        |> Keyword.delete(:package_name)
+        |> Keyword.put(:ids, notebook_ids)
+    end
   end
 
   @spec list_notebooks_since(integer()) :: [Notebook.t()]
@@ -125,7 +147,7 @@ defmodule Notesclub.Notebooks do
   @spec enqueue_url_and_content_sync(RepoSchema.t()) ::
           {:ok, %{binary => Notebook.t()}} | {:error, %{binary => Ecto.Changeset.t()}}
   def enqueue_url_and_content_sync(%RepoSchema{id: repo_id}) do
-    %{repo_id: repo_id}
+    [repo_id: repo_id]
     |> list_notebooks()
     |> Enum.reduce(Ecto.Multi.new(), fn
       %Notebook{} = notebook, query ->
