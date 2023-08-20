@@ -20,7 +20,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
     {:noreply, assign(socket, notebook: notebook, clap_count: notebook.clap_count)}
   end
 
-  def handle_event("run-in-livebook", params, socket) do
+  def handle_event("clap", params, socket) do
     notebook_id = params["notebook_id"] || params["notebook-id"]
     %{assigns: %{clap_count: clap_count}} = socket
 

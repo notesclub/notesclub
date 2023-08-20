@@ -18,7 +18,7 @@
       </div>
       <div class="flex flex-wrap">
         <div class="pt-2 pl-4">
-          <.link phx-click="run-in-livebook" phx-value-notebook_id={@notebook.id} href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
+          <.link phx-click="clap" phx-value-notebook_id={@notebook.id} href={"https://livebook.dev/run?url=#{@notebook.github_html_url}"} target="_blank">
             <%= img_tag static_path(@socket, "/images/run_in_livebook.svg"), class: "h-8 rounded-full", alt: "avatar" %>
           </.link>
         </div>
@@ -32,10 +32,10 @@
             More notebooks
           </.link>
         </div>
-        <div class="pl-3 mt-2 cursor-pointer" phx-click="run-in-livebook" phx-value-notebook_id={@notebook.id}>
+        <div class="pl-3 mt-2 cursor-pointer" phx-click="clap" phx-value-notebook_id={@notebook.id}>
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M716-120H272v-512l278-288 39 31q6 5 9 14t3 22v10l-45 211h299q24 0 42 18t18 42v81.839q0 7.161 1.5 14.661T915-461L789-171q-8.878 21.25-29.595 36.125Q738.689-120 716-120Zm-384-60h397l126-299v-93H482l53-249-203 214v427Zm0-427v427-427Zm-60-25v60H139v392h133v60H79v-512h193Z"/></svg>
         </div>
-        <div class="p-2" phx-click="run-in-livebook" phx-value-notebook_id={@notebook.id}><%= @clap_count %></div>
+        <div class="p-2" phx-click="clap" phx-value-notebook_id={@notebook.id}><%= @clap_count %></div>
       </div>
     </div>
     <div class="px-4 markdown" id="content" phx-hook="mermaidDiagrams">
