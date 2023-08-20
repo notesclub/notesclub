@@ -1,6 +1,6 @@
-defmodule Notesclub.Notebooks.RunInLivebookServer do
+defmodule Notesclub.Notebooks.ClapServer do
   @moduledoc """
-  Handle the atomic incrementing of the `run_in_livebook_count` in notebooks.
+  Handle the atomic incrementing of the `clap_count` in notebooks.
   """
 
   use GenServer
@@ -26,6 +26,6 @@ defmodule Notesclub.Notebooks.RunInLivebookServer do
 
   @impl true
   def handle_call({:increase_count, notebook_id}, _from, state) do
-    {:reply, Notebooks.increase_run_in_livebook_count(notebook_id), state}
+    {:reply, Notebooks.increase_clap_count(notebook_id), state}
   end
 end

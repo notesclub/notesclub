@@ -560,10 +560,10 @@ defmodule Notesclub.Notebooks do
     |> Repo.update()
   end
 
-  @spec increase_run_in_livebook_count(integer()) ::
+  @spec increase_clap_count(integer()) ::
           {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
   @doc """
-  Increments the `run_in_livebook_count` of the given notebook by 1 and updates it in the database.
+  Increments the `clap_count` of the given notebook by 1 and updates it in the database.
 
   ## Parameters
   - `notebook`: The `%Notebook{}` struct whose count you want to increment.
@@ -572,14 +572,14 @@ defmodule Notesclub.Notebooks do
   - {:ok, %Notebook{}} on successful update.
   - {:error, changeset} on an error during update.
   """
-  def increase_run_in_livebook_count(notebook_id) when is_integer(notebook_id) do
+  def increase_clap_count(notebook_id) when is_integer(notebook_id) do
     case get_notebook(notebook_id) do
       nil ->
         {:error, :not_found}
 
       %Notebook{} = notebook ->
-        new_count = notebook.run_in_livebook_count + 1
-        update_notebook(notebook, %{run_in_livebook_count: new_count})
+        new_count = notebook.clap_count + 1
+        update_notebook(notebook, %{clap_count: new_count})
     end
   end
 
