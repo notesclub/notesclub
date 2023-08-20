@@ -321,15 +321,15 @@ defmodule Notesclub.NotebooksTest do
       # ... (tested in create_notebook/1)
     end
 
-    test "increments the run_in_livebook_count of the notebook by 1" do
+    test "increments the clap_count of the notebook by 1" do
       # Setup: Insert a notebook into the database with an initial count
-      %{id: notebook_id} = notebook_fixture(%{run_in_livebook_count: 3})
+      %{id: notebook_id} = notebook_fixture(%{clap_count: 3})
 
       # Call the function to increase the count
-      {:ok, updated_notebook} = Notebooks.increase_run_in_livebook_count(notebook_id)
+      {:ok, updated_notebook} = Notebooks.increase_clap_count(notebook_id)
 
       # Assert that the count was incremented by 1
-      assert updated_notebook.run_in_livebook_count == 4
+      assert updated_notebook.clap_count == 4
     end
 
     test "returns an error when the notebook does not exist" do
@@ -337,7 +337,7 @@ defmodule Notesclub.NotebooksTest do
       notebook_id = -1
 
       # Call the function and expect an error
-      assert Notebooks.increase_run_in_livebook_count(notebook_id) == {:error, :not_found}
+      assert Notebooks.increase_clap_count(notebook_id) == {:error, :not_found}
     end
 
     test "delete_notebook/1 deletes the notebook" do

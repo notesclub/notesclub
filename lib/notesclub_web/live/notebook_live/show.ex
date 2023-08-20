@@ -4,8 +4,8 @@ defmodule NotesclubWeb.NotebookLive.Show do
   import Phoenix.Component
 
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.ClapServer
   alias Notesclub.Notebooks.Paths
-  alias Notesclub.Notebooks.RunInLivebookServer
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
@@ -16,16 +16,20 @@ defmodule NotesclubWeb.NotebookLive.Show do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
-    {:noreply, assign(socket, notebook: notebook)}
+
+    {:noreply, assign(socket, notebook: notebook, clap_count: notebook.clap_count)}
   end
 
-  def handle_event("run-in-livebook", %{"notebook-id" => notebook_id}, socket) do
+  def handle_event("run-in-livebook", params, socket) do
+    notebook_id = params["notebook_id"] || params["notebook-id"]
+    %{assigns: %{clap_count: clap_count}} = socket
+
     {:ok, _} =
       notebook_id
       |> String.to_integer()
-      |> RunInLivebookServer.increase_count()
+      |> ClapServer.increase_count()
 
-    {:noreply, socket}
+    {:noreply, assign(socket, clap_count: clap_count + 1)}
   end
 
   defp file(notebook) do
