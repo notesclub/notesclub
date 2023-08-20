@@ -13,6 +13,7 @@ defmodule Notesclub.Packages.Extractor do
     content
     |> extract_mix_install_content()
     |> extract_packages_from_mix_install()
+    |> Enum.uniq()
   end
 
   @spec extract_mix_install_content(binary) :: binary

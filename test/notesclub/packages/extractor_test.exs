@@ -49,4 +49,27 @@ defmodule Notesclub.Packages.ExtractorTest do
     #  Should NOT include "whatever"
     assert Extractor.extract_packages(content) == ["openai", "kino"]
   end
+
+  test "should not add duplicated packages" do
+    content = """
+      Mix.install(
+        [
+          {:openai, "~> 0.1.1"},
+          # {:kino, "~> 0.5"}
+          {:kino, "~> 0.6.1"}
+        ],
+        config: [
+          openai: [
+            api_key: "...",
+            organisation_key: "..."
+          ]
+        ]
+      )
+      ...
+      {:whatever, "~> 0.1.1"}
+    """
+
+    #  Should NOT include "kino" twice
+    assert Extractor.extract_packages(content) == ["openai", "kino"]
+  end
 end
