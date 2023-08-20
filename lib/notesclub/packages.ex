@@ -38,6 +38,51 @@ defmodule Notesclub.Packages do
   def get_package!(id), do: Repo.get!(Package, id)
 
   @doc """
+  Fetches a package by its name
+
+  ## Examples
+      iex> get_by_name("SomeName")
+      %Package{name: "SomeName"}
+
+      iex> get_by_name("NonExistentName")
+      nil
+  """
+  @spec get_by_name(binary) :: Package.t() | nil
+  def get_by_name(name) do
+    Repo.get_by(Package, name: name)
+  end
+
+  @doc """
+  Gets a package by its name. If it doesn't exist, creates a new package with the given name.
+
+  ## Examples
+
+      iex> get_or_create_by_name("SomeName")
+      {:ok, %Package{name: "SomeName"}}
+
+      iex> get_or_create_by_name("ExistingName")
+      {:ok, %Package{name: "ExistingName"}}
+
+  """
+  @spec get_or_create_by_name(binary) :: {:ok, Package.t()} | {:error, Ecto.Changeset.t()}
+  def get_or_create_by_name(name) when is_binary(name) do
+    case get_by_name(name) do
+      nil -> create_package(%{name: name})
+      package -> {:ok, package}
+    end
+  end
+
+  def list_or_create_by_names(names) do
+    packages = Enum.map(names, &get_or_create_by_name/1)
+
+    if Enum.all?(packages, &(elem(&1, 0) == :ok)) do
+      {:ok, Enum.map(packages, &elem(&1, 1))}
+    else
+      :error
+    end
+  end
+
+  @doc """
   Creates a package.
 
   ## Examples

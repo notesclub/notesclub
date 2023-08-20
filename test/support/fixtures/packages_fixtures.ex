@@ -11,7 +11,7 @@ defmodule Notesclub.PackagesFixtures do
     {:ok, package} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: Faker.Internet.user_name()
       })
       |> Notesclub.Packages.create_package()
 

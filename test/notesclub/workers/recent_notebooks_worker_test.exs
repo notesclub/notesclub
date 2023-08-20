@@ -148,7 +148,7 @@ defmodule Notesclub.Workers.RecentNotebooksWorkerTest do
                %Notebook{github_filename: "collections2.livemd"},
                %Notebook{github_filename: "collections3.livemd"},
                %Notebook{github_filename: "collections4.livemd"}
-             ] = Notebooks.list_notebooks()
+             ] = Notebooks.list_notebooks() |> Enum.sort(&(&1.id <= &2.id))
 
       assert_enqueued(worker: RecentNotebooksWorker, args: %{page: 2})
     end

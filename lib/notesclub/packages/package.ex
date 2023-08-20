@@ -3,11 +3,15 @@ defmodule Notesclub.Packages.Package do
   Schema for hex packages
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
   import Ecto.Changeset
 
-  schema "packages" do
-    field :name, :string
+  alias Notesclub.Notebooks.Notebook
+
+  typed_schema "packages" do
+    field(:name, :string)
+
+    many_to_many(:notebooks, Notebook, join_through: "notebooks_packages")
 
     timestamps()
   end
@@ -17,5 +21,6 @@ defmodule Notesclub.Packages.Package do
     package
     |> cast(attrs, [:name])
     |> validate_required([:name])
+    |> unique_constraint(:name, message: "Hex package name already exists")
   end
 end

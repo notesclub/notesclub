@@ -3,9 +3,11 @@ defmodule Notesclub.Repo.Migrations.CreatePackages do
 
   def change do
     create table(:packages) do
-      add :name, :string
+      add(:name, :string, null: false)
 
       timestamps()
     end
+
+    create(unique_index(:packages, [:name]))
   end
 end
