@@ -23,7 +23,7 @@
           </.link>
         </div>
         <div class="pt-2 pl-4">
-          <.link href={@notebook.github_html_url} target="_blank">
+          <.link href={@notebook.github_html_url} phx-click="clap" phx-value-notebook_id={@notebook.id} target="_blank">
             <%= img_tag static_path(@socket, "/images/github-logo.svg"), class: "h-8 rounded-full", alt: "avatar" %>
           </.link>
         </div>
