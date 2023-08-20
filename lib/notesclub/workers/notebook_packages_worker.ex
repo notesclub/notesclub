@@ -5,7 +5,7 @@ defmodule Notesclub.Workers.NotebookPackagesWorker do
   alias Notesclub.NotebooksPackages
 
   use Oban.Worker,
-    queue: :github_rest,
+    queue: :default,
     unique: [period: 60, states: [:available, :scheduled, :executing]]
 
   @impl Oban.Worker
