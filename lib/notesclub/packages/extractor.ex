@@ -28,7 +28,7 @@ defmodule Notesclub.Packages.Extractor do
 
   @spec extract_packages_from_mix_install(binary) :: [binary]
   defp extract_packages_from_mix_install(content) do
-    ~r/{:(\w+),\s*".+?"}/
+    ~r/{:(\w+),[^}]+}/
     |> Regex.scan(content)
     |> Enum.map(fn [_, package_name] -> package_name end)
   end

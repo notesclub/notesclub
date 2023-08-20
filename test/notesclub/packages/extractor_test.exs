@@ -72,4 +72,13 @@ defmodule Notesclub.Packages.ExtractorTest do
     #  Should NOT include "kino" twice
     assert Extractor.extract_packages(content) == ["openai", "kino"]
   end
+
+  test "extracts from github" do
+    content = """
+    Mix.install([{:nx, github: "elixir-nx/nx", sparse: "nx"}])
+    ...
+    """
+
+    assert Extractor.extract_packages(content) == ["nx"]
+  end
 end
