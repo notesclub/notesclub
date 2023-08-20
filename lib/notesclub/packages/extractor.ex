@@ -6,7 +6,9 @@ defmodule Notesclub.Packages.Extractor do
   @doc """
   Extracts package names from the given content.
   """
-  @spec extract_packages(binary) :: [binary]
+  @spec extract_packages(binary | nil) :: [binary]
+  def extract_packages(nil), do: []
+
   def extract_packages(content) do
     content
     |> extract_mix_install_content()
