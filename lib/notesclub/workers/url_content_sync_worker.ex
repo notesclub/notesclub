@@ -15,6 +15,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
+  alias Notesclub.Workers.NotebookPackagesWorker
   alias Notesclub.Workers.RepoSyncWorker
 
   @doc """
@@ -107,7 +108,10 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
   defp update_notebook(notebook, attrs) do
     case Notebooks.update_notebook(notebook, attrs) do
-      {:ok, _notebook} ->
+      {:ok, notebook} ->
+        NotebookPackagesWorker.new(%{notebook_id: notebook.id})
+        |> Oban.insert()
+
         {:ok, :synced}
 
       {:error, _} ->

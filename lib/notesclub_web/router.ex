@@ -82,6 +82,7 @@ defmodule NotesclubWeb.Router do
       get("/dummy/raise_error", DummyErrorController, :raise_error)
     end
 
+    live("/hex/:package", NotebookLive.Index, :package)
     live("/:author", NotebookLive.Index, :author)
     live("/:author/:repo", NotebookLive.Index, :repo)
     live("/*file", NotebookLive.Show, :show)

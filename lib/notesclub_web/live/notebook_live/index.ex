@@ -19,8 +19,14 @@ defmodule NotesclubWeb.NotebookLive.Index do
     run_action(params, live_action, socket)
   end
 
+  defp run_action(%{"package" => package}, :package, socket) do
+    socket = assign(socket, package: package, author: nil, repo: nil)
+    notebooks = get_notebooks(socket, :package, 0, [])
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
+  end
+
   defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
-    socket = assign(socket, author: author, repo: repo)
+    socket = assign(socket, author: author, repo: repo, package: nil)
     notebooks = get_notebooks(socket, :repo, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
@@ -28,7 +34,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp run_action(%{"author" => author}, :author, socket) do
     # Render 404 if author does not exist
     Accounts.get_by_username!(author)
-    socket = assign(socket, author: author, repo: nil)
+    socket = assign(socket, author: author, repo: nil, package: nil)
     notebooks = get_notebooks(socket, :author, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
   end
@@ -39,24 +45,57 @@ defmodule NotesclubWeb.NotebookLive.Index do
     notebooks = get_notebooks(socket, :search, 0, [])
 
     {:noreply,
-     assign(socket, page: 0, search: search, notebooks: notebooks, author: nil, repo: nil)}
+     assign(socket,
+       page: 0,
+       search: search,
+       notebooks: notebooks,
+       author: nil,
+       repo: nil,
+       package: nil
+     )}
   end
 
   defp run_action(_, :search, socket) do
     socket = assign(socket, search: nil, notebooks: [])
     notebooks = get_notebooks(socket, :search, 0, [])
 
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, author: nil, repo: nil)}
+    {:noreply,
+     assign(socket,
+       page: 0,
+       search: nil,
+       notebooks: notebooks,
+       author: nil,
+       repo: nil,
+       package: nil
+     )}
   end
 
   defp run_action(_params, :home, socket) do
     notebooks = get_notebooks(socket, :home, 0, [])
-    {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
+
+    {:noreply,
+     assign(socket,
+       page: 0,
+       notebooks: notebooks,
+       search: nil,
+       author: nil,
+       repo: nil,
+       package: nil
+     )}
   end
 
   defp run_action(_params, :random, socket) do
     notebooks = get_notebooks(socket, :random, 0, [])
-    {:noreply, assign(socket, page: 0, notebooks: notebooks, search: nil, author: nil, repo: nil)}
+
+    {:noreply,
+     assign(socket,
+       page: 0,
+       notebooks: notebooks,
+       search: nil,
+       author: nil,
+       repo: nil,
+       package: nil
+     )}
   end
 
   def handle_event("search", %{"value" => ""}, socket) do
@@ -115,7 +154,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :desc,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo]
+      preload: [:user, :repo, :packages]
     )
   end
 
@@ -126,7 +165,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :random,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo]
+      preload: [:user, :repo, :packages]
     )
   end
 
@@ -139,7 +178,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :desc,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo]
+      preload: [:user, :repo, :packages]
     )
   end
 
@@ -151,7 +190,19 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :desc,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo]
+      preload: [:user, :repo, :packages]
+    )
+  end
+
+  defp get_notebooks(%{assigns: %{package: package}}, :package, page, exclude_ids) do
+    Notebooks.list_notebooks(
+      package_name: package,
+      per_page: @per_page,
+      page: page,
+      order: :desc,
+      exclude_ids: exclude_ids,
+      require_content: true,
+      preload: [:user, :repo, :packages]
     )
   end
 
@@ -166,7 +217,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         order: :desc,
         exclude_ids: exclude_ids,
         require_content: true,
-        preload: [:user, :repo]
+        preload: [:user, :repo, :packages]
       )
 
     exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
@@ -179,7 +230,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         order: :desc,
         exclude_ids: exclude_ids,
         require_content: true,
-        preload: [:user, :repo]
+        preload: [:user, :repo, :packages]
       )
 
     searchable_matches ++ content_matches
