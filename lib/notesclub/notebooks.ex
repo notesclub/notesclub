@@ -624,10 +624,7 @@ defmodule Notesclub.Notebooks do
 
   @spec count :: number
   def count do
-    from(n in Notebook,
-      select: count(n.id)
-    )
-    |> Repo.one()
+    Repo.aggregate(Notebook, :count, :id)
   end
 
   def content_fragment(%Notebook{content: nil}, _search), do: nil
