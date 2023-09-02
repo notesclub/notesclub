@@ -20,6 +20,7 @@ defmodule Notesclub.Notebooks do
   require Logger
 
   @default_per_page 15
+  @default_fields Notebook.__schema__(:fields) -- [:content]
 
   @doc """
   Returns the latest notebook inserted
@@ -43,18 +44,28 @@ defmodule Notesclub.Notebooks do
     preload = opts[:preload] || []
     opts = replace_package_name_with_ids(opts, opts[:package_name])
 
+    base_query =
+      from n in Notebook,
+        join: u in User,
+        on: n.user_id == u.id,
+        select: ^@default_fields,
+        preload: ^preload
+
     Enum.reduce(
       opts,
-      from(n in Notebook, join: u in User, on: n.user_id == u.id, preload: ^preload),
+      base_query,
       fn
         {:require_content, true}, query ->
           where(query, [notebook], not is_nil(notebook.content))
 
+        {:select_content, true}, query ->
+          select_merge(query, [:content])
+
         {:order, :desc}, query ->
-          order_by(query, [notebook], -notebook.id)
+          order_by(query, desc: :id)
 
         {:order, :random}, query ->
-          order_by(query, [notebook], fragment("RANDOM()"))
+          order_by(query, fragment("RANDOM()"))
 
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
