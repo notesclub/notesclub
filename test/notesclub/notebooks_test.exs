@@ -41,6 +41,11 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.list_notebooks(order: :desc) == [notebook2, notebook1]
     end
 
+    test "list_notebooks/1 selects content field" do
+      notebook = notebook_fixture()
+      assert Notebooks.list_notebooks(select_content: true) == [notebook]
+    end
+
     test "list_notebooks/1 search by github_filename" do
       notebook = notebook_fixture(github_filename: "found.livemd", content: nil)
       _other_notebook = notebook_fixture(github_filename: "not_present.livemd")
