@@ -30,7 +30,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Secrets
 
-To use tests with the `:github_api` tag, and to interact with the GitHub API key the project requires a GitHub API key.
+To use tests with the `:github_api` tag, and to interact with the GitHub API the project requires a [GitHub API key](https://github.com/settings/tokens/new).
 Create a `config/test_secrets.exs` template file.
 
 Replace **GITHUB_API_KEY** with a GitHub API Key.
@@ -44,7 +44,7 @@ config :notesclub, :github_api_key, "GITHUB_API_KEY"
 
 ```
 
-To download notebooks in development, create a similar `config/dev.secrets.exs`
+To download notebooks in development, create a similar `config/dev_secrets.exs`
 
 ## Learn more
 
