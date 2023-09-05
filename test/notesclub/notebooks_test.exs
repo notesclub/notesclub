@@ -23,27 +23,32 @@ defmodule Notesclub.NotebooksTest do
     }
 
     test "get_latest_notebook/0" do
-      _notebook1 = notebook_fixture(%{inserted_at: ~N[2022-12-31 20:00:00]})
-      notebook2 = notebook_fixture(%{inserted_at: ~N[2023-01-01 20:00:00]})
+      _notebook1 = notebook_fixture(inserted_at: ~N[2022-12-31 20:00:00])
+      notebook2 = notebook_fixture(inserted_at: ~N[2023-01-01 20:00:00])
       assert Notebooks.get_latest_notebook() == notebook2
     end
 
     test "list_notebooks/0 ascending order" do
-      notebook1 = notebook_fixture()
-      notebook2 = notebook_fixture()
+      notebook1 = notebook_fixture(content: nil)
+      notebook2 = notebook_fixture(content: nil)
       assert Notebooks.list_notebooks() == [notebook1, notebook2]
       assert Notebooks.list_notebooks(order: :asc) == [notebook1, notebook2]
     end
 
     test "list_notebooks/0 descending order" do
-      notebook1 = notebook_fixture()
-      notebook2 = notebook_fixture()
+      notebook1 = notebook_fixture(content: nil)
+      notebook2 = notebook_fixture(content: nil)
       assert Notebooks.list_notebooks(order: :desc) == [notebook2, notebook1]
     end
 
+    test "list_notebooks/1 selects content field" do
+      notebook = notebook_fixture()
+      assert Notebooks.list_notebooks(select_content: true) == [notebook]
+    end
+
     test "list_notebooks/1 search by github_filename" do
-      notebook = notebook_fixture(%{github_filename: "found.livemd"})
-      _other_notebook = notebook_fixture(%{github_filename: "not_present.livemd"})
+      notebook = notebook_fixture(github_filename: "found.livemd", content: nil)
+      _other_notebook = notebook_fixture(github_filename: "not_present.livemd")
 
       assert Notebooks.list_notebooks(github_filename: "found") == [notebook]
       # case insensitive
@@ -51,24 +56,24 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "list_notebooks/1 search by github_owner_login" do
-      notebook = notebook_fixture(%{github_owner_login: "one"})
-      _other_notebook = notebook_fixture(%{github_owner_login: "two"})
+      notebook = notebook_fixture(github_owner_login: "one", content: nil)
+      _other_notebook = notebook_fixture(github_owner_login: "two")
 
       assert Notebooks.list_notebooks(github_owner_login: "one") == [notebook]
     end
 
     test "list_notebooks/1 search by github_repo_name" do
-      notebook = notebook_fixture(%{github_repo_name: "one"})
-      _other_notebook = notebook_fixture(%{github_repo_name: "two"})
+      notebook = notebook_fixture(github_repo_name: "one", content: nil)
+      _other_notebook = notebook_fixture(github_repo_name: "two")
 
       assert Notebooks.list_notebooks(github_repo_name: "one") == [notebook]
     end
 
     # Ensure all filters integrate correctly
     test "list_notebooks/1 search by all filters" do
-      notebook1 = notebook_fixture(%{github_filename: "found.livemd"})
-      notebook2 = notebook_fixture(%{github_filename: "found.livemd"})
-      _other_notebook = notebook_fixture(%{github_filename: "not_present.livemd"})
+      notebook1 = notebook_fixture(github_filename: "found.livemd", content: nil)
+      notebook2 = notebook_fixture(github_filename: "found.livemd", content: nil)
+      _other_notebook = notebook_fixture(github_filename: "not_present.livemd")
 
       assert Notebooks.list_notebooks(github_filename: "found", order: :desc) == [
                notebook2,
@@ -82,12 +87,12 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "list_notebooks/1 search by searchable" do
-      user = user_fixture(%{name: "Jose Valim"})
+      user = user_fixture(name: "Jose Valim")
       notebook_fixture(github_owner_login: "whatever", user_id: user.id)
 
-      notebook_fixture(%{github_owner_login: "josevalim"})
+      notebook_fixture(github_owner_login: "josevalim")
       notebook_fixture()
-      notebook_fixture(%{github_repo_name: "valim-ideas", github_owner_login: "someone"})
+      notebook_fixture(github_repo_name: "valim-ideas", github_owner_login: "someone")
 
       assert Notebooks.list_notebooks(searchable: "valim", order: :asc)
              |> Enum.map(& &1.github_owner_login) == ["whatever", "josevalim", "someone"]
@@ -245,15 +250,14 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "save_notebook/1 with repo updates notebook because of url" do
-      user = user_fixture(%{username: "oneuser"})
+      user = user_fixture(username: "oneuser")
 
-      repo =
-        repo_fixture(%{name: "onerepo", default_branch: "main", full_name: "oneuser/onerepo"})
+      repo = repo_fixture(name: "onerepo", default_branch: "main", full_name: "oneuser/onerepo")
 
       commit1 = "34d6etc"
 
       notebook =
-        notebook_fixture(%{
+        notebook_fixture(
           github_html_url: github_html_url(repo.full_name, commit1),
           url: github_html_url(repo.full_name, repo.default_branch),
           repo_id: repo.id,
@@ -263,7 +267,7 @@ defmodule Notesclub.NotebooksTest do
           github_filename: "whatever.livemd",
           github_owner_avatar_url: "https://avatars.githubusercontent.com/u/13981427?v=4",
           github_repo_fork: false
-        })
+        )
 
       commit2 = "8321etc"
 
@@ -283,7 +287,7 @@ defmodule Notesclub.NotebooksTest do
 
     test "save_notebook/1 without repo updates notebook because of github_html_url" do
       html_url = github_html_url("qwqw/ewqeq", "93823etc")
-      notebook = notebook_fixture(%{github_html_url: html_url})
+      notebook = notebook_fixture(github_html_url: html_url)
 
       notebook_data = %{
         github_html_url: html_url,
@@ -323,7 +327,7 @@ defmodule Notesclub.NotebooksTest do
 
     test "increments the clap_count of the notebook by 1" do
       # Setup: Insert a notebook into the database with an initial count
-      %{id: notebook_id} = notebook_fixture(%{clap_count: 3})
+      %{id: notebook_id} = notebook_fixture(clap_count: 3)
 
       # Call the function to increase the count
       {:ok, updated_notebook} = Notebooks.increase_clap_count(notebook_id)
@@ -347,10 +351,10 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "delete_notebooks/1 deletes notebooks except the given ids" do
-      _n1 = notebook_fixture(%{github_owner_login: "one"})
-      n2 = notebook_fixture(%{github_owner_login: "one"})
-      _n3 = notebook_fixture(%{github_owner_login: "one"})
-      n4 = notebook_fixture()
+      _n1 = notebook_fixture(github_owner_login: "one")
+      n2 = notebook_fixture(github_owner_login: "one", content: nil)
+      _n3 = notebook_fixture(github_owner_login: "one")
+      n4 = notebook_fixture(content: nil)
       assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) == {2, nil}
       assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
     end
@@ -418,13 +422,13 @@ defmodule Notesclub.NotebooksTest do
       end)
       """
 
-      notebook = notebook_fixture(%{content: content})
+      notebook = notebook_fixture(content: content)
       assert Notebooks.content_fragment(notebook, "advent") == "...# advent of code 2021 🎄🤶🏽..."
       assert Notebooks.content_fragment(notebook, "task.async") == "...task.async(fn ->..."
     end
 
     test "content_fragment/2 works when content excludes search" do
-      notebook = notebook_fixture(%{content: "whatever"})
+      notebook = notebook_fixture(content: "whatever")
       assert Notebooks.content_fragment(notebook, "day23") == nil
     end
   end

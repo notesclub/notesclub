@@ -217,6 +217,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         order: :desc,
         exclude_ids: exclude_ids,
         require_content: true,
+        select_content: true,
         preload: [:user, :repo, :packages]
       )
 
@@ -230,6 +231,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         order: :desc,
         exclude_ids: exclude_ids,
         require_content: true,
+        select_content: true,
         preload: [:user, :repo, :packages]
       )
 
