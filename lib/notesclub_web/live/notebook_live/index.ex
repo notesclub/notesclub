@@ -98,6 +98,20 @@ defmodule NotesclubWeb.NotebookLive.Index do
      )}
   end
 
+  defp run_action(_params, :top, socket) do
+    notebooks = get_notebooks(socket, :top, 0, [])
+
+    {:noreply,
+     assign(socket,
+       page: 0,
+       notebooks: notebooks,
+       search: nil,
+       author: nil,
+       repo: nil,
+       package: nil
+     )}
+  end
+
   def handle_event("search", %{"value" => ""}, socket) do
     {:noreply, push_patch(socket, to: ~p"/")}
   end
@@ -127,6 +141,10 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   def handle_event("random", _, socket) do
     {:noreply, push_patch(socket, to: ~p"/random")}
+  end
+
+  def handle_event("top", _, socket) do
+    {:noreply, push_patch(socket, to: ~p"/top")}
   end
 
   def handle_event("home", _, socket) do
@@ -163,6 +181,17 @@ defmodule NotesclubWeb.NotebookLive.Index do
       per_page: @per_page,
       page: page,
       order: :random,
+      exclude_ids: exclude_ids,
+      require_content: true,
+      preload: [:user, :repo, :packages]
+    )
+  end
+
+  defp get_notebooks(_socket, :top, page, exclude_ids) do
+    Notebooks.list_notebooks(
+      per_page: @per_page,
+      page: page,
+      order: :clap_count,
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]

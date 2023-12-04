@@ -67,6 +67,9 @@ defmodule Notesclub.Notebooks do
         {:order, :random}, query ->
           order_by(query, fragment("RANDOM()"))
 
+        {:order, :clap_count}, query ->
+          order_by(query, desc: :clap_count)
+
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
           where(query, [notebook], ilike(notebook.github_filename, ^search))
