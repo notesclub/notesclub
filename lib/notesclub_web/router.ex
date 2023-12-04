@@ -77,6 +77,7 @@ defmodule NotesclubWeb.Router do
     live("/", NotebookLive.Index, :home)
     live("/search", NotebookLive.Index, :search)
     live("/random", NotebookLive.Index, :random)
+    live("/top", NotebookLive.Index, :top)
 
     if Enum.any?([:dev, :test], fn env -> Mix.env() == env end) do
       get("/dummy/raise_error", DummyErrorController, :raise_error)

@@ -22,6 +22,18 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
              |> Enum.count()
   end
 
+  test "GET /top returns notebooks", %{conn: conn} do
+    notebook_fixture(github_filename: "whatever5.livemd", likes_count: 5)
+    notebook_fixture(github_filename: "whatever15.livemd", likes_count: 15)
+    notebook_fixture(github_filename: "whatever0.livemd", likes_count: 0)
+
+    {:ok, _view, html} = live(conn, "/top")
+
+    assert html =~ "whatever15.livemd"
+    assert html =~ "whatever5.livemd"
+    assert html =~ "whatever0.livemd"
+  end
+
   test "GET / includes the date", %{conn: conn} do
     notebook = notebook_fixture()
     %NaiveDateTime{year: year, month: month, day: day} = notebook.inserted_at
