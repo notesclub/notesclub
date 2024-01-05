@@ -41,10 +41,15 @@ Replace **GITHUB_API_KEY** with a GitHub API Key.
 import Config
 
 config :notesclub, :github_api_key, "GITHUB_API_KEY"
-
 ```
 
-To download notebooks in development, create a similar `config/dev_secrets.exs`
+To use GitHub API in development, create a similar `config/dev_secrets.exs`
+
+`seeds.exs` already imports some example notebooks so you don't need to download notebooks from GitHub for most things.
+
+Yet, to download new notebooks every day, and refresh all every week:
+- Set `GITHUB_API_KEY` as explained above
+- Set the environment variable `NOTESCLUB_ARE_PERIODIC_WORKERS_ENABLED="true"`.
 
 ## Learn more
 
