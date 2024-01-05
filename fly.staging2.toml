@@ -1,6 +1,7 @@
 # fly.toml file generated for notesclub-staging2 on 2022-09-29T11:55:27+02:00
 
 app = "notesclub-staging2"
+primary_region = "fra"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
