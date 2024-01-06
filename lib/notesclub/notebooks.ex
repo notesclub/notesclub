@@ -11,6 +11,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
+  alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
@@ -615,11 +616,18 @@ defmodule Notesclub.Notebooks do
   end
 
   def delete_notebooks(%{username: username, except_ids: except_ids}) do
-    from(n in Notebook,
-      where: n.github_owner_login == ^username,
-      where: n.id not in ^except_ids
-    )
-    |> Repo.delete_all()
+    notebook_ids =
+      from(n in Notebook,
+        where: n.github_owner_login == ^username,
+        where: n.id not in ^except_ids,
+        select: n.id
+      )
+      |> Repo.all()
+
+    Repo.transaction(fn ->
+      Repo.delete_all(from(np in NotebookPackage, where: np.notebook_id in ^notebook_ids))
+      Repo.delete_all(from(n in Notebook, where: n.id in ^notebook_ids))
+    end)
   end
 
   @doc """

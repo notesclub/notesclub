@@ -355,7 +355,10 @@ defmodule Notesclub.NotebooksTest do
       n2 = notebook_fixture(github_owner_login: "one", content: nil)
       _n3 = notebook_fixture(github_owner_login: "one")
       n4 = notebook_fixture(content: nil)
-      assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) == {2, nil}
+
+      assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) ==
+               {:ok, {2, nil}}
+
       assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
     end
 
