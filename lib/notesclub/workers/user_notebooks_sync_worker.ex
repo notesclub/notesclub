@@ -69,7 +69,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
   end
 
   def delete_notebooks(username) do
-    {n, nil} = Notebooks.delete_notebooks(%{username: username, except_ids: []})
+    {:ok, {n, _}} = Notebooks.delete_notebooks(%{username: username, except_ids: []})
     {:ok, "User does NOT exist or we do not have permissions. #{n} notebooks deleted"}
   end
 
@@ -111,7 +111,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
         {:ok, "done and enqueued another page"}
 
       true ->
-        {n, nil} =
+        {:ok, {n, _}} =
           Notebooks.delete_notebooks(%{username: username, except_ids: already_saved_ids})
 
         {:ok, "done and NO more pages — #{n} old notebooks deleted"}
