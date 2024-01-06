@@ -11,7 +11,6 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
-  alias Notesclub.NotebooksPackages
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
   alias Notesclub.Repos
