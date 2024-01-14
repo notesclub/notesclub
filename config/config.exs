@@ -58,8 +58,10 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+periodic_workers_enabled = System.get_env("NOTESCLUB_ARE_PERIODIC_WORKERS_ENABLED")
+
 maybe_cron =
-  if System.get_env("NOTESCLUB_ARE_PERIODIC_WORKERS_ENABLED") == "true" do
+  if periodic_workers_enabled && periodic_workers_enabled != "false" do
     [
       {Oban.Plugins.Cron,
        crontab: [
