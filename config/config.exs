@@ -65,9 +65,8 @@ maybe_cron =
     [
       {Oban.Plugins.Cron,
        crontab: [
-         {"0 0 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}},
-         {"0 3 * * MON", Notesclub.Workers.AllUserNotebooksSyncWorker,
-          queue: :default, tags: ["mondays"]}
+         {"0 0 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
+         {"0 5 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}}
        ]}
     ]
   else
