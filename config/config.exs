@@ -76,7 +76,7 @@ maybe_cron =
 
 if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
   config :notesclub, Oban,
-    engine: Oban.Pro.Queue.SmartEngine,
+    engine: Oban.Pro.Engines.Smart,
     repo: Notesclub.Repo,
     plugins:
       maybe_cron ++
@@ -87,8 +87,6 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
              cancelled: {:max_age, {1, :month}},
              discarded: {:max_age, {1, :month}}
            ]},
-          Oban.Plugins.Gossip,
-          Oban.Web.Plugins.Stats,
           Oban.Pro.Plugins.DynamicLifeline
         ],
     queues: [

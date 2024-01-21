@@ -5,9 +5,9 @@ defmodule Notesclub.MixProject do
     [
       app: :notesclub,
       version: "0.1.0",
-      elixir: "~> 1.14.3",
+      elixir: "~> 1.16.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: Mix.compilers(),
+      compilers: [:yecc] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -41,16 +41,17 @@ defmodule Notesclub.MixProject do
 
   defp core_deps do
     [
-      {:phoenix, "~> 1.7.1"},
+      {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 3.0"},
-      {:phoenix_view, "~> 2.0"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.15"},
+      {:phoenix_html, "~> 4.0.0"},
+      {:phoenix_html_helpers, "~> 1.0"},
+      {:phoenix_view, "~> 2.0.3"},
+      {:phoenix_live_reload, "~> 1.4.1", only: :dev},
+      {:phoenix_live_view, "~> 0.20.3"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
       {:telemetry_metrics, "~> 0.6"},
@@ -61,10 +62,10 @@ defmodule Notesclub.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.3.1"},
       {:mock, "~> 0.3.7"},
-      {:appsignal, "~> 2.5.3"},
-      {:appsignal_phoenix, "~> 2.3.0"},
+      {:appsignal, "~> 2.8.0"},
+      {:appsignal_phoenix, "~> 2.3.5"},
       {:faker, "~> 0.17", only: :test},
-      {:oban, "2.13.6"},
+      {:oban, "2.17.2"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
@@ -80,8 +81,8 @@ defmodule Notesclub.MixProject do
   defp oban_pro_deps do
     if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
       [
-        {:oban_pro, "~> 0.12.9", repo: "oban"},
-        {:oban_web, "~> 2.9.6", repo: "oban"}
+        {:oban_pro, "~> 1.3.2", repo: "oban"},
+        {:oban_web, "~> 2.10.2", repo: "oban"}
       ]
     else
       []

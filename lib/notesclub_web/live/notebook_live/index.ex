@@ -1,6 +1,6 @@
 defmodule NotesclubWeb.NotebookLive.Index do
   use NotesclubWeb, :live_view
-  use Phoenix.HTML
+  use PhoenixHTMLHelpers
   import Phoenix.Component
   import Phoenix.LiveView
 
