@@ -375,7 +375,7 @@ defmodule Notesclub.Notebooks do
         {:ok, notebook}
 
       {:error, _} ->
-        Logger.warn(
+        Logger.warning(
           "create_notebook/1 created notebook id #{notebook.id} but couldn't save notebook.user_id. However, this is deprecated as we saved notebook.repo.user_id"
         )
 

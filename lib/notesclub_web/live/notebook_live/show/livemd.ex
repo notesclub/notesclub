@@ -1,6 +1,8 @@
 defmodule NotesclubWeb.NotebookLive.Show.Livemd do
   @moduledoc false
 
+  import Phoenix.HTML
+
   alias Notesclub.Notebooks.Paths
 
   @doc """
@@ -13,7 +15,7 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
     |> Earmark.as_html!()
     |> highlight_code_blocks()
     |> unescape_html()
-    |> Phoenix.HTML.raw()
+    |> raw()
   end
 
   defp highlight_code_blocks(html) do

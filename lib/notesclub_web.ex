@@ -93,7 +93,7 @@ defmodule NotesclubWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      use PhoenixHTMLHelpers
 
       # Import LiveView and .heex helpers (e.g. <.form>)
       import Phoenix.LiveView.Helpers
