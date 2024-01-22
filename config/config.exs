@@ -58,36 +58,24 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-periodic_workers_enabled = System.get_env("NOTESCLUB_ARE_PERIODIC_WORKERS_ENABLED")
-
-maybe_cron =
-  if periodic_workers_enabled && periodic_workers_enabled != "false" do
-    [
-      {Oban.Plugins.Cron,
-       crontab: [
-         {"0 0 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
-         {"0 5 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}}
-       ]}
-    ]
-  else
-    []
-  end
-
 if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
   config :notesclub, Oban,
     engine: Oban.Pro.Engines.Smart,
     repo: Notesclub.Repo,
-    plugins:
-      maybe_cron ++
-        [
-          {Oban.Pro.Plugins.DynamicPruner,
-           state_overrides: [
-             completed: {:max_age, {5, :minutes}},
-             cancelled: {:max_age, {1, :month}},
-             discarded: {:max_age, {1, :month}}
-           ]},
-          Oban.Pro.Plugins.DynamicLifeline
-        ],
+    plugins: [
+      {Oban.Plugins.Cron,
+       crontab: [
+         {"0 0 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
+         {"0 5 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}}
+       ]},
+      {Oban.Pro.Plugins.DynamicPruner,
+       state_overrides: [
+         completed: {:max_age, {5, :minutes}},
+         cancelled: {:max_age, {1, :month}},
+         discarded: {:max_age, {1, :month}}
+       ]},
+      Oban.Pro.Plugins.DynamicLifeline
+    ],
     queues: [
       default: 10,
       # Github REST API allows us to make 5000 req/h
@@ -98,7 +86,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
 else
   config :notesclub, Oban,
     repo: Notesclub.Repo,
-    plugins: maybe_cron ++ [Oban.Plugins.Pruner],
+    plugins: [Oban.Plugins.Pruner],
     queues: [
       default: 10
     ]

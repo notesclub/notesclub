@@ -47,9 +47,20 @@ To use GitHub API in development, create a similar `config/dev_secrets.exs`
 
 `seeds.exs` already imports some example notebooks so you don't need to download notebooks from GitHub for most things.
 
-Yet, to download new notebooks every day, and refresh all every week:
-- Set `GITHUB_API_KEY` as explained above
-- Set the environment variable `NOTESCLUB_ARE_PERIODIC_WORKERS_ENABLED="true"`.
+Yet, to download new notebooks you can set `GITHUB_API_KEY` as explained above and run:
+
+```elixir
+%{page: 1}
+|> Notesclub.Workers.RecentNotebooksWorker.new()
+|> Oban.insert()
+```
+
+And to reload all notebooks already present in your db:
+```elixir
+%{}
+|> Notesclub.Workers.AllUserNotebooksSyncWorker.new()
+|> Oban.insert()
+``
 
 ## Learn more
 
