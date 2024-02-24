@@ -6,10 +6,12 @@ defmodule NotesclubWeb.StatusController do
   def status(conn, _params) do
     notebook = get_latest_notebook()
 
+    msg = "The most recent notebook was created on the #{notebook.inserted_at}"
+
     if Timex.after?(notebook.inserted_at, Timex.now() |> Timex.shift(hours: -48)) do
-      text(conn, "OK")
+      text(conn, "OK: #{msg}")
     else
-      text(conn, "ERROR. The most recent notebook was created on the #{notebook.inserted_at}")
+      text(conn, "ERROR: #{msg}")
     end
   end
 end
