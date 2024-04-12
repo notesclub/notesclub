@@ -4,6 +4,8 @@ Every day we add new Livebook notebooks from Github.
 
 https://notes.club
 
+Powered y [AppSignal](https://www.appsignal.com) and [Oban Pro](https://getoban.pro)
+
 # Get involved
 
 Welcome to Notesclub!
