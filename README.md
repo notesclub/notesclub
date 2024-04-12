@@ -4,8 +4,6 @@ Every day we add new Livebook notebooks from Github.
 
 https://notes.club
 
-Powered y [AppSignal](https://www.appsignal.com) and [Oban Pro](https://getoban.pro)
-
 # Get involved
 
 Welcome to Notesclub!
@@ -62,4 +60,7 @@ And to reload all notebooks already present in your db:
 %{}
 |> Notesclub.Workers.AllUserNotebooksSyncWorker.new()
 |> Oban.insert()
-``
+```
+
+# Powered by
+Powered by [AppSignal](https://www.appsignal.com) and [Oban Pro](https://getoban.pro)
