@@ -137,6 +137,7 @@ defmodule Notesclub.GithubAPI do
         %{
           github_filename: item["name"],
           github_owner_login: owner["login"],
+          github_owner_id: owner["id"],
           github_owner_avatar_url: owner["avatar_url"],
           github_repo_name: repo["name"],
           github_repo_full_name: repo["full_name"],

@@ -444,6 +444,7 @@ defmodule Notesclub.Notebooks do
           full_name: attrs[:github_repo_full_name],
           fork: attrs[:github_repo_fork],
           user: %User{
+            github_id: attrs[:github_owner_id],
             username: attrs[:github_owner_login],
             avatar_url: attrs[:github_owner_avatar_url]
           }
