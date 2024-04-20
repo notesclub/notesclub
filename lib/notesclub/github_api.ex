@@ -86,10 +86,15 @@ defmodule Notesclub.GithubAPI do
   Arguments:
   - username can be a string or a positive integer
   """
-  @spec get_user_info(String.t()) :: {:ok, map()} | {:error, atom()}
-  def get_user_info(username) do
-    username
-    |> build_url()
+  @spec get_user_info(Integer.t() | String.t()) :: {:ok, map()} | {:error, atom()}
+  def get_user_info(github_id) when is_integer(github_id) do
+    %GithubAPI{url: "https://api.github.com/user/#{github_id}"}
+    |> make_request()
+    |> extract_user_info()
+  end
+
+  def get_user_info(username) when is_binary(username) do
+    %GithubAPI{url: "https://api.github.com/users/#{username}"}
     |> make_request()
     |> extract_user_info()
   end
@@ -103,7 +108,9 @@ defmodule Notesclub.GithubAPI do
       200 ->
         user_info = %{
           twitter_username: response.body["twitter_username"],
-          name: response.body["name"]
+          name: response.body["name"],
+          avatar_url: response.body["avatar_url"],
+          github_id: response.body["id"]
         }
 
         {:ok, user_info}
@@ -177,12 +184,6 @@ defmodule Notesclub.GithubAPI do
     %GithubAPI{
       url:
         "https://api.github.com/search/code?q=extension:livemd&per_page=#{per_page}&page=#{page}&sort=indexed&order=#{order}"
-    }
-  end
-
-  defp build_url(username) do
-    %GithubAPI{
-      url: "https://api.github.com/users/#{username}"
     }
   end
 

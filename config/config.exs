@@ -65,8 +65,9 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     plugins: [
       {Oban.Plugins.Cron,
        crontab: [
-         {"0 0 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
-         {"0 5 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}}
+         {"0 2 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
+         {"0 0 * * *", Notesclub.Workers.AllUsersSyncWorker, queue: :default},
+         {"0 7 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}}
        ]},
       {Oban.Pro.Plugins.DynamicPruner,
        state_overrides: [
@@ -78,8 +79,8 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
     ],
     queues: [
       default: 10,
-      # Github REST API allows us to make 5000 req/h
-      github_rest: [global_limit: 10, rate_limit: [allowed: 2000, period: {1, :hour}]],
+      # Github REST API allows us to make 5000 req/h = 83 req/min
+      github_rest: [global_limit: 10, rate_limit: [allowed: 80, period: {1, :minute}]],
       # Github Search API allows us to make 10 req/min = 1 req every 6 seconds
       github_search: [global_limit: 1, rate_limit: [allowed: 1, period: {10, :second}]]
     ]
