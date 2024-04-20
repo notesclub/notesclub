@@ -11,7 +11,8 @@ defmodule Notesclub.AccountsFixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        username: Faker.Internet.user_name()
+        username: Faker.Internet.user_name(),
+        github_id: :rand.uniform(1_000_000)
       })
       |> Notesclub.Accounts.create_user()
 
