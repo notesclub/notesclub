@@ -86,7 +86,7 @@ defmodule Notesclub.GithubAPI do
   Arguments:
   - username can be a string or a positive integer
   """
-  @spec get_user_info(Integer.t() | String.t()) :: {:ok, map()} | {:error, atom()}
+  @spec get_user_info(number() | binary()) :: {:ok, map()} | {:error, atom()}
   def get_user_info(github_id) when is_integer(github_id) do
     %GithubAPI{url: "https://api.github.com/user/#{github_id}"}
     |> make_request()
