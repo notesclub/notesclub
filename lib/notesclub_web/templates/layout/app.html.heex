@@ -1,5 +1,22 @@
 <main class="bg-gray-50 min-h-screen">
   <p class="alert alert-info" role="alert"><%= Phoenix.Flash.get(@flash, :info) %></p>
   <p class="alert alert-danger" role="alert"><%= Phoenix.Flash.get(@flash, :error) %></p>
-  <%= @inner_content %>
+  <section class="relative min-h-screen overflow-scroll max-h-screen">
+    <header class="pt-2 pl-4 text-gray-500 sm:text-xl md:text-2xl flex justify-between items-center">
+      <.link navigate={~p"/"} class="pl-6">Notesclub</.link>
+      <div class="text-sm pr-4">
+        created by
+        <.link navigate="https://hecperez.com" class="underline underline-offset-2" target="_blank">
+          hec
+        </.link>
+        &
+        <.link navigate="https://github.com/notesclub/notesclub/graphs/contributors" class="underline underline-offset-2" target="_blank">
+          contributors
+        </.link>
+      </div>
+    </header>
+    <div class="px-10 pt-8">
+      <%= @inner_content %>
+    </div>
+  </section>
 </main>
