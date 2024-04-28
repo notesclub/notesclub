@@ -73,6 +73,8 @@ defmodule NotesclubWeb.Router do
     pipe_through(:browser)
 
     get("/status", StatusController, :status)
+    get("/terms", PageController, :terms)
+    get("/privacy_policy", PageController, :privacy_policy)
 
     live("/", NotebookLive.Index, :home)
     live("/search", NotebookLive.Index, :search)
