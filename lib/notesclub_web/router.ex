@@ -2,6 +2,7 @@ defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
 
   import Redirect
+  import NotesclubWeb.UserAuth
 
   require Notesclub.Compile
 
@@ -12,6 +13,7 @@ defmodule NotesclubWeb.Router do
     plug(:put_root_layout, {NotesclubWeb.LayoutView, :root})
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
+    plug(:fetch_current_user)
   end
 
   pipeline :api do
@@ -69,6 +71,14 @@ defmodule NotesclubWeb.Router do
     end
   end
 
+  scope "/auth", NotesclubWeb do
+    pipe_through(:browser)
+
+    get("/signout", AuthController, :signout)
+    get("/:provider", AuthController, :request)
+    get("/:provider/callback", AuthController, :callback)
+  end
+
   scope "/", NotesclubWeb do
     pipe_through(:browser)
 
@@ -76,18 +86,20 @@ defmodule NotesclubWeb.Router do
     get("/terms", PageController, :terms)
     get("/privacy_policy", PageController, :privacy_policy)
 
-    live("/", NotebookLive.Index, :home)
-    live("/search", NotebookLive.Index, :search)
-    live("/random", NotebookLive.Index, :random)
-    live("/top", NotebookLive.Index, :top)
-
     if Enum.any?([:dev, :test], fn env -> Mix.env() == env end) do
       get("/dummy/raise_error", DummyErrorController, :raise_error)
     end
 
-    live("/hex/:package", NotebookLive.Index, :package)
-    live("/:author", NotebookLive.Index, :author)
-    live("/:author/:repo", NotebookLive.Index, :repo)
-    live("/*file", NotebookLive.Show, :show)
+    live_session(:current_user,  on_mount: [{NotesclubWeb.UserAuth, :mount_current_user}]) do
+      live("/", NotebookLive.Index, :home)
+      live("/search", NotebookLive.Index, :search)
+      live("/random", NotebookLive.Index, :random)
+      live("/top", NotebookLive.Index, :top)
+      live("/hex/:package", NotebookLive.Index, :package)
+      live("/:author", NotebookLive.Index, :author)
+      live("/:author/:repo", NotebookLive.Index, :repo)
+      live("/*file", NotebookLive.Show, :show)
+    end
+
   end
 end

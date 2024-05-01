@@ -1,6 +1,7 @@
 <section id="infiniteScroll" phx-hook="infiniteScroll" class="relative min-h-screen bg-split-gray overflow-scroll max-h-screen">
   <.live_component
     module={NotesclubWeb.NotebookLive.HeaderComponent}
+    current_user={@current_user}
     id="h"
   />
   <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
