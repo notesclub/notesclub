@@ -34,6 +34,12 @@ defmodule NotesclubWeb.AuthController do
     end
   end
 
+  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
+    conn
+    |> put_flash(:error, "Failed to authenticate.")
+    |> redirect(to: "/")
+  end
+
   def signout(conn, _params) do
     conn
     |> configure_session(drop: true)
