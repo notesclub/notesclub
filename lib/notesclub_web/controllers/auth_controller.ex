@@ -7,17 +7,25 @@ defmodule NotesclubWeb.AuthController do
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     case Accounts.get_by_github_id(auth.uid) do
       nil ->
-        {:ok, user} =
-          Accounts.create_user(%{
-            username: auth.info.nickname,
-            github_id: auth.uid,
-            name: auth.info.name,
-            avatar_url: auth.info.urls.avatar_url
-          })
+        user_params = %{
+          username: auth.info.nickname,
+          github_id: auth.uid,
+          name: auth.info.name,
+          avatar_url: auth.info.urls.avatar_url
+        }
 
-        conn
-        |> put_session(:user_id, user.id)
-        |> redirect(to: "/")
+        case Accounts.create_user(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_session(:user_id, user.id)
+            |> redirect(to: "/")
+
+          {:error, _changeset} ->
+            conn
+            |> put_session(:user_id, nil)
+            |> put_flash(:error, "There was an issue creating your account.")
+            |> redirect(to: "/")
+        end
 
       user ->
         conn
