@@ -90,7 +90,7 @@ defmodule NotesclubWeb.Router do
       get("/dummy/raise_error", DummyErrorController, :raise_error)
     end
 
-    live_session(:current_user,  on_mount: [{NotesclubWeb.UserAuth, :mount_current_user}]) do
+    live_session(:current_user, on_mount: [{NotesclubWeb.UserAuth, :mount_current_user}]) do
       live("/", NotebookLive.Index, :home)
       live("/search", NotebookLive.Index, :search)
       live("/random", NotebookLive.Index, :random)
@@ -100,6 +100,5 @@ defmodule NotesclubWeb.Router do
       live("/:author/:repo", NotebookLive.Index, :repo)
       live("/*file", NotebookLive.Show, :show)
     end
-
   end
 end

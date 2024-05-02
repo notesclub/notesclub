@@ -7,12 +7,13 @@ defmodule NotesclubWeb.AuthController do
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     case Accounts.get_by_github_id(auth.uid) do
       nil ->
-        {:ok, user} = Accounts.create_user(%{
-          username: auth.info.nickname,
-          github_id: auth.uid,
-          name: auth.info.name,
-          avatar_url: auth.info.urls.avatar_url
-        })
+        {:ok, user} =
+          Accounts.create_user(%{
+            username: auth.info.nickname,
+            github_id: auth.uid,
+            name: auth.info.name,
+            avatar_url: auth.info.urls.avatar_url
+          })
 
         conn
         |> put_session(:user_id, user.id)
