@@ -75,5 +75,10 @@ defmodule Notesclub.AccountsTest do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
     end
+
+    test "get_by_github_id/1 returns the user with given id" do
+      user = user_fixture()
+      assert Accounts.get_by_github_id(user.github_id) == user
+    end
   end
 end

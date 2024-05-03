@@ -197,6 +197,20 @@ defmodule Notesclub.Accounts do
     Repo.get_by!(User, username: username)
   end
 
+  @doc """
+  Finds a user by github_id
+  Returns `%User{}` or nil
+
+  ## Examples
+
+      iex> get_by_github_id(github_id)
+      %User{}
+
+      iex> get_by_github_id(non_existent_github_id)
+      nil
+
+  """
+  @spec get_by_github_id(binary) :: User.t() | nil
   def get_by_github_id(github_id) do
     Repo.get_by(User, github_id: github_id)
   end
