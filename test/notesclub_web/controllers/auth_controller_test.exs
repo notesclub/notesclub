@@ -1,9 +1,9 @@
 defmodule NotesclubWeb.AuthControllerTest do
   use NotesclubWeb.ConnCase
 
-  alias NotesclubWeb.AuthController
-  alias Notesclub.Accounts.User
   alias Notesclub.Accounts
+  alias Notesclub.Accounts.User
+  alias NotesclubWeb.AuthController
 
   test "callback/2 persists an error value in flash when fails", %{conn: conn} do
     auth = %Ueberauth.Failure{}
