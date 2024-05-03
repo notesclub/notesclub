@@ -4,6 +4,12 @@ defmodule NotesclubWeb.AuthController do
 
   alias Notesclub.Accounts
 
+  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
+    conn
+    |> put_flash(:error, "Failed to authenticate.")
+    |> redirect(to: "/")
+  end
+
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     case Accounts.get_by_github_id(auth.uid) do
       nil ->
@@ -32,12 +38,6 @@ defmodule NotesclubWeb.AuthController do
         |> put_session(:user_id, user.id)
         |> redirect(to: "/")
     end
-  end
-
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
-    conn
-    |> put_flash(:error, "Failed to authenticate.")
-    |> redirect(to: "/")
   end
 
   def signout(conn, _params) do
