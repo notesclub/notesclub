@@ -28,8 +28,18 @@ defmodule NotesclubWeb.AuthControllerTest do
         github_id: 123_123,
         username: "JohnDoe",
         name: "John Doe",
+        email: "johndoe@example.com",
+        location: "Brazil",
         urls: %{
           avatar_url: "https://example.com/image.jpg"
+        }
+      },
+      extra: %{
+        raw_info: %{
+          user: %{
+            bio: "elixir developer",
+            followers: 10
+          }
         }
       }
     }
