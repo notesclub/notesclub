@@ -64,7 +64,7 @@ defmodule NotesclubWeb.AuthControllerTest do
     assert [%User{}] = Accounts.list_users()
   end
 
-  defp auth_fixture() do
+  defp auth_fixture do
     %Ueberauth.Auth{
       uid: 123_123,
       provider: :github,
