@@ -17,7 +17,12 @@ defmodule NotesclubWeb.AuthController do
           username: auth.info.nickname,
           github_id: auth.uid,
           name: auth.info.name,
-          avatar_url: auth.info.urls.avatar_url
+          avatar_url: auth.info.urls.avatar_url,
+          bio: auth.extra.raw_info.user["bio"],
+          email: auth.info.email,
+          location: auth.info.location,
+          followers_count: auth.extra.raw_info.user["followers"],
+          last_login_at: DateTime.utc_now()
         }
 
         case Accounts.create_user(user_params) do
@@ -34,6 +39,8 @@ defmodule NotesclubWeb.AuthController do
         end
 
       user ->
+        Accounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+
         conn
         |> put_session(:user_id, user.id)
         |> redirect(to: "/")
