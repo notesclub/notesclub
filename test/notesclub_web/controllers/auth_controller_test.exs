@@ -20,29 +20,7 @@ defmodule NotesclubWeb.AuthControllerTest do
 
   test "callback/2 creates a new user and assigns their ID to the session when one does not exist",
        %{conn: conn} do
-    auth = %Ueberauth.Auth{
-      uid: 123_123,
-      provider: :github,
-      info: %{
-        nickname: "John The Doe",
-        github_id: 123_123,
-        username: "JohnDoe",
-        name: "John Doe",
-        email: "johndoe@example.com",
-        location: "Brazil",
-        urls: %{
-          avatar_url: "https://example.com/image.jpg"
-        }
-      },
-      extra: %{
-        raw_info: %{
-          user: %{
-            bio: "elixir developer",
-            followers: 10
-          }
-        }
-      }
-    }
+    auth = auth_fixture()
 
     assert [] = Accounts.list_users()
 
@@ -71,10 +49,7 @@ defmodule NotesclubWeb.AuthControllerTest do
 
     Accounts.create_user(params)
 
-    auth = %Ueberauth.Auth{
-      uid: 123_123,
-      provider: :github
-    }
+    auth = auth_fixture()
 
     conn =
       conn
@@ -87,5 +62,31 @@ defmodule NotesclubWeb.AuthControllerTest do
 
     assert %User{id: ^id} = Accounts.get_user(id)
     assert [%User{}] = Accounts.list_users()
+  end
+
+  defp auth_fixture() do
+    %Ueberauth.Auth{
+      uid: 123_123,
+      provider: :github,
+      info: %{
+        nickname: "John The Doe",
+        github_id: 123_123,
+        username: "JohnDoe",
+        name: "John Doe",
+        email: "johndoe@example.com",
+        location: "Brazil",
+        urls: %{
+          avatar_url: "https://example.com/image.jpg"
+        }
+      },
+      extra: %{
+        raw_info: %{
+          user: %{
+            bio: "elixir developer",
+            followers: 10
+          }
+        }
+      }
+    }
   end
 end
