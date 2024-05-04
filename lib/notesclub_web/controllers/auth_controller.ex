@@ -51,6 +51,7 @@ defmodule NotesclubWeb.AuthController do
       email: auth.info.email,
       location: auth.info.location,
       followers_count: auth.extra.raw_info.user["followers"],
+      twitter_username: auth.extra.raw_info.user["twitter_username"],
       last_login_at: DateTime.utc_now()
     }
   end
