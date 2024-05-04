@@ -17,13 +17,13 @@
 
       <%= if @current_user do %>
         <div class="text-xs md:text-sm pr-4">
-          <%= "Welcome back #{@current_user.name}!"%> 
+          <%= "Welcome back #{@current_user.name}!"%>
           <.link navigate={~p"/auth/signout"} class="underline underline-offset-2" >Log out</.link>
         </div>
         <% else %>
-          <div class="flex flex-col w-44 mr-4">      
+          <div class="flex flex-col w-44 mr-4">
             <.link
-              navigate={~p"/auth/github"}        
+              navigate={~p"/auth/github"}
               class="inline-flex items-center min-h-30 bg-gray-800 text-white text-sm no-underline rounded-md"
             >
               <div style="margin: 1px; padding-top:5px; min-height:30px;">
@@ -43,7 +43,7 @@
               <div style="margin-left: 5px;">Sign in with GitHub</div>
             </.link>
             <div></div>
-          </div>  
+          </div>
         <% end %>
     </div>
     <div class="flex flex-row-reverse">
@@ -57,7 +57,7 @@
           contributors
         </.link>
 
-        <div class="text-sm text-right">
+        <div class="text-xs md:text-sm text-right">
           <.link navigate={~p"/terms"} class="underline underline-offset-2">terms</.link>
           <.link navigate={~p"/privacy_policy"} class="pl-1 underline underline-offset-2">privacy</.link>
         </div>
