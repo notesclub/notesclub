@@ -6,6 +6,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.ClapServer
   alias Notesclub.Notebooks.Paths
+  alias NotesclubWeb.NotebookLive.ShareComponent
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
@@ -16,8 +17,15 @@ defmodule NotesclubWeb.NotebookLive.Show do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
+    username = get_username(notebook.user)
+    share_to_x_text = "notebook title by @#{username} #{uri} #myelixirstatus"
 
-    {:noreply, assign(socket, notebook: notebook, clap_count: notebook.clap_count)}
+    {:noreply, assign(
+      socket,
+      notebook: notebook,
+      clap_count: notebook.clap_count,
+      share_to_x_text: share_to_x_text)
+    }
   end
 
   def handle_event("clap", params, socket) do
@@ -40,6 +48,13 @@ defmodule NotesclubWeb.NotebookLive.Show do
       notebook.github_filename
     else
       file_with_path
+    end
+  end
+
+  defp get_username(user) do
+    case user.twitter_username do
+      nil -> user.username
+      _ -> user.twitter_username
     end
   end
 end
