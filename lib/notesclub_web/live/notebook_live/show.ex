@@ -18,7 +18,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
     username = get_username(notebook.user)
-    share_to_x_text = "notebook title by @#{username} #{uri} #myelixirstatus"
+    share_to_x_text = "#{notebook.title} by #{name_or_username} #{uri} #myelixirstatus"
 
     {:noreply, assign(
       socket,
