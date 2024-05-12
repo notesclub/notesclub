@@ -12,7 +12,7 @@ defmodule NotesclubWeb.NotebookLive.ShareComponent do
   def share_to_x(assigns) do
     ~H"""
     <.link href={"https://twitter.com/intent/tweet?text=#{@share_to_x_text}"} target="blank_">
-      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
+      <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 512 512">
         <circle cx="256" cy="256" r="256" fill="currentColor"></circle>
         <g transform="scale(0.5) translate(256 256)">
           <path
