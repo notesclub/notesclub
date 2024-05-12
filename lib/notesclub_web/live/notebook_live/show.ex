@@ -18,12 +18,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
 
-    name_or_username =
-      if notebook.user.twitter_username,
-        do: "@#{notebook.user.twitter_username}",
-        else: notebook.user.name || notebook.user.username
-
-    share_to_x_text = "#{notebook.title} by #{name_or_username} #{uri} #myelixirstatus"
+    share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
 
     {:noreply,
      assign(
@@ -33,6 +28,11 @@ defmodule NotesclubWeb.NotebookLive.Show do
        share_to_x_text: share_to_x_text
      )}
   end
+
+  defp name_or_username(nil), do: ""
+  defp name_or_username(%{twitter_username: nil, name: nil} = user), do: " by #{user.username}"
+  defp name_or_username(%{twitter_username: nil} = user), do: " by #{user.name}"
+  defp name_or_username(%{twitter_username: twitter_username}), do: " by @#{twitter_username}"
 
   def handle_event("clap", params, socket) do
     notebook_id = params["notebook_id"] || params["notebook-id"]
