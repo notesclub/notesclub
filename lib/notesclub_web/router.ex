@@ -72,8 +72,10 @@ defmodule NotesclubWeb.Router do
   end
 
   scope "/auth", NotesclubWeb do
-    pipe_through(:browser)
+    pipe_through([:browser])
 
+    get("/bot", AuthController, :botsignin)
+    get("/bot/callback", AuthController, :botcallback)
     get("/signout", AuthController, :signout)
     get("/:provider", AuthController, :request)
     get("/:provider/callback", AuthController, :callback)

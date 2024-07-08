@@ -3,6 +3,7 @@ defmodule NotesclubWeb.AuthController do
   plug Ueberauth
 
   alias Notesclub.Accounts
+  alias Notesclub.XAPI
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
@@ -39,6 +40,16 @@ defmodule NotesclubWeb.AuthController do
     conn
     |> configure_session(drop: true)
     |> redirect(to: "/")
+  end
+
+  def botsignin(conn, _params) do
+    redirect(conn, external: XAPI.get_authorize_url())
+  end
+
+  def botcallback(conn, %{"code" => auth_code}) do
+    XAPI.authenticate_and_post(auth_code, "Hello World")
+
+    redirect(conn, to: "/")
   end
 
   defp to_user_params(auth) do
