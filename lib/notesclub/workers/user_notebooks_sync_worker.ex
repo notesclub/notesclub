@@ -74,15 +74,21 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorker do
   end
 
   defp save_notebooks_and_enqueue_content_sync(notebooks_data) do
-    Enum.map(notebooks_data, fn notebook_data ->
-      {:ok, notebook} = Notebooks.save_notebook(notebook_data)
+    notebooks_data
+    |> Enum.map(fn notebook_data ->
+      case Notebooks.save_notebook(notebook_data) do
+        {:ok, notebook} ->
+          %{notebook_id: notebook.id}
+          |> UrlContentSyncWorker.new()
+          |> Oban.insert()
 
-      %{notebook_id: notebook.id}
-      |> UrlContentSyncWorker.new()
-      |> Oban.insert()
+          notebook.id
 
-      notebook.id
+        _ ->
+          nil
+      end
     end)
+    |> Enum.filter(& &1)
   end
 
   def enqueue_next_and_delete_old_if_required(%{

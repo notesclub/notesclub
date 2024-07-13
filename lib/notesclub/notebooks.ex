@@ -478,7 +478,8 @@ defmodule Notesclub.Notebooks do
   iex> save_notebook(%{field: bad_value})
   {:error, %Ecto.Changeset{}}
   """
-  @spec save_notebook(map) :: {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
+  @spec save_notebook(map) ::
+          {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()} | :fork_deleted | :fork_skipped
   def save_notebook(attrs) do
     attrs = attrs |> put_repo_id() |> put_url()
 
@@ -490,10 +491,22 @@ defmodule Notesclub.Notebooks do
         username: attrs[:github_owner_login]
       )
 
-    if notebook do
-      update_notebook(notebook, attrs)
-    else
-      create_notebook(attrs)
+    full_name = "#{attrs[:github_owner_login]}/#{attrs[:github_repo_name]}"
+    is_fork = !!Repos.get_by(%{full_name: full_name, fork: true})
+
+    cond do
+      notebook && is_fork ->
+        delete_notebook(notebook)
+        :fork_deleted
+
+      notebook ->
+        update_notebook(notebook, attrs)
+
+      is_fork ->
+        :fork_skipped
+
+      true ->
+        create_notebook(attrs)
     end
   end
 
