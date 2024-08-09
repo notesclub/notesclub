@@ -98,7 +98,7 @@ defmodule NotesclubWeb.SitemapController do
     """
   end
 
-  def ensure_ets_table_exists() do
+  def ensure_ets_table_exists do
     case :ets.whereis(:sitemap) do
       :undefined ->
         :ets.new(:sitemap, [:set, :protected])
