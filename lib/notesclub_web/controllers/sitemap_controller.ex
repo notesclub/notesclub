@@ -73,12 +73,8 @@ defmodule NotesclubWeb.SitemapController do
         <priority>1</priority>
       </url>
       <url>
-        <loc>https://notes.club/top</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.9</priority>
-      </url>
-      <url>
         <loc>https://notes.club/random</loc>
+        <lastmod>#{date}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
       </url>
@@ -127,10 +123,10 @@ defmodule NotesclubWeb.SitemapController do
 
     """
     <url>
-      <loc>"https://notes.club/hex/#{package_name}"</loc>
+      <loc>https://notes.club/hex/#{package_name}</loc>
       <lastmod>#{last_mod}</lastmod>
       <changefreq>monthly</changefreq>
-      <priority>0.7</priority>
+      <priority>0.8</priority>
     </url>
     """
   end
