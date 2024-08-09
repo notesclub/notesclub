@@ -61,7 +61,7 @@ defmodule NotesclubWeb.SitemapController do
 
   defp generate_sitemap("packages") do
     date = Calendar.strftime(get_latest_notebook().inserted_at, "%Y-%m-%d")
-    package_names = Packages.list_package_names()
+    packages = Packages.list_packages_with_last_notebook_url()
 
     """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -82,7 +82,7 @@ defmodule NotesclubWeb.SitemapController do
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
       </url>
-      #{Enum.map(package_names, &package_url/1)}
+      #{Enum.map_join(packages, "\n", &package_url/1)}
     </urlset>
     """
   end
@@ -93,7 +93,7 @@ defmodule NotesclubWeb.SitemapController do
     """
     <?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      #{Enum.map(clapped_notebooks, &notebook_url/1)}
+      #{Enum.map_join(clapped_notebooks, "\n", &notebook_url/1)}
     </urlset>
     """
   end
@@ -122,10 +122,13 @@ defmodule NotesclubWeb.SitemapController do
     """
   end
 
-  defp package_url(name) do
+  defp package_url({package_name, notebook_inserted_at}) do
+    last_mod = Calendar.strftime(notebook_inserted_at, "%Y-%m-%d")
+
     """
     <url>
-      <loc>"https://notes.club/hex/#{name}"</loc>
+      <loc>"https://notes.club/hex/#{package_name}"</loc>
+      <lastmod>#{last_mod}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
     </url>

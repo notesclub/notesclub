@@ -4,9 +4,10 @@ defmodule Notesclub.Packages do
   """
 
   import Ecto.Query, warn: false
-  alias Notesclub.Repo
 
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Packages.Package
+  alias Notesclub.Repo
 
   @doc """
   Returns the list of packages.
@@ -155,5 +156,28 @@ defmodule Notesclub.Packages do
   """
   def change_package(%Package{} = package, attrs \\ %{}) do
     Package.changeset(package, attrs)
+  end
+
+  def list_packages_with_last_notebook_url do
+    last_notebook_query =
+      from(np in "notebooks_packages",
+        join: n in Notebook,
+        on: n.id == np.notebook_id,
+        order_by: [desc: n.id],
+        distinct: np.package_id,
+        select: %{
+          notebook_id: n.id,
+          package_id: np.package_id,
+          notebook_inserted_at: n.inserted_at
+        }
+      )
+
+    from(p in Package,
+      inner_join: ln in subquery(last_notebook_query),
+      on: ln.package_id == p.id,
+      select: {p.name, ln.notebook_inserted_at},
+      order_by: [desc: ln.notebook_id]
+    )
+    |> Repo.all()
   end
 end
