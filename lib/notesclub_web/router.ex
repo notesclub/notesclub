@@ -83,6 +83,8 @@ defmodule NotesclubWeb.Router do
     pipe_through(:browser)
 
     get("/status", StatusController, :status)
+    get("/packages_sitemap.xml", SitemapController, :packages_sitemap)
+    get("/clapped_notebooks_sitemap.xml", SitemapController, :clapped_notebooks_sitemap)
     get("/terms", PageController, :terms)
     get("/privacy_policy", PageController, :privacy_policy)
 

@@ -56,6 +56,9 @@ defmodule Notesclub.Notebooks do
       opts,
       base_query,
       fn
+        {:claps_gte, claps}, query ->
+          where(query, [notebook], notebook.clap_count >= ^claps)
+
         {:require_content, true}, query ->
           where(query, [notebook], not is_nil(notebook.content))
 
