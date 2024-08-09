@@ -1,3 +1,6 @@
 #Yandex
 User-agent: Yandex
 Disallow: /
+
+Sitemap: https://notes.club/sitemap.xml
+Sitemap: https://notes.club/clapped_notebooks_sitemap.xml

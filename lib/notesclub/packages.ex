@@ -21,6 +21,10 @@ defmodule Notesclub.Packages do
     Repo.all(Package)
   end
 
+  def list_package_names do
+    Repo.all(from p in Package, select: p.name)
+  end
+
   @doc """
   Gets a single package.
 
