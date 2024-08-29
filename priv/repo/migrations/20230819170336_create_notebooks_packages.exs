@@ -3,8 +3,8 @@ defmodule Notesclub.Repo.Migrations.CreateNotebooksPackages do
 
   def change do
     create table(:notebooks_packages) do
-      add(:package_id, references(:packages, delete_all: :nothing), null: false)
-      add(:notebook_id, references(:notebooks, delete_all: :nothing), null: false)
+      add(:package_id, references(:packages, on_delete: :nothing), null: false)
+      add(:notebook_id, references(:notebooks, on_delete: :nothing), null: false)
     end
 
     create(index(:notebooks_packages, [:package_id]))
