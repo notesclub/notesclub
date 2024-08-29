@@ -65,7 +65,7 @@ defmodule Notesclub.MixProject do
       {:appsignal, "~> 2.8.0"},
       {:appsignal_phoenix, "~> 2.3.5"},
       {:faker, "~> 0.17", only: :test},
-      {:oban, "2.17.2"},
+      {:oban, "2.18.2"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
@@ -83,8 +83,8 @@ defmodule Notesclub.MixProject do
   defp oban_pro_deps do
     if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
       [
-        {:oban_pro, "~> 1.3.2", repo: "oban"},
-        {:oban_web, "~> 2.10.2", repo: "oban"}
+        {:oban_pro, "~> 1.4.12", repo: "oban"},
+        {:oban_web, "~> 2.10.5", repo: "oban"}
       ]
     else
       []
