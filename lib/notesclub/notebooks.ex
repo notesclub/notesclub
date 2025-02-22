@@ -10,6 +10,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Accounts.User
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
@@ -475,7 +476,7 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-  iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
+  iex> save_notebook(%{github_html_url: "https://github.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
   {:ok, %Notebook{}}
 
   iex> save_notebook(%{field: bad_value})
@@ -717,5 +718,20 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
+  end
+
+  def toggle_favorite(%Notebook{} = notebook, %User{} = user) do
+    case Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) do
+      nil ->
+        %NotebookUser{}
+        |> NotebookUser.changeset(%{notebook_id: notebook.id, user_id: user.id})
+        |> Repo.insert()
+      notebook_user ->
+        Repo.delete(notebook_user)
+    end
+  end
+
+  def favorite?(%Notebook{} = notebook, %User{} = user) do
+    Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) != nil
   end
 end

@@ -17,6 +17,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
+    is_favorite = if socket.assigns.current_user, do: Notebooks.favorite?(notebook, socket.assigns.current_user), else: false
 
     share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
 
@@ -25,7 +26,8 @@ defmodule NotesclubWeb.NotebookLive.Show do
        socket,
        notebook: notebook,
        clap_count: notebook.clap_count,
-       share_to_x_text: share_to_x_text
+       share_to_x_text: share_to_x_text,
+       is_favorite: is_favorite
      )}
   end
 
@@ -44,6 +46,17 @@ defmodule NotesclubWeb.NotebookLive.Show do
       |> ClapServer.increase_count()
 
     {:noreply, assign(socket, clap_count: clap_count + 1)}
+  end
+
+  def handle_event("toggle-favorite", _params, %{assigns: %{current_user: nil}} = socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "You need to log in to save favorites")}
+  end
+
+  def handle_event("toggle-favorite", _params, %{assigns: %{notebook: notebook, current_user: current_user}} = socket) do
+    Notebooks.toggle_favorite(notebook, current_user)
+    {:noreply, assign(socket, :is_favorite, Notebooks.favorite?(notebook, current_user))}
   end
 
   defp file(notebook) do
