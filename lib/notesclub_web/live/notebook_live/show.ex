@@ -20,7 +20,9 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
     share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
 
-    related_notebooks = Notebooks.get_related_by_packages(notebook, limit: 5)
+    related_notebooks = Notebooks.get_related_by_packages(notebook, limit: 4)
+    ids = Enum.map(related_notebooks, & &1.id)
+    related_notebooks = related_notebooks ++ Notebooks.get_random_notebooks(exclude_ids: ids, limit: 4)
 
     {:noreply,
      assign(

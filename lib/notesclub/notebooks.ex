@@ -744,4 +744,18 @@ defmodule Notesclub.Notebooks do
     )
     |> Repo.all()
   end
+
+  def get_random_notebooks(opts \\ []) do
+    limit = opts[:limit] || 3
+    exclude_ids = opts[:exclude_ids] || []
+
+    Notebooks.list_notebooks(
+      per_page: limit,
+      page: 1,
+      order: :random,
+      exclude_ids: exclude_ids,
+      require_content: true,
+      preload: [:user, :repo, :packages]
+    )
+  end
 end
