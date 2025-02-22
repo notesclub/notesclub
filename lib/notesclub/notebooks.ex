@@ -723,8 +723,10 @@ defmodule Notesclub.Notebooks do
   Returns a list of notebooks that share at least one package with the given notebook.
   The notebooks are ordered randomly and limited by the given limit.
   """
-  def get_related_by_packages(%Notebook{id: notebook_id} = notebook, opts \\ []) do
+  def get_related_by_packages(%Notebook{id: notebook_id}, opts \\ []) do
     limit = opts[:limit] || 5
+    preload = opts[:preload] || []
+    preload = [:packages | preload]
 
     from(n in Notebook,
       join: np in NotebookPackage,
@@ -737,7 +739,7 @@ defmodule Notesclub.Notebooks do
           select: np.package_id
         )
       ),
-      preload: [:packages],
+      preload: ^preload,
       distinct: n.id,
       order_by: fragment("RANDOM()"),
       limit: ^limit
@@ -751,6 +753,8 @@ defmodule Notesclub.Notebooks do
   def get_random_notebooks(opts \\ []) do
     limit = opts[:limit] || 3
     exclude_ids = opts[:exclude_ids] || []
+    preload = opts[:preload] || []
+    preload = [:packages | preload]
 
     from(n in Notebook,
       join: np in NotebookPackage,
@@ -760,7 +764,7 @@ defmodule Notesclub.Notebooks do
       having: count(np.package_id) >= 3,
       order_by: fragment("RANDOM()"),
       limit: ^limit,
-      preload: [:user, :repo, :packages]
+      preload: ^preload
     )
     |> Repo.all()
   end

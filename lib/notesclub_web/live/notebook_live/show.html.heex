@@ -47,21 +47,21 @@
     </div>
 
     <%= if length(@related_notebooks) > 0 do %>
-      <div class="mt-8 pl-4 pb-4">
+      <div class="mt-24 pl-4 pb-4">
         <h3 class="text-lg font-semibold mb-4">Other notebooks:</h3>
         <div class="space-y-4">
-          <%= for notebook <- @related_notebooks do %>
-            <div class="flex items-center">
-              <.link navigate={Paths.url_to_path(notebook.url || notebook.github_html_url)} class="text-blue-600 hover:text-blue-800">
-                <%= notebook.title %>
-              </.link>
-              <div class="ml-2 text-sm text-gray-500">
-                <%= for package <- notebook.packages do %>
-                  <span class="rounded-full bg-green-50 px-2 py-0.5 text-green-700 text-xs"><%= package.name %></span>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
+          <div class="overflow-hidden bg-white shadow">
+            <ul role="list" class="divide-y divide-gray-200">
+              <%= for notebook <- @related_notebooks do %>
+                <.live_component
+                  module={NotesclubWeb.NotebookLive.Index.NotebookComponent}
+                  notebook={notebook}
+                  search={@search}
+                  id={notebook.id}
+                />
+              <% end %>
+            </ul>
+          </div>
         </div>
       </div>
     <% end %>
