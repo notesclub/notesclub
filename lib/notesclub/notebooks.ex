@@ -733,12 +733,13 @@ defmodule Notesclub.Notebooks do
       on: np.notebook_id == n.id,
       join: p in assoc(np, :package),
       where: n.id != ^notebook_id,
-      where: p.id in subquery(
-        from(np in NotebookPackage,
-          where: np.notebook_id == ^notebook_id,
-          select: np.package_id
-        )
-      ),
+      where:
+        p.id in subquery(
+          from(np in NotebookPackage,
+            where: np.notebook_id == ^notebook_id,
+            select: np.package_id
+          )
+        ),
       preload: ^preload,
       distinct: n.id,
       order_by: fragment("RANDOM()"),
