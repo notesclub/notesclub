@@ -475,7 +475,7 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-  iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
+  iex> save_notebook(%{github_html_url: "https://github.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
   {:ok, %Notebook{}}
 
   iex> save_notebook(%{field: bad_value})
@@ -717,5 +717,31 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
+  end
+
+  @doc """
+  Returns a list of notebooks that share at least one package with the given notebook.
+  The notebooks are ordered randomly and limited by the given limit.
+  """
+  def get_related_by_packages(%Notebook{id: notebook_id} = notebook, opts \\ []) do
+    limit = opts[:limit] || 5
+
+    from(n in Notebook,
+      join: np in NotebookPackage,
+      on: np.notebook_id == n.id,
+      join: p in assoc(np, :package),
+      where: n.id != ^notebook_id,
+      where: p.id in subquery(
+        from(np in NotebookPackage,
+          where: np.notebook_id == ^notebook_id,
+          select: np.package_id
+        )
+      ),
+      preload: [:packages],
+      distinct: n.id,
+      order_by: fragment("RANDOM()"),
+      limit: ^limit
+    )
+    |> Repo.all()
   end
 end

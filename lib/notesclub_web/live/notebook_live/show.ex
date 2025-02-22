@@ -20,12 +20,15 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
     share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
 
+    related_notebooks = Notebooks.get_related_by_packages(notebook, limit: 5)
+
     {:noreply,
      assign(
        socket,
        notebook: notebook,
        clap_count: notebook.clap_count,
-       share_to_x_text: share_to_x_text
+       share_to_x_text: share_to_x_text,
+       related_notebooks: related_notebooks
      )}
   end
 
