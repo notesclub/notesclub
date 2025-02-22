@@ -475,7 +475,7 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-  iex> save_notebook(%{github_html_url: "https://github.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
+  iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
   {:ok, %Notebook{}}
 
   iex> save_notebook(%{field: bad_value})
