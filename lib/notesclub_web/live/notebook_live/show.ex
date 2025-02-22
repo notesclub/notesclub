@@ -22,7 +22,8 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
     related_notebooks = Notebooks.get_related_by_packages(notebook, limit: 4)
     ids = Enum.map(related_notebooks, & &1.id)
-    related_notebooks = related_notebooks ++ Notebooks.get_random_notebooks(exclude_ids: ids, limit: 4)
+    num_random_notebooks = 7 - length(related_notebooks)
+    related_notebooks = related_notebooks ++ Notebooks.get_random_notebooks(exclude_ids: ids, limit: num_random_notebooks)
 
     {:noreply,
      assign(

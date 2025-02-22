@@ -745,17 +745,23 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
+  @doc """
+  Returns a list of random notebooks that have at least 3 packages.
+  """
   def get_random_notebooks(opts \\ []) do
     limit = opts[:limit] || 3
     exclude_ids = opts[:exclude_ids] || []
 
-    Notebooks.list_notebooks(
-      per_page: limit,
-      page: 1,
-      order: :random,
-      exclude_ids: exclude_ids,
-      require_content: true,
+    from(n in Notebook,
+      join: np in NotebookPackage,
+      on: np.notebook_id == n.id,
+      where: n.id not in ^exclude_ids,
+      group_by: n.id,
+      having: count(np.package_id) >= 3,
+      order_by: fragment("RANDOM()"),
+      limit: ^limit,
       preload: [:user, :repo, :packages]
     )
+    |> Repo.all()
   end
 end
