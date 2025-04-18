@@ -10,6 +10,10 @@ defmodule NotesclubWeb.NotebookLive.Index.CloseFilterComponent do
     "#{package} (hex package)"
   end
 
+  def filter_type(%{action: :starred, author: author}) do
+    "Stars by @#{author}"
+  end
+
   def filter_type(%{author: author, repo: nil}) do
     "@#{author}"
   end

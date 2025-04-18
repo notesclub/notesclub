@@ -99,6 +99,7 @@ defmodule NotesclubWeb.Router do
       live("/top", NotebookLive.Index, :top)
       live("/hex/:package", NotebookLive.Index, :package)
       live("/:author", NotebookLive.Index, :author)
+      live("/:username/stars", NotebookLive.Index, :stars)
       live("/:author/:repo", NotebookLive.Index, :repo)
       live("/*file", NotebookLive.Show, :show)
     end
