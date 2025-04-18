@@ -732,7 +732,7 @@ defmodule Notesclub.Notebooks do
     end
   end
 
-  def is_starred?(%Notebook{} = notebook, %User{} = user) do
+  def starred?(%Notebook{} = notebook, %User{} = user) do
     Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) != nil
   end
 

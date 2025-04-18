@@ -18,9 +18,9 @@ defmodule NotesclubWeb.NotebookLive.Show do
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
 
-    is_starred =
+    starred =
       if socket.assigns.current_user,
-        do: Notebooks.is_starred?(notebook, socket.assigns.current_user),
+        do: Notebooks.starred?(notebook, socket.assigns.current_user),
         else: false
 
     share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
@@ -47,7 +47,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
        share_to_x_text: share_to_x_text,
        related_notebooks: related_notebooks,
        search: nil,
-       is_starred: is_starred
+       starred: starred
      )}
   end
 
@@ -80,7 +80,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
         %{assigns: %{notebook: notebook, current_user: current_user}} = socket
       ) do
     Notebooks.toggle_star(notebook, current_user)
-    {:noreply, assign(socket, :is_starred, Notebooks.is_starred?(notebook, current_user))}
+    {:noreply, assign(socket, :starred, Notebooks.starred?(notebook, current_user))}
   end
 
   defp file(notebook) do

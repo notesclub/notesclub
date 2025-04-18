@@ -1,4 +1,7 @@
 defmodule Notesclub.Notebooks.NotebookUser do
+  @moduledoc """
+  Represents the join table between notebooks and users for starring.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
