@@ -782,4 +782,55 @@ defmodule Notesclub.Notebooks do
     |> paginate(page, per_page)
     |> Repo.all()
   end
+
+  @doc """
+  Returns a list of notebooks that share at least one package with the given notebook.
+  The notebooks are ordered randomly and limited by the given limit.
+  """
+  def get_related_by_packages(%Notebook{id: notebook_id}, opts \\ []) do
+    limit = opts[:limit] || 5
+    preload = opts[:preload] || []
+    preload = [:packages | preload]
+
+    from(n in Notebook,
+      join: np in NotebookPackage,
+      on: np.notebook_id == n.id,
+      join: p in assoc(np, :package),
+      where: n.id != ^notebook_id,
+      where:
+        p.id in subquery(
+          from(np in NotebookPackage,
+            where: np.notebook_id == ^notebook_id,
+            select: np.package_id
+          )
+        ),
+      preload: ^preload,
+      distinct: n.id,
+      order_by: fragment("RANDOM()"),
+      limit: ^limit
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns a list of random notebooks that have at least 3 packages.
+  """
+  def get_random_notebooks(opts \\ []) do
+    limit = opts[:limit] || 3
+    exclude_ids = opts[:exclude_ids] || []
+    preload = opts[:preload] || []
+    preload = [:packages | preload]
+
+    from(n in Notebook,
+      join: np in NotebookPackage,
+      on: np.notebook_id == n.id,
+      where: n.id not in ^exclude_ids,
+      group_by: n.id,
+      having: count(np.package_id) >= 3,
+      order_by: fragment("RANDOM()"),
+      limit: ^limit,
+      preload: ^preload
+    )
+    |> Repo.all()
+  end
 end
