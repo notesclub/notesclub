@@ -764,15 +764,22 @@ defmodule Notesclub.Notebooks do
           where(query, [n], not is_nil(n.content))
 
         # Note: pagination options are handled outside the reduce
-        {:page, _}, query -> query
-        {:per_page, _}, query -> query
-        {:preload, _}, query -> query
+        {:page, _}, query ->
+          query
+
+        {:per_page, _}, query ->
+          query
+
+        {:preload, _}, query ->
+          query
 
         # Ignore other options for now or add specific handlers if needed
-        _, query -> query
+        _, query ->
+          query
       end
     )
-    |> paginate(page, per_page) # Apply pagination after filtering
+    # Apply pagination after filtering
+    |> paginate(page, per_page)
     |> Repo.all()
   end
 end

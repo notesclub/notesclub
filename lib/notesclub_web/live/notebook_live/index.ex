@@ -44,7 +44,17 @@ defmodule NotesclubWeb.NotebookLive.Index do
     user = Accounts.get_by_username!(username)
     socket = assign(socket, user: user)
     notebooks = get_notebooks(socket, :starred, 0, [])
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :starred, author: username, repo: nil, package: nil)}
+
+    {:noreply,
+     assign(socket,
+       page: 0,
+       search: nil,
+       notebooks: notebooks,
+       action: :starred,
+       author: username,
+       repo: nil,
+       package: nil
+     )}
   end
 
   defp run_action(%{"q" => search}, :search, socket) do
