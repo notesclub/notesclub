@@ -75,6 +75,7 @@ defmodule Notesclub.MixProject do
       {:makeup, "~> 1.0"},
       {:makeup_elixir, "0.15.2"},
       {:html_sanitize_ex, "~> 1.4"},
+      {:html_entities, "~> 0.5"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.8"}
     ]
