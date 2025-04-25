@@ -2,26 +2,36 @@ import mermaid from "mermaid";
 
 export default {
   mounted() {
-    renderMermaidDiagrams();
-  }
-}
+    this.renderMermaidDiagrams();
+  },
+  updated() {
+    this.renderMermaidDiagrams();
+  },
+  renderMermaidDiagrams() {
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'default'
+    });
 
-const renderMermaidDiagrams = () => {
-  mermaid.initialize({ startOnLoad: false });
-  let id = 0;
-  // After every iteration of the loop we need to call getElementsByClassName again
-  // because the previous iteration changed the DOM
-  let codeEl;
-  while (codeEl = document.getElementsByClassName("mermaid")[0]) {
-    const preEl = codeEl.parentElement;
-    const graphDefinition = codeEl.textContent;
-    const graphEl = document.createElement("div");
-    const graphId = "mermaid-graph-" + id++;
-    mermaid.render(graphId, graphDefinition, function (svgSource, bindListeners) {
-      graphEl.innerHTML = svgSource;
-      bindListeners && bindListeners(graphEl);
-      preEl.insertAdjacentElement("afterend", graphEl);
-      preEl.remove();
+    const mermaidElements = this.el.getElementsByClassName("mermaid");
+    Array.from(mermaidElements).forEach((element) => {
+      try {
+        const graphDefinition = element.textContent.trim();
+        const graphId = element.id || `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+
+        mermaid.render(graphId, graphDefinition)
+          .then(({ svg }) => {
+            element.innerHTML = svg;
+          })
+          .catch((error) => {
+            console.error('Mermaid rendering error:', error);
+            element.innerHTML = `<div class="error">Error rendering Mermaid diagram: ${error.message}</div>`;
+          });
+      } catch (error) {
+        console.error('Mermaid initialization error:', error);
+        element.innerHTML = `<div class="error">Error initializing Mermaid diagram: ${error.message}</div>`;
+      }
     });
   }
 }
