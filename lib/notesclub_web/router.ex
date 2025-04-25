@@ -3,6 +3,7 @@ defmodule NotesclubWeb.Router do
 
   import Redirect
   import NotesclubWeb.UserAuth
+  alias NotesclubWeb.Plugs.AssetInterceptor
 
   require Notesclub.Compile
 
@@ -14,6 +15,8 @@ defmodule NotesclubWeb.Router do
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
     plug(:fetch_current_user)
+
+    plug AssetInterceptor
   end
 
   pipeline :api do
@@ -100,6 +103,9 @@ defmodule NotesclubWeb.Router do
       live("/hex/:package", NotebookLive.Index, :package)
       live("/:author", NotebookLive.Index, :author)
       live("/:author/:repo", NotebookLive.Index, :repo)
+
+      # Catch-all route for showing notebooks
+      # Asset requests are intercepted by the AssetInterceptor plug earlier
       live("/*file", NotebookLive.Show, :show)
     end
   end
