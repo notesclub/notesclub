@@ -1,11 +1,24 @@
 <main class="bg-gray-50 min-h-screen">
-  <p class="alert alert-info" role="alert"
-    phx-click="lv:clear-flash"
-    phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+  <div class="pl-4 py-1 bg-gray-200 text-gray-800 text-sm text-center">
+    <div>
+      Powered by
+      <a href="https://www.appsignal.com" class="underline" target="_blank">AppSignal</a>
+      &
+      <a href="https://getoban.pro" class="underline" target="_blank">Oban Pro</a>
+    </div>
+    <div class="text-xs pt-2">
+      Would you like to see your link here?
+      <a href="mailto:hec@hecperez.com" class="underline" target="_blank">Contact us</a>
+    </div>
+  </div>
 
-  <p class="alert alert-danger" role="alert"
+  <p class="bg-green-100 rounded-full px-4 py-2 text-green-800" role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+    phx-value-key="info" :if={live_flash(@flash, :info)}><%= live_flash(@flash, :info) %></p>
+
+  <p class="bg-red-100 rounded-full px-4 py-2 text-red-800" role="alert"
+    phx-click="lv:clear-flash"
+    phx-value-key="error" :if={live_flash(@flash, :error)}><%= live_flash(@flash, :error) %></p>
 
   <%= @inner_content %>
 </main>

@@ -10,6 +10,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Accounts.User
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
@@ -369,7 +370,7 @@ defmodule Notesclub.Notebooks do
   defp set_user_id(result, %{user_id: _}), do: result
 
   # When we put the associations notebook.repo and notebook.repo.user
-  #  we need to manually set notebook.user_id
+  #  we need to manually set notebook.user_id
   defp set_user_id({:ok, notebook}, _) do
     repo = Repos.get_repo!(notebook.repo_id)
 
@@ -475,7 +476,7 @@ defmodule Notesclub.Notebooks do
 
   ## Examples
 
-  iex> save_notebook(%{github_html_url: "https://raw.githubusercontent.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
+  iex> save_notebook(%{github_html_url: "https://github.com/elixir-nx/axon/main/notebooks/vision/mnist.livemd", ...})
   {:ok, %Notebook{}}
 
   iex> save_notebook(%{field: bad_value})
@@ -717,6 +718,69 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
+  end
+
+  def toggle_star(%Notebook{} = notebook, %User{} = user) do
+    case Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) do
+      nil ->
+        %NotebookUser{}
+        |> NotebookUser.changeset(%{notebook_id: notebook.id, user_id: user.id})
+        |> Repo.insert()
+
+      notebook_user ->
+        Repo.delete(notebook_user)
+    end
+  end
+
+  def starred?(%Notebook{} = notebook, %User{} = user) do
+    Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) != nil
+  end
+
+  # Gets starred notebooks associated with a user, preloading necessary associations
+  @spec list_starred_notebooks_by_user(User.t(), Keyword.t()) :: [Notebook.t()]
+  def list_starred_notebooks_by_user(%User{} = user, opts \\ []) do
+    preload = opts[:preload] || []
+    per_page = opts[:per_page] || @default_per_page
+    page = opts[:page] || 0
+
+    base_query =
+      from(n in Notebook,
+        join: f in NotebookUser,
+        on: f.notebook_id == n.id,
+        where: f.user_id == ^user.id,
+        select: ^@default_fields,
+        preload: ^preload,
+        order_by: [desc: f.inserted_at]
+      )
+
+    Enum.reduce(
+      opts,
+      base_query,
+      fn
+        {:exclude_ids, exclude_ids}, query ->
+          where(query, [n], n.id not in ^exclude_ids)
+
+        {:require_content, true}, query ->
+          where(query, [n], not is_nil(n.content))
+
+        # Note: pagination options are handled outside the reduce
+        {:page, _}, query ->
+          query
+
+        {:per_page, _}, query ->
+          query
+
+        {:preload, _}, query ->
+          query
+
+        # Ignore other options for now or add specific handlers if needed
+        _, query ->
+          query
+      end
+    )
+    # Apply pagination after filtering
+    |> paginate(page, per_page)
+    |> Repo.all()
   end
 
   @doc """
