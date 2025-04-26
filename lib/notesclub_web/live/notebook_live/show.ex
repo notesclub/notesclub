@@ -4,11 +4,11 @@ defmodule NotesclubWeb.NotebookLive.Show do
   import Phoenix.Component
 
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.ClapServer
   alias Notesclub.Notebooks.Paths
   alias NotesclubWeb.NotebookLive.ShareComponent
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
+  alias Notesclub.Stars
 
   # This can raise an exception and render 404
   # so we add the typespec no_return() so Dialyzer doesn't complain
@@ -20,7 +20,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
     starred =
       if socket.assigns.current_user,
-        do: Notebooks.starred?(notebook, socket.assigns.current_user),
+        do: Stars.starred?(notebook, socket.assigns.current_user),
         else: false
 
     share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
@@ -43,7 +43,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
      assign(
        socket,
        notebook: notebook,
-       clap_count: notebook.clap_count,
+       star_count: Stars.star_count(notebook),
        share_to_x_text: share_to_x_text,
        related_notebooks: related_notebooks,
        search: nil,
@@ -56,31 +56,36 @@ defmodule NotesclubWeb.NotebookLive.Show do
   defp name_or_username(%{twitter_username: nil} = user), do: " by #{user.name}"
   defp name_or_username(%{twitter_username: twitter_username}), do: " by @#{twitter_username}"
 
-  def handle_event("clap", params, socket) do
-    notebook_id = params["notebook_id"] || params["notebook-id"]
-    %{assigns: %{clap_count: clap_count}} = socket
-
-    {:ok, _} =
-      notebook_id
-      |> String.to_integer()
-      |> ClapServer.increase_count()
-
-    {:noreply, assign(socket, clap_count: clap_count + 1)}
-  end
-
   def handle_event("toggle-star", _params, %{assigns: %{current_user: nil}} = socket) do
     {:noreply,
      socket
      |> put_flash(:error, "You need to log in to star notebooks")}
   end
 
-  def handle_event(
-        "toggle-star",
-        _params,
-        %{assigns: %{notebook: notebook, current_user: current_user}} = socket
-      ) do
-    Notebooks.toggle_star(notebook, current_user)
-    {:noreply, assign(socket, :starred, Notebooks.starred?(notebook, current_user))}
+  def handle_event("toggle-star", _params, socket) do
+    %{
+      assigns: %{
+        notebook: notebook,
+        current_user: current_user,
+        star_count: star_count,
+        starred: starred
+      }
+    } = socket
+
+    case Stars.toggle_star(notebook, current_user) do
+      {:ok, _} ->
+        star_count = if starred, do: star_count - 1, else: star_count + 1
+
+        socket =
+          socket
+          |> assign(:starred, !starred)
+          |> assign(:star_count, star_count)
+
+        {:noreply, socket}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "There was an error. Please try again.")}
+    end
   end
 
   defp file(notebook) do

@@ -43,7 +43,7 @@ defmodule Notesclub.MixProject do
     [
       {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.6"},
+      {:ecto_sql, "~> 3.7"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.0.0"},
       {:phoenix_html_helpers, "~> 1.0"},

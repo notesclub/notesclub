@@ -21,8 +21,6 @@ defmodule Notesclub.Application do
       {Phoenix.PubSub, name: Notesclub.PubSub},
       # Start the Endpoint (http/https)
       NotesclubWeb.Endpoint,
-      # Start Clap Server
-      Notesclub.Notebooks.ClapServer,
       # Oban
       {Oban, Application.fetch_env!(:notesclub, Oban)}
     ]

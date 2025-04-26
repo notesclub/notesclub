@@ -5,7 +5,7 @@ defmodule Notesclub.NotebooksTest do
   alias Notesclub.Notebooks
   alias Notesclub.Repos
   alias Notesclub.ReposFixtures
-
+  alias Notesclub.Stars
   import Notesclub.NotebooksFixtures
   import Notesclub.ReposFixtures
   import Notesclub.AccountsFixtures
@@ -325,25 +325,6 @@ defmodule Notesclub.NotebooksTest do
       # ... (tested in create_notebook/1)
     end
 
-    test "increments the clap_count of the notebook by 1" do
-      # Setup: Insert a notebook into the database with an initial count
-      %{id: notebook_id} = notebook_fixture(clap_count: 3)
-
-      # Call the function to increase the count
-      {:ok, updated_notebook} = Notebooks.increase_clap_count(notebook_id)
-
-      # Assert that the count was incremented by 1
-      assert updated_notebook.clap_count == 4
-    end
-
-    test "returns an error when the notebook does not exist" do
-      # Using a non-existing notebook ID
-      notebook_id = -1
-
-      # Call the function and expect an error
-      assert Notebooks.increase_clap_count(notebook_id) == {:error, :not_found}
-    end
-
     test "delete_notebook/1 deletes the notebook" do
       notebook = notebook_fixture()
       assert {:ok, %Notebook{}} = Notebooks.delete_notebook(notebook)
@@ -433,6 +414,31 @@ defmodule Notesclub.NotebooksTest do
     test "content_fragment/2 works when content excludes search" do
       notebook = notebook_fixture(content: "whatever")
       assert Notebooks.content_fragment(notebook, "day23") == nil
+    end
+
+    test "list_notebooks/1 filters by stars_gte" do
+      # Create notebooks and users
+      notebook1 = notebook_fixture()
+      notebook2 = notebook_fixture()
+      user1 = user_fixture()
+      user2 = user_fixture()
+
+      # Star notebook2 twice
+      {:ok, _} = Stars.toggle_star(notebook2, user1)
+      {:ok, _} = Stars.toggle_star(notebook2, user2)
+
+      # Star notebook1 once
+      {:ok, _} = Stars.toggle_star(notebook1, user1)
+
+      # Filter notebooks with at least 2 stars
+      notebooks = Notebooks.list_notebooks(stars_gte: 2)
+      assert Enum.map(notebooks, & &1.id) == [notebook2.id]
+
+      # Filter notebooks with at least 1 star
+      notebooks = Notebooks.list_notebooks(stars_gte: 1)
+
+      assert Enum.map(notebooks, & &1.id) |> Enum.sort() ==
+               [notebook1.id, notebook2.id] |> Enum.sort()
     end
   end
 end

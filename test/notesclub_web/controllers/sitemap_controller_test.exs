@@ -11,7 +11,7 @@ defmodule NotesclubWeb.SitemapControllerTest do
   end
 
   test "GET /clapped_notebooks_sitemap.xml", %{conn: conn} do
-    notebook_fixture(%{clap_count: 1})
+    notebook_fixture(%{star_count: 1})
     conn = get(conn, ~p"/clapped_notebooks_sitemap.xml")
 
     assert response(conn, 200) =~ "<priority>0.8</priority>"
