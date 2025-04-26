@@ -33,14 +33,6 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
     |> Makeup.highlight()
   end
 
-  # Expects DECODED code, returns full <div> block with ENCODED code for Mermaid
-  defp highlight_code_block(%{language: "mermaid", code: decoded_code}) do
-    id = "mermaid-#{System.unique_integer([:positive])}"
-    # Encode for Mermaid rendering
-    encoded_code = HtmlEntities.encode(decoded_code)
-    ~s(<div class="mermaid" id="#{id}">#{encoded_code}</div>)
-  end
-
   defp highlight_code_block(_, lang, code) do
     ~s(<pre><code class="makeup #{lang}">#{code}</code></pre>)
   end

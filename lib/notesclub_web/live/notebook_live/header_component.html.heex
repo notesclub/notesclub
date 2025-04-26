@@ -5,7 +5,6 @@
 
       <%= if @current_user do %>
         <div class="text-xs md:text-sm pr-4">
-          Welcome back
           <.link navigate={~p"/#{@current_user.username}"}><%= @current_user.name %></.link>
           <.link navigate={~p"/auth/signout"} class="underline underline-offset-2" >Log out</.link>
         </div>
