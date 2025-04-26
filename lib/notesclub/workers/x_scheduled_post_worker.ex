@@ -10,8 +10,6 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
   alias Notesclub.X
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
-  alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Accounts.User
   alias Notesclub.PublishLogs
 
   @impl Oban.Worker
@@ -24,7 +22,7 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
         path = Paths.url_to_path(notebook)
         message = get_message(notebook, path)
 
-        case X.post_with_stored_token(message) do
+        case X.post(message) do
           {:ok, _response} ->
             PublishLogs.create_publish_log(%{
               platform: "x",
