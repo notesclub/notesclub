@@ -4,6 +4,7 @@ defmodule NotesclubWeb.AuthController do
 
   alias Notesclub.Accounts
   alias Notesclub.XAPI
+  alias Notesclub.Workers.XScheduledPostWorker
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
@@ -47,9 +48,24 @@ defmodule NotesclubWeb.AuthController do
   end
 
   def botcallback(conn, %{"code" => auth_code}) do
-    XAPI.authenticate_and_post(auth_code, "Hello World")
+    case XAPI.authenticate(auth_code) do
+      {:ok, _access_token} ->
+        # Successfully authenticated and stored token
+        # Post once immediately as a test, cron will handle scheduled posts
+        {:ok, _job} = XScheduledPostWorker.post_once()
 
-    redirect(conn, to: "/")
+        conn
+        |> put_flash(
+          :info,
+          "Successfully authenticated with X. Automated posting is now configured to run every 8 hours."
+        )
+        |> redirect(to: "/")
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Failed to authenticate with X.")
+        |> redirect(to: "/")
+    end
   end
 
   defp to_user_params(auth) do

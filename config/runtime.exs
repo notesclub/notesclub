@@ -85,6 +85,10 @@ end
 
 config :notesclub, env: config_env()
 
+config :notesclub, :x_client_id, System.get_env("X_CLIENT_ID")
+config :notesclub, :x_client_secret, System.get_env("X_CLIENT_SECRET")
+config :notesclub, :x_callback_url, System.get_env("X_CALLBACK_URL")
+
 if config_env() == :prod do
   github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
   config :notesclub, :github_api_key, github_api_key
@@ -92,8 +96,4 @@ if config_env() == :prod do
   config :ueberauth, Ueberauth.Strategy.Github.OAuth,
     client_id: System.get_env("GITHUB_OAUTH_CLIENT_ID"),
     client_secret: System.get_env("GITHUB_OAUTH_CLIENT_SECRET")
-
-  config :notesclub, :x_client_id, System.get_env("X_CLIENT_ID")
-  config :notesclub, :x_client_secret, System.get_env("X_CLIENT_SECRET")
-  config :notesclub, :x_callback_url, System.get_env("X_CALLBACK_URL")
 end

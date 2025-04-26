@@ -23,7 +23,7 @@ defmodule NotesclubWeb.Router do
   Notesclub.Compile.only_if_loaded :oban_web do
     require Oban.Web.Router
 
-    pipeline :oban_web_auth do
+    pipeline :admin_auth do
       plug(:auth)
 
       defp auth(conn, _opts) do
@@ -34,9 +34,11 @@ defmodule NotesclubWeb.Router do
     end
 
     scope "/", NotesclubWeb do
-      pipe_through([:browser, :oban_web_auth])
+      pipe_through([:browser, :admin_auth])
 
       Oban.Web.Router.oban_dashboard("/oban")
+
+      get("/x/signin", AuthController, :botsignin)
     end
   end
 
@@ -74,8 +76,6 @@ defmodule NotesclubWeb.Router do
   scope "/auth", NotesclubWeb do
     pipe_through([:browser])
 
-    get("/bot", AuthController, :botsignin)
-    get("/bot/callback", AuthController, :botcallback)
     get("/signout", AuthController, :signout)
     get("/:provider", AuthController, :request)
     get("/:provider/callback", AuthController, :callback)
@@ -83,6 +83,8 @@ defmodule NotesclubWeb.Router do
 
   scope "/", NotesclubWeb do
     pipe_through(:browser)
+
+    get("/x/callback", AuthController, :botcallback)
 
     get("/status", StatusController, :status)
     get("/terms", PageController, :terms)
