@@ -3,6 +3,7 @@ defmodule NotesclubWeb.Router do
 
   import Redirect
   import NotesclubWeb.UserAuth
+  alias NotesclubWeb.Plugs.AssetInterceptor
 
   require Notesclub.Compile
 
@@ -14,6 +15,8 @@ defmodule NotesclubWeb.Router do
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
     plug(:fetch_current_user)
+
+    plug AssetInterceptor
   end
 
   pipeline :api do
@@ -87,8 +90,11 @@ defmodule NotesclubWeb.Router do
     get("/x/callback", AuthController, :botcallback)
 
     get("/status", StatusController, :status)
+    get("/packages_sitemap.xml", SitemapController, :packages_sitemap)
+    get("/clapped_notebooks_sitemap.xml", SitemapController, :clapped_notebooks_sitemap)
     get("/terms", PageController, :terms)
     get("/privacy_policy", PageController, :privacy_policy)
+    post("/_return_to", ReturnToController, :create)
 
     if Enum.any?([:dev, :test], fn env -> Mix.env() == env end) do
       get("/dummy/raise_error", DummyErrorController, :raise_error)
@@ -101,7 +107,11 @@ defmodule NotesclubWeb.Router do
       live("/top", NotebookLive.Index, :top)
       live("/hex/:package", NotebookLive.Index, :package)
       live("/:author", NotebookLive.Index, :author)
+      live("/:username/stars", NotebookLive.Index, :stars)
       live("/:author/:repo", NotebookLive.Index, :repo)
+
+      # Catch-all route for showing notebooks
+      # Asset requests are intercepted by the AssetInterceptor plug earlier
       live("/*file", NotebookLive.Show, :show)
     end
   end

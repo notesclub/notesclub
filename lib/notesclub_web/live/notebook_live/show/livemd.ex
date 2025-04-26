@@ -33,10 +33,6 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
     |> Makeup.highlight()
   end
 
-  defp highlight_code_block(_, "mermaid", code) do
-    ~s(<pre><code class="mermaid">#{code}</code></pre>)
-  end
-
   defp highlight_code_block(_, lang, code) do
     ~s(<pre><code class="makeup #{lang}">#{code}</code></pre>)
   end

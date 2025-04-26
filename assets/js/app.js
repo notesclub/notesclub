@@ -23,12 +23,14 @@ import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import infiniteScroll from "./live_view_hooks/infinite_scroll";
 import mermaidDiagrams from "./live_view_hooks/mermaid_diagrams";
+import { ReturnToHook } from "./return_to_hook"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
 let Hooks = {
   infiniteScroll: infiniteScroll,
-  mermaidDiagrams: mermaidDiagrams
+  mermaidDiagrams: mermaidDiagrams,
+  ReturnToHook: ReturnToHook
 }
 
 let liveSocket = new LiveSocket("/live", Socket, {

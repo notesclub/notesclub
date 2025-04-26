@@ -44,6 +44,7 @@ defmodule NotesclubWeb.AuthControllerTest do
       username: "John The Doe",
       github_id: 123_123,
       name: "John Doe",
+      twitter_username: "someone",
       avatar_url: "https://example.com/image.jpg"
     }
 
@@ -83,6 +84,7 @@ defmodule NotesclubWeb.AuthControllerTest do
         raw_info: %{
           user: %{
             bio: "elixir developer",
+            twitter_username: "someone",
             followers: 10
           }
         }

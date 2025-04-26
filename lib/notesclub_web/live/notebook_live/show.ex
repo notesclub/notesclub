@@ -6,6 +6,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.ClapServer
   alias Notesclub.Notebooks.Paths
+  alias NotesclubWeb.NotebookLive.ShareComponent
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
 
@@ -17,8 +18,43 @@ defmodule NotesclubWeb.NotebookLive.Show do
     url = Paths.path_to_url(path) |> URI.decode()
     notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
 
-    {:noreply, assign(socket, notebook: notebook, clap_count: notebook.clap_count)}
+    starred =
+      if socket.assigns.current_user,
+        do: Notebooks.starred?(notebook, socket.assigns.current_user),
+        else: false
+
+    share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
+
+    related_notebooks =
+      Notebooks.get_related_by_packages(notebook, limit: 4, preload: [:user, :repo])
+
+    ids = Enum.map(related_notebooks, & &1.id)
+    num_random_notebooks = 7 - length(related_notebooks)
+
+    related_notebooks =
+      related_notebooks ++
+        Notebooks.get_random_notebooks(
+          exclude_ids: ids,
+          limit: num_random_notebooks,
+          preload: [:user, :repo]
+        )
+
+    {:noreply,
+     assign(
+       socket,
+       notebook: notebook,
+       clap_count: notebook.clap_count,
+       share_to_x_text: share_to_x_text,
+       related_notebooks: related_notebooks,
+       search: nil,
+       starred: starred
+     )}
   end
+
+  defp name_or_username(nil), do: ""
+  defp name_or_username(%{twitter_username: nil, name: nil} = user), do: " by #{user.username}"
+  defp name_or_username(%{twitter_username: nil} = user), do: " by #{user.name}"
+  defp name_or_username(%{twitter_username: twitter_username}), do: " by @#{twitter_username}"
 
   def handle_event("clap", params, socket) do
     notebook_id = params["notebook_id"] || params["notebook-id"]
@@ -30,6 +66,21 @@ defmodule NotesclubWeb.NotebookLive.Show do
       |> ClapServer.increase_count()
 
     {:noreply, assign(socket, clap_count: clap_count + 1)}
+  end
+
+  def handle_event("toggle-star", _params, %{assigns: %{current_user: nil}} = socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "You need to log in to star notebooks")}
+  end
+
+  def handle_event(
+        "toggle-star",
+        _params,
+        %{assigns: %{notebook: notebook, current_user: current_user}} = socket
+      ) do
+    Notebooks.toggle_star(notebook, current_user)
+    {:noreply, assign(socket, :starred, Notebooks.starred?(notebook, current_user))}
   end
 
   defp file(notebook) do

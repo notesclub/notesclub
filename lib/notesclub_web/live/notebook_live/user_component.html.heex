@@ -6,7 +6,7 @@
   </div>
   <div class="ml-4">
     <.link navigate={~p"/#{@notebook.user.username}"} class="font-medium whitespace-nowrap">
-      <%= @notebook.user.name %>
+      <%= StringTools.truncate(@notebook.user.name, 50) %>
     </.link>
     <div>
       <.link navigate={~p"/#{@notebook.user.username}"} class="text-gray-400">

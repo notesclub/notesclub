@@ -22,21 +22,39 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp run_action(%{"package" => package}, :package, socket) do
     socket = assign(socket, package: package, author: nil, repo: nil)
     notebooks = get_notebooks(socket, :package, 0, [])
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :package)}
   end
 
   defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
     socket = assign(socket, author: author, repo: repo, package: nil)
     notebooks = get_notebooks(socket, :repo, 0, [])
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :repo)}
   end
 
-  defp run_action(%{"author" => author}, :author, socket) do
+  defp run_action(%{"author" => username}, :author, socket) do
     # Render 404 if author does not exist
-    Accounts.get_by_username!(author)
-    socket = assign(socket, author: author, repo: nil, package: nil)
+    Accounts.get_by_username!(username)
+    socket = assign(socket, author: username, repo: nil, package: nil)
     notebooks = get_notebooks(socket, :author, 0, [])
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks)}
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :author)}
+  end
+
+  defp run_action(%{"username" => username}, :stars, socket) do
+    # Render 404 if author does not exist
+    user = Accounts.get_by_username!(username)
+    socket = assign(socket, user: user)
+    notebooks = get_notebooks(socket, :starred, 0, [])
+
+    {:noreply,
+     assign(socket,
+       page: 0,
+       search: nil,
+       notebooks: notebooks,
+       action: :starred,
+       author: username,
+       repo: nil,
+       package: nil
+     )}
   end
 
   defp run_action(%{"q" => search}, :search, socket) do
@@ -51,7 +69,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-       package: nil
+       package: nil,
+       action: :search
      )}
   end
 
@@ -66,7 +85,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-       package: nil
+       package: nil,
+       action: :search
      )}
   end
 
@@ -80,7 +100,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        search: nil,
        author: nil,
        repo: nil,
-       package: nil
+       package: nil,
+       action: :home
      )}
   end
 
@@ -94,7 +115,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        search: nil,
        author: nil,
        repo: nil,
-       package: nil
+       package: nil,
+       action: :random
      )}
   end
 
@@ -108,7 +130,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        search: nil,
        author: nil,
        repo: nil,
-       package: nil
+       package: nil,
+       action: :top
      )}
   end
 
@@ -218,6 +241,18 @@ defmodule NotesclubWeb.NotebookLive.Index do
       page: page,
       order: :desc,
       exclude_ids: exclude_ids,
+      require_content: true,
+      preload: [:user, :repo, :packages]
+    )
+  end
+
+  defp get_notebooks(%{assigns: %{user: user}}, :starred, page, exclude_ids) do
+    Notebooks.list_starred_notebooks_by_user(
+      user,
+      page: page,
+      per_page: @per_page,
+      exclude_ids: exclude_ids,
+      order: :desc,
       require_content: true,
       preload: [:user, :repo, :packages]
     )

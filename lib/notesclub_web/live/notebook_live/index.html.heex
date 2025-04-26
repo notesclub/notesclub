@@ -4,7 +4,7 @@
     current_user={@current_user}
     id="h"
   />
-  <h1 class="text-4xl text-center mt-8 font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
+  <h1 class="text-4xl text-center font-bold text-gray-900 sm:text-5xl md:text-6xl">Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)</h1>
   <p class="mt-3 text-gray-500 sm:text-lg md:mt-5 md:text-xl text-center">
     <%= @notebooks_count %> notebooks and counting. Feel free to
     <.link navigate="https://github.com/notesclub/notesclub" class="text-blue-600" target="_blank" >contribute or star us on GitHub</.link>.
@@ -36,6 +36,7 @@
         author={@author}
         repo={@repo}
         package={@package}
+        action={@action}
         id="f"
       />
 

@@ -1,5 +1,6 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
-# Disallow: /
+#Yandex
+User-agent: Yandex
+Disallow: /
+
+Sitemap: https://notes.club/packages_sitemap.xml
+Sitemap: https://notes.club/clapped_notebooks_sitemap.xml

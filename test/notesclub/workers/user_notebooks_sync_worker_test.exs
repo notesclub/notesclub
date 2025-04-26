@@ -88,9 +88,12 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
         assert called(Req.get!(url, :_))
 
         assert [
-                 %Notebook{github_filename: "structs.livemd"} = n1,
-                 %Notebook{github_filename: "collections.livemd"} = n2
-               ] = Notebooks.list_notebooks()
+                 "collections.livemd",
+                 "structs.livemd"
+               ] = Notebooks.list_notebooks() |> Enum.map(& &1.github_filename) |> Enum.sort()
+
+        n1 = Notebooks.get_by(github_filename: "structs.livemd")
+        n2 = Notebooks.get_by(github_filename: "collections.livemd")
 
         # enqueue next page and url sync
 

@@ -5,6 +5,8 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
 
   use Oban.Worker, queue: :github_search, priority: 2, max_attempts: 100
 
+  require Logger
+
   alias Notesclub.{GithubAPI, Notebooks}
   alias Notesclub.Workers.{RecentNotebooksWorker, UrlContentSyncWorker}
 
@@ -53,11 +55,22 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
 
   defp save_and_enqueue_content_sync(notebooks_data) do
     Enum.each(notebooks_data, fn notebook_data ->
-      {:ok, notebook} = Notebooks.save_notebook(notebook_data)
+      case Notebooks.save_notebook(notebook_data) do
+        {:ok, notebook} ->
+          %{notebook_id: notebook.id}
+          |> UrlContentSyncWorker.new()
+          |> Oban.insert()
 
-      %{notebook_id: notebook.id}
-      |> UrlContentSyncWorker.new()
-      |> Oban.insert()
+        :fork_skipped ->
+          :ok
+
+        :fork_deleted ->
+          :ok
+
+        {:error, error} ->
+          Logger.error("Error saving notebook: #{inspect(error)}")
+          :ok
+      end
     end)
 
     :ok
