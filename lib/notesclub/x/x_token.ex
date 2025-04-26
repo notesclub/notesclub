@@ -1,4 +1,4 @@
-defmodule Notesclub.XToken do
+defmodule Notesclub.X.XToken do
   @moduledoc """
   Schema for storing X API access tokens
   """
@@ -7,7 +7,7 @@ defmodule Notesclub.XToken do
   import Ecto.Query, warn: false
 
   alias Notesclub.Repo
-  alias Notesclub.XToken
+  alias Notesclub.X.XToken
 
   schema "x_tokens" do
     field :access_token, :string
@@ -42,6 +42,12 @@ defmodule Notesclub.XToken do
     %XToken{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  def update_token(token, attrs) do
+    token
+    |> changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """

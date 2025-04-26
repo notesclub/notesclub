@@ -7,15 +7,16 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
     queue: :default,
     max_attempts: 3
 
-  alias Notesclub.XAPI
+  alias Notesclub.X
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Accounts.User
+  alias Notesclub.PublishLogs
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    case Notebooks.get_most_recent_clapped_notebook() do
+    case Notebooks.get_most_clapped_recent_notebook() do
       nil ->
         {:ok, "No notebook found"}
 
@@ -23,22 +24,31 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
         path = Paths.url_to_path(notebook)
         message = get_message(notebook, path)
 
-        case XAPI.post_with_stored_token(message) do
-          {:ok, _response} -> :ok
-          {:error, reason} -> {:error, "Failed to post to X: #{inspect(reason)}"}
+        case X.post_with_stored_token(message) do
+          {:ok, _response} ->
+            PublishLogs.create_publish_log(%{
+              platform: "x",
+              notebook_id: notebook.id,
+              user_id: notebook.user_id
+            })
+
+            :ok
+
+          {:error, reason} ->
+            {:error, "Failed to post to X: #{inspect(reason)}"}
         end
     end
   end
 
   defp get_message(notebook, path) do
-    "Elixir livebook: #{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
+    "#{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
   end
 
   # defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
-  #   "Elixir livebook: #{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
+  #   "#{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
   # end
 
   # defp get_message(notebook, path) do
-  #   "Elixir livebook: #{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
+  #   "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
   # end
 end

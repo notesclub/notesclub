@@ -15,6 +15,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Packages
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
+  alias Notesclub.PublishLogs.PublishLog
 
   alias Notesclub.Workers.UrlContentSyncWorker
 
@@ -724,12 +725,23 @@ defmodule Notesclub.Notebooks do
     end)
   end
 
-  def get_most_recent_clapped_notebook do
+  def get_most_clapped_recent_notebook do
+    days_ago = 14
+
+    exclude_ids =
+      from(p in PublishLog,
+        where: p.platform == "x",
+        where: p.inserted_at >= from_now(-(^days_ago), "day"),
+        select: p.notebook_id
+      )
+      |> Repo.all()
+
     Notebook
     |> where([n], not is_nil(n.clap_count))
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
-    |> where([n], n.inserted_at >= from_now(-14, "day"))
+    |> where([n], n.inserted_at >= from_now(-(^days_ago), "day"))
+    |> where([n], n.id not in ^exclude_ids)
     |> order_by(desc: :clap_count)
     |> limit(1)
     |> preload(:user)

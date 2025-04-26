@@ -3,7 +3,7 @@ defmodule NotesclubWeb.AuthController do
   plug Ueberauth
 
   alias Notesclub.Accounts
-  alias Notesclub.XAPI
+  alias Notesclub.X
   alias Notesclub.Workers.XScheduledPostWorker
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
@@ -44,11 +44,11 @@ defmodule NotesclubWeb.AuthController do
   end
 
   def botsignin(conn, _params) do
-    redirect(conn, external: XAPI.get_authorize_url())
+    redirect(conn, external: X.get_authorize_url())
   end
 
   def botcallback(conn, %{"code" => auth_code}) do
-    case XAPI.authenticate(auth_code) do
+    case X.authenticate(auth_code) do
       {:ok, _access_token} ->
         # Successfully authenticated and stored token
         # Post once immediately as a test, cron will handle scheduled posts

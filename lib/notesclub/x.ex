@@ -1,9 +1,9 @@
-defmodule Notesclub.XAPI do
+defmodule Notesclub.X do
   @moduledoc """
   Post messages using the X API V2.
   """
 
-  alias Notesclub.XToken
+  alias Notesclub.X.XToken
 
   def get_authorize_url() do
     generate_authorize_url(
@@ -24,13 +24,6 @@ defmodule Notesclub.XAPI do
     }
 
     "https://twitter.com/i/oauth2/authorize?#{URI.encode_query(query_params)}"
-  end
-
-  def authenticate_and_post(auth_code, message) do
-    case authenticate(auth_code) do
-      {:ok, access_token} -> post(message, access_token)
-      error -> error
-    end
   end
 
   @doc """
@@ -73,11 +66,17 @@ defmodule Notesclub.XAPI do
           {:error, _reason} ->
             # If error occurs, try refreshing the token and post again
             if token.refresh_token do
+              IO.inspect("Old access token: #{inspect(token.access_token)}")
+              IO.inspect("Old refresh token: #{inspect(token.refresh_token)}")
+
               case refresh_access_token(token.refresh_token) do
                 {:ok, new_access_token, new_refresh_token} ->
+                  IO.inspect("New access token: #{inspect(new_access_token)}")
+                  IO.inspect("New refresh token: #{inspect(new_refresh_token)}")
+
                   # Update token in database
                   {:ok, updated_token} =
-                    XToken.create_token(%{
+                    XToken.update_token(token, %{
                       access_token: new_access_token,
                       refresh_token: new_refresh_token
                     })
@@ -98,7 +97,7 @@ defmodule Notesclub.XAPI do
   Refreshes an access token using the refresh token.
   Returns {:ok, new_access_token, new_refresh_token} or {:error, reason}
   """
-  def refresh_access_token(refresh_token) do
+  defp refresh_access_token(refresh_token) do
     client_id = Application.get_env(:notesclub, :x_client_id)
 
     refresh_token_url = "https://api.twitter.com/2/oauth2/token"
@@ -168,8 +167,6 @@ defmodule Notesclub.XAPI do
   end
 
   defp post(text, access_token) do
-    IO.inspect("Posting message: #{text}")
-
     case Req.post(
            "https://api.twitter.com/2/tweets",
            json: %{text: text},
@@ -179,15 +176,12 @@ defmodule Notesclub.XAPI do
            body: "json"
          ) do
       {:ok, %Req.Response{status: 201} = response} ->
-        IO.inspect("Response: #{inspect(response)}")
         {:ok, response}
 
       {:ok, response} ->
-        IO.inspect("Error: #{inspect(response)}")
         {:error, response}
 
       error ->
-        IO.inspect("Error: #{inspect(error)}")
         {:error, error}
     end
   end
