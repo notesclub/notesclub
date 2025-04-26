@@ -151,6 +151,27 @@ defmodule Notesclub.Notebooks do
   end
 
   @doc """
+  Returns the notebook with the highest clap_count from the last specified number of days.
+  Preloads user and repo associations.
+
+  ## Examples
+
+      iex> get_top_notebook_by_claps_since(14)
+      %Notebook{}
+
+  """
+  @spec get_top_notebook_by_claps_since(integer()) :: Notebook.t() | nil
+  def get_top_notebook_by_claps_since(num_days_ago) when is_integer(num_days_ago) do
+    from(n in Notebook,
+      where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
+      order_by: [desc: :clap_count, desc: :id],
+      preload: [:user, :repo],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  @doc """
   Resets the repo's notebooks url depending on notebook.github_html_url and repo.default_branch
 
   ## Examples
@@ -366,7 +387,7 @@ defmodule Notesclub.Notebooks do
   defp set_user_id(result, %{user_id: _}), do: result
 
   # When we put the associations notebook.repo and notebook.repo.user
-  #  we need to manually set notebook.user_id
+  #  we need to manually set notebook.user_id
   defp set_user_id({:ok, notebook}, _) do
     repo = Repos.get_repo!(notebook.repo_id)
 
@@ -701,5 +722,17 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
+  end
+
+  def get_most_recent_clapped_notebook do
+    Notebook
+    |> where([n], not is_nil(n.clap_count))
+    |> where([n], not is_nil(n.content))
+    |> where([n], fragment("length(?)", n.content) >= 200)
+    |> where([n], n.inserted_at >= from_now(-14, "day"))
+    |> order_by(desc: :clap_count)
+    |> limit(1)
+    |> preload(:user)
+    |> Repo.one()
   end
 end

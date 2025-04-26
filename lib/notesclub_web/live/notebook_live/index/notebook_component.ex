@@ -29,7 +29,7 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
   end
 
   defp notebook_path(notebook) do
-    Paths.url_to_path(notebook.url || notebook.github_html_url)
+    Paths.url_to_path(notebook)
   end
 
   defp format_date(%Notebook{inserted_at: inserted_at}) do

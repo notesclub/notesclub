@@ -60,21 +60,17 @@ defmodule Notesclub.XAPI do
   def post_with_stored_token(message) do
     case XToken.get_latest_token() do
       nil ->
-        IO.inspect("No token available")
         {:error, :no_token_available}
 
       token ->
         # Try posting with the current token
         case post(message, token.access_token) do
           {:ok, response} ->
-            IO.inspect("Token used successfully")
             # If successful, mark token as used and return response
             XToken.mark_token_used(token)
             {:ok, response}
 
           {:error, _reason} ->
-            IO.inspect("Error posting with access token")
-            IO.inspect("Refresh token: #{token.refresh_token}")
             # If error occurs, try refreshing the token and post again
             if token.refresh_token do
               case refresh_access_token(token.refresh_token) do
@@ -86,7 +82,6 @@ defmodule Notesclub.XAPI do
                       refresh_token: new_refresh_token
                     })
 
-                  # Try posting with new token
                   post(message, updated_token.access_token)
 
                 error ->
@@ -173,6 +168,8 @@ defmodule Notesclub.XAPI do
   end
 
   defp post(text, access_token) do
+    IO.inspect("Posting message: #{text}")
+
     case Req.post(
            "https://api.twitter.com/2/tweets",
            json: %{text: text},
@@ -181,8 +178,17 @@ defmodule Notesclub.XAPI do
            ],
            body: "json"
          ) do
-      {:ok, response} -> {:ok, response}
-      error -> error
+      {:ok, %Req.Response{status: 201} = response} ->
+        IO.inspect("Response: #{inspect(response)}")
+        {:ok, response}
+
+      {:ok, response} ->
+        IO.inspect("Error: #{inspect(response)}")
+        {:error, response}
+
+      error ->
+        IO.inspect("Error: #{inspect(error)}")
+        {:error, error}
     end
   end
 end

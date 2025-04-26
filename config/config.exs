@@ -68,8 +68,7 @@ if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
          {"0 2 * * *", Notesclub.Workers.AllUserNotebooksSyncWorker, queue: :default},
          {"0 0 * * *", Notesclub.Workers.AllUsersSyncWorker, queue: :default},
          {"0 7 * * *", Notesclub.Workers.RecentNotebooksWorker, args: %{"page" => 1}},
-         {"0 */8 * * *", Notesclub.Workers.XScheduledPostWorker,
-          args: %{"message" => "Hello world from notes.club!"}}
+         {"0 */8 * * *", Notesclub.Workers.XScheduledPostWorker}
        ]},
       {Oban.Pro.Plugins.DynamicPruner,
        state_overrides: [

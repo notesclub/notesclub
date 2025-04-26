@@ -52,7 +52,8 @@ defmodule NotesclubWeb.AuthController do
       {:ok, _access_token} ->
         # Successfully authenticated and stored token
         # Post once immediately as a test, cron will handle scheduled posts
-        {:ok, _job} = XScheduledPostWorker.post_once()
+
+        XScheduledPostWorker.new(%{}) |> Oban.insert()
 
         conn
         |> put_flash(
