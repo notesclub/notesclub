@@ -66,7 +66,6 @@ defmodule Notesclub.MixProject do
       {:appsignal_phoenix, "~> 2.3.5"},
       {:faker, "~> 0.17", only: :test},
       {:oban, "2.18.2"},
-      {:oban, "2.18.2"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
