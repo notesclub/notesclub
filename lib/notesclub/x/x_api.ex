@@ -1,4 +1,8 @@
 defmodule Notesclub.X.XAPI do
+  @moduledoc """
+  X API V2
+  """
+
   def generate_authorize_url(client_id, callback_url) do
     query_params = %{
       client_id: client_id,

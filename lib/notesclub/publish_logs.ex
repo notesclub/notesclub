@@ -1,6 +1,7 @@
 defmodule Notesclub.PublishLogs do
   @moduledoc """
-  The PublishLogs context.
+  Stores a log of the notebooks shared on X
+  so we don't duplicate posts
   """
 
   import Ecto.Query, warn: false

@@ -1,6 +1,6 @@
 defmodule Notesclub.X.XTokens do
   @moduledoc """
-  Schema for storing X API access tokens
+  Context for X tokens
   """
   import Ecto.Query, warn: false
 
