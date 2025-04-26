@@ -11,19 +11,23 @@ defmodule NotesclubWeb.AuthController do
   end
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    conn = fetch_session(conn)
+    return_to = get_session(conn, :return_to) || "/"
+
     case Accounts.get_by_github_id(auth.uid) do
       nil ->
         case Accounts.create_user(to_user_params(auth)) do
           {:ok, user} ->
             conn
             |> put_session(:user_id, user.id)
-            |> redirect(to: "/")
+            |> put_flash(:info, "Welcome to Notesclub!")
+            |> redirect(to: return_to)
 
           {:error, _changeset} ->
             conn
             |> put_session(:user_id, nil)
             |> put_flash(:error, "There was an issue creating your account.")
-            |> redirect(to: "/")
+            |> redirect(to: return_to)
         end
 
       user ->
@@ -31,8 +35,13 @@ defmodule NotesclubWeb.AuthController do
 
         conn
         |> put_session(:user_id, user.id)
-        |> redirect(to: "/")
+        |> put_flash(:info, "Welcome back!")
+        |> redirect(to: return_to)
     end
+  end
+
+  def request(conn, %{"provider" => provider}) do
+    Ueberauth.Strategy.run_request(conn, provider)
   end
 
   def signout(conn, _params) do

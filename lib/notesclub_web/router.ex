@@ -90,6 +90,7 @@ defmodule NotesclubWeb.Router do
     get("/clapped_notebooks_sitemap.xml", SitemapController, :clapped_notebooks_sitemap)
     get("/terms", PageController, :terms)
     get("/privacy_policy", PageController, :privacy_policy)
+    post("/_return_to", ReturnToController, :create)
 
     if Enum.any?([:dev, :test], fn env -> Mix.env() == env end) do
       get("/dummy/raise_error", DummyErrorController, :raise_error)
