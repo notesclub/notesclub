@@ -37,6 +37,6 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     """
 
     assert Livemd.render(code) ==
-             {:safe, "<pre><code class=\"mermaid\">whatever</code></pre>\n"}
+             {:safe, "<pre><code class=\"makeup mermaid\">whatever</code></pre>\n"}
   end
 end
