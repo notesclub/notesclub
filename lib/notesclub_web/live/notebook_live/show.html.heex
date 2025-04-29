@@ -29,7 +29,10 @@
           </.link>
         </div>
         <div class="pt-2 pl-4">
-          <ShareComponent.share_to_x share_to_x_text={@share_to_x_text} />
+          <ShareComponent.share_to_x share_to_x_text={@share_to_text} />
+        </div>
+        <div class="pt-2 pl-4">
+          <ShareComponent.share_to_bluesky share_to_bluesky_text={@share_to_text} />
         </div>
         <div class="pt-3 pl-4">
           <.link navigate={~p"/"} class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
