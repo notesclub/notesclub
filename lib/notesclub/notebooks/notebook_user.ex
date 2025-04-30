@@ -5,6 +5,8 @@ defmodule Notesclub.Notebooks.NotebookUser do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "notebooks_users" do
     belongs_to :notebook, Notesclub.Notebooks.Notebook
     belongs_to :user, Notesclub.Accounts.User

@@ -7,10 +7,11 @@ defmodule Notesclub.Notebooks.Notebook do
   import Ecto.Changeset
 
   alias Notesclub.Accounts.User
+  alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Packages.Package
   alias Notesclub.Repos.Repo
 
-  @optional ~w(inserted_at user_id repo_id url content title clap_count)a
+  @optional ~w(inserted_at user_id repo_id url content title)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
   typed_schema "notebooks" do
@@ -24,10 +25,12 @@ defmodule Notesclub.Notebooks.Notebook do
     field(:github_filename, :string)
     field(:github_owner_login, :string)
     field(:github_repo_name, :string)
-    field(:clap_count, :integer, default: 0)
 
     belongs_to(:user, User)
     belongs_to(:repo, Repo)
+
+    has_many(:notebook_users, NotebookUser)
+    has_many(:starred_by, through: [:notebook_users, :user])
 
     many_to_many(
       :packages,
