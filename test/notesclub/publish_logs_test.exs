@@ -35,13 +35,18 @@ defmodule Notesclub.PublishLogsTest do
       publish_log = publish_log_fixture()
       update_attrs = %{platform: "some updated platform"}
 
-      assert {:ok, %PublishLog{} = publish_log} = PublishLogs.update_publish_log(publish_log, update_attrs)
+      assert {:ok, %PublishLog{} = publish_log} =
+               PublishLogs.update_publish_log(publish_log, update_attrs)
+
       assert publish_log.platform == "some updated platform"
     end
 
     test "update_publish_log/2 with invalid data returns error changeset" do
       publish_log = publish_log_fixture()
-      assert {:error, %Ecto.Changeset{}} = PublishLogs.update_publish_log(publish_log, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               PublishLogs.update_publish_log(publish_log, @invalid_attrs)
+
       assert publish_log == PublishLogs.get_publish_log!(publish_log.id)
     end
 
