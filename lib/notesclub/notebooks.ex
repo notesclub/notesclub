@@ -830,7 +830,7 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
-  def get_most_clapped_recent_notebook do
+  def get_most_starred_recent_notebook do
     days_ago = 14
 
     exclude_ids =
@@ -841,13 +841,19 @@ defmodule Notesclub.Notebooks do
       )
       |> Repo.all()
 
+    # Subquery to get star counts for notebooks
+    star_counts =
+      from nu in NotebookUser,
+        group_by: nu.notebook_id,
+        select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
+
     Notebook
-    |> where([n], not is_nil(n.clap_count))
+    |> join(:inner, [n], sc in subquery(star_counts), on: n.id == sc.notebook_id)
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
     |> where([n], n.inserted_at >= from_now(-(^days_ago), "day"))
     |> where([n], n.id not in ^exclude_ids)
-    |> order_by(desc: :clap_count)
+    |> order_by([n, sc], desc: sc.star_count)
     |> limit(1)
     |> preload(:user)
     |> Repo.one()
