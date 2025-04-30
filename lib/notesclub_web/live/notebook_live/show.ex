@@ -23,7 +23,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
         do: Notebooks.starred?(notebook, socket.assigns.current_user),
         else: false
 
-    share_to_x_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
+    share_to_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
 
     related_notebooks =
       Notebooks.get_related_by_packages(notebook, limit: 4, preload: [:user, :repo])
@@ -44,7 +44,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
        socket,
        notebook: notebook,
        clap_count: notebook.clap_count,
-       share_to_x_text: share_to_x_text,
+       share_to_text: share_to_text,
        related_notebooks: related_notebooks,
        search: nil,
        starred: starred
