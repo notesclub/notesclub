@@ -76,10 +76,14 @@ defmodule Notesclub.Notebooks do
           order_by(query, fragment("RANDOM()"))
 
         {:order, :star_count}, query ->
+          # Subquery to count stars per notebook
+          star_counts = from nu in NotebookUser, group_by: nu.notebook_id, select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
+
           query
-          |> join(:left, [n], nu in NotebookUser, on: nu.notebook_id == n.id)
-          |> group_by([n], n.id)
-          |> order_by([n, nu], desc: count(n.id))
+          # Left join the star counts subquery
+          |> join(:left, [n, u], sc in subquery(star_counts), on: n.id == sc.notebook_id)
+          # Order by the joined star_count field, handling NULLs
+          |> order_by([n, u, sc], desc_nulls_last: sc.star_count)
 
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
