@@ -77,7 +77,10 @@ defmodule Notesclub.Notebooks do
 
         {:order, :star_count}, query ->
           # Subquery to count stars per notebook
-          star_counts = from nu in NotebookUser, group_by: nu.notebook_id, select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
+          star_counts =
+            from nu in NotebookUser,
+              group_by: nu.notebook_id,
+              select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
 
           query
           # Left join the star counts subquery
