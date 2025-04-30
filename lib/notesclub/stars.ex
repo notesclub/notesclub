@@ -10,8 +10,8 @@ defmodule Notesclub.Stars do
   alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Repo
 
-  @spec toggle_star(integer(), integer()) ::
-          {:ok, NotebookUser.t()} | {:error, Ecto.Changeset.t()}
+  @spec toggle_star(Notesclub.Notebooks.Notebook.t(), Notesclub.Accounts.User.t()) ::
+          {:ok, Notesclub.Notebooks.NotebookUser.t()} | {:error, Ecto.Changeset.t()}
 
   def toggle_star(%Notebook{} = notebook, %User{} = user) do
     case Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) do
