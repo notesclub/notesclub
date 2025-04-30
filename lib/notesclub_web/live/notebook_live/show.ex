@@ -23,7 +23,9 @@ defmodule NotesclubWeb.NotebookLive.Show do
         do: Notebooks.starred?(notebook, socket.assigns.current_user),
         else: false
 
-    share_to_text = "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
+    share_to_text =
+      "#{notebook.title}#{name_or_username(notebook.user)} #{uri} #myelixirstatus"
+      |> URI.encode_www_form()
 
     related_notebooks =
       Notebooks.get_related_by_packages(notebook, limit: 4, preload: [:user, :repo])
