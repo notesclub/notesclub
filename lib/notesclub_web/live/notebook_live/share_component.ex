@@ -33,7 +33,7 @@ defmodule NotesclubWeb.NotebookLive.ShareComponent do
         opacity-0 group-hover:opacity-100 transition-opacity
         pointer-events-none whitespace-nowrap
       ">
-        Share to X 
+        Share to X
       </span>
     </.link>
     """
