@@ -58,8 +58,11 @@ defmodule Notesclub.Notebooks do
       opts,
       base_query,
       fn
-        {:claps_gte, claps}, query ->
-          where(query, [notebook], notebook.clap_count >= ^claps)
+        {:stars_gte, stars}, query ->
+          query
+          |> join(:left, [n], nu in NotebookUser, on: nu.notebook_id == n.id)
+          |> group_by([n], n.id)
+          |> having([n, nu], count(nu.id) >= ^stars)
 
         {:require_content, true}, query ->
           where(query, [notebook], not is_nil(notebook.content))
@@ -73,8 +76,18 @@ defmodule Notesclub.Notebooks do
         {:order, :random}, query ->
           order_by(query, fragment("RANDOM()"))
 
-        {:order, :clap_count}, query ->
-          order_by(query, desc: :clap_count)
+        {:order, :star_count}, query ->
+          # Subquery to count stars per notebook
+          star_counts =
+            from nu in NotebookUser,
+              group_by: nu.notebook_id,
+              select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
+
+          query
+          # Left join the star counts subquery
+          |> join(:left, [n, u], sc in subquery(star_counts), on: n.id == sc.notebook_id)
+          # Order by the joined star_count field, handling NULLs
+          |> order_by([n, u, sc], desc_nulls_last: sc.star_count)
 
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
@@ -615,29 +628,6 @@ defmodule Notesclub.Notebooks do
     |> Repo.update()
   end
 
-  @spec increase_clap_count(integer()) ::
-          {:ok, Notebook.t()} | {:error, Ecto.Changeset.t()}
-  @doc """
-  Increments the `clap_count` of the given notebook by 1 and updates it in the database.
-
-  ## Parameters
-  - `notebook`: The `%Notebook{}` struct whose count you want to increment.
-
-  ## Returns
-  - {:ok, %Notebook{}} on successful update.
-  - {:error, changeset} on an error during update.
-  """
-  def increase_clap_count(notebook_id) when is_integer(notebook_id) do
-    case get_notebook(notebook_id) do
-      nil ->
-        {:error, :not_found}
-
-      %Notebook{} = notebook ->
-        new_count = notebook.clap_count + 1
-        update_notebook(notebook, %{clap_count: new_count})
-    end
-  end
-
   @doc """
   Deletes a notebook.
 
@@ -740,22 +730,6 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
-  end
-
-  def toggle_star(%Notebook{} = notebook, %User{} = user) do
-    case Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) do
-      nil ->
-        %NotebookUser{}
-        |> NotebookUser.changeset(%{notebook_id: notebook.id, user_id: user.id})
-        |> Repo.insert()
-
-      notebook_user ->
-        Repo.delete(notebook_user)
-    end
-  end
-
-  def starred?(%Notebook{} = notebook, %User{} = user) do
-    Repo.get_by(NotebookUser, notebook_id: notebook.id, user_id: user.id) != nil
   end
 
   # Gets starred notebooks associated with a user, preloading necessary associations
@@ -876,6 +850,15 @@ defmodule Notesclub.Notebooks do
     |> order_by(desc: :clap_count)
     |> limit(1)
     |> preload(:user)
+    |> Repo.one()
+  end
+
+  @spec get_star_count(integer()) :: integer()
+  def get_star_count(notebook_id) when is_integer(notebook_id) do
+    from(nu in NotebookUser,
+      where: nu.notebook_id == ^notebook_id,
+      select: count(nu.id)
+    )
     |> Repo.one()
   end
 end
