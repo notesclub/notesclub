@@ -1,9 +1,13 @@
 defmodule Notesclub.Stars do
+  @moduledoc """
+  Context for managing notebook stars (favourites) by users.
+  """
+
   import Ecto.Query, warn: false
 
-  alias Notesclub.Notebooks.NotebookUser
-  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Accounts.User
+  alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Repo
 
   @spec toggle_star(integer(), integer()) ::

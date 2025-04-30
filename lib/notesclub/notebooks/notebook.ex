@@ -7,9 +7,9 @@ defmodule Notesclub.Notebooks.Notebook do
   import Ecto.Changeset
 
   alias Notesclub.Accounts.User
+  alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Packages.Package
   alias Notesclub.Repos.Repo
-  alias Notesclub.Notebooks.NotebookUser
 
   @optional ~w(inserted_at user_id repo_id url content title)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a

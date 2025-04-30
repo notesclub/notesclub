@@ -5,10 +5,10 @@ defmodule NotesclubWeb.NotebookLive.Show do
 
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
+  alias Notesclub.Stars
   alias NotesclubWeb.NotebookLive.ShareComponent
   alias NotesclubWeb.NotebookLive.Show.Livemd
   alias Phoenix.LiveView.Socket
-  alias Notesclub.Stars
 
   # This can raise an exception and render 404
   # so we add the typespec no_return() so Dialyzer doesn't complain
