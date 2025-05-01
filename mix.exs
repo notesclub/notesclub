@@ -60,7 +60,7 @@ defmodule Notesclub.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.7.1"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:req, "~> 0.3.1"},
+      {:req, "~> 0.5"},
       {:mock, "~> 0.3.7"},
       {:appsignal, "~> 2.8.0"},
       {:appsignal_phoenix, "~> 2.3.5"},
@@ -77,7 +77,8 @@ defmodule Notesclub.MixProject do
       {:html_sanitize_ex, "~> 1.4"},
       {:html_entities, "~> 0.5"},
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_github, "~> 0.8"}
+      {:ueberauth_github, "~> 0.8"},
+      {:tidewave, "~> 0.1", only: :dev}
     ]
   end
 
