@@ -1,7 +1,6 @@
-defmodule Notesclub.XPITest do
-  use Notesclub.DataCase
+defmodule Notesclub.XApiTest do
+  use Notesclub.DataCase, async: true
 
-  import Mock
   alias Notesclub.X
 
   describe "X API V2 authentication" do

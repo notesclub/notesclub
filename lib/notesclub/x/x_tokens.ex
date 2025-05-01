@@ -5,7 +5,7 @@ defmodule Notesclub.X.XTokens do
   import Ecto.Query, warn: false
 
   alias Notesclub.Repo
-  alias Notesclub.X.XTokens.XToken
+  alias Notesclub.X.XToken
 
   @doc """
   Returns the most recent X API token.
