@@ -8,7 +8,7 @@ defmodule Notesclub.X do
 
   def get_authorize_url() do
     XAPI.generate_authorize_url(
-      XApi.Application.get_env(:notesclub, :x_client_id),
+      Application.get_env(:notesclub, :x_client_id),
       Application.get_env(:notesclub, :x_callback_url)
     )
   end
