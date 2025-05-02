@@ -4,8 +4,8 @@ defmodule Notesclub.PublishLogs.PublishLog do
 
   schema "publish_logs" do
     field :platform, :string
-    field :notebook_id, :id
-    field :user_id, :id
+
+    belongs_to :notebook, Notesclub.Notebooks.Notebook
 
     timestamps()
   end
@@ -13,7 +13,7 @@ defmodule Notesclub.PublishLogs.PublishLog do
   @doc false
   def changeset(publish_log, attrs) do
     publish_log
-    |> cast(attrs, [:platform])
+    |> cast(attrs, [:platform, :notebook_id])
     |> validate_required([:platform])
   end
 end

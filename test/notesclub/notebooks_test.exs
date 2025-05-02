@@ -443,7 +443,6 @@ defmodule Notesclub.NotebooksTest do
   end
 
   describe "get_most_starred_recent_notebook/0" do
-    alias Notesclub.PublishLogsFixtures
     import Notesclub.PublishLogsFixtures
 
     setup do
@@ -502,7 +501,12 @@ defmodule Notesclub.NotebooksTest do
       {:ok, _} = Stars.toggle_star(published_notebook, user)
       {:ok, _} = Stars.toggle_star(published_notebook, user2)
       {:ok, _} = Stars.toggle_star(published_notebook, user3)
-      publish_log_fixture(%{notebook_id: published_notebook.id, platform: "x", inserted_at: DateTools.days_ago(2)})
+
+      publish_log_fixture(%{
+        notebook_id: published_notebook.id,
+        platform: "x",
+        inserted_at: DateTools.days_ago(2)
+      })
 
       # Recent, 3 stars, short content (should be ignored)
       short_content_notebook =
@@ -516,6 +520,10 @@ defmodule Notesclub.NotebooksTest do
       {:ok, _} = Stars.toggle_star(short_content_notebook, user2)
       {:ok, _} = Stars.toggle_star(short_content_notebook, user3)
 
+      assert Stars.star_count(recent_starred) == 2
+      assert Stars.starred?(recent_starred, user2)
+      assert Stars.starred?(recent_starred, user3)
+      assert recent_starred.content == String.duplicate("a", 200)
 
       # Recent, 3 stars, nil content (should be ignored)
       nil_content_notebook =
@@ -529,15 +537,35 @@ defmodule Notesclub.NotebooksTest do
       {:ok, _} = Stars.toggle_star(nil_content_notebook, user2)
       {:ok, _} = Stars.toggle_star(nil_content_notebook, user3)
 
-
+      # Check that the most starred notebook is the recent one
       most_starred = Notebooks.get_most_starred_recent_notebook()
       assert most_starred.id == recent_starred.id
       assert most_starred.user.id == recent_starred.user_id
+
+      # Publish most_starred
+      publish_log_fixture(%{
+        notebook_id: most_starred.id,
+        platform: "x",
+        inserted_at: DateTools.days_ago(2)
+      })
+
+      most_starred2 = Notebooks.get_most_starred_recent_notebook()
+      assert most_starred2.id == recent_less_starred.id
+
+      # Publish most_starred2
+      publish_log_fixture(%{
+        notebook_id: most_starred2.id,
+        platform: "x",
+        inserted_at: DateTools.days_ago(2)
+      })
+
+      # Not any more recent notebooks
+      refute Notebooks.get_most_starred_recent_notebook()
     end
 
     test "returns nil when no notebooks meet the criteria", %{user: user} do
       # Older, starred, long content
-       _old_starred =
+      _old_starred =
         notebook_fixture(%{
           inserted_at: DateTools.days_ago(15),
           content: String.duplicate("c", 200),
@@ -551,10 +579,15 @@ defmodule Notesclub.NotebooksTest do
           content: String.duplicate("d", 200),
           user_id: user.id
         })
-       publish_log_fixture(%{notebook_id: published_notebook.id, platform: "x", inserted_at: DateTools.days_ago(2)})
+
+      publish_log_fixture(%{
+        notebook_id: published_notebook.id,
+        platform: "x",
+        inserted_at: DateTools.days_ago(2)
+      })
 
       # Recent, starred, but short content
-       _short_content_notebook =
+      _short_content_notebook =
         notebook_fixture(%{
           inserted_at: DateTools.days_ago(4),
           content: String.duplicate("e", 199),
@@ -576,7 +609,12 @@ defmodule Notesclub.NotebooksTest do
         })
 
       {:ok, _} = Stars.toggle_star(target_notebook, user2)
-      publish_log_fixture(%{notebook_id: target_notebook.id, platform: "linkedin", inserted_at: DateTools.days_ago(2)})
+
+      publish_log_fixture(%{
+        notebook_id: target_notebook.id,
+        platform: "linkedin",
+        inserted_at: DateTools.days_ago(2)
+      })
 
       most_starred = Notebooks.get_most_starred_recent_notebook()
       assert most_starred.id == target_notebook.id
