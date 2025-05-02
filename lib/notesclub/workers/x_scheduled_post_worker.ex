@@ -7,14 +7,18 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
     queue: :default,
     max_attempts: 3
 
+  import Logger
+
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
   alias Notesclub.PublishLogs
   alias Notesclub.X
 
+  @platform "x"
+
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    case Notebooks.get_most_starred_recent_notebook("x") do
+    case Notebooks.get_most_starred_recent_notebook(@platform) do
       nil ->
         {:ok, "No notebook found"}
 
@@ -24,13 +28,7 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
 
         case X.post(message) do
           {:ok, _response} ->
-            PublishLogs.create_publish_log(%{
-              platform: "x",
-              notebook_id: notebook.id,
-              user_id: notebook.user_id
-            })
-
-            :ok
+            create_publish_log(notebook)
 
           {:error, reason} ->
             {:error, "Failed to post to X: #{inspect(reason)}"}
@@ -49,4 +47,22 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
   # defp get_message(notebook, path) do
   #   "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
   # end
+
+  defp create_publish_log(notebook) do
+    case PublishLogs.create_publish_log(%{
+           platform: @platform,
+           notebook_id: notebook.id,
+           user_id: notebook.user_id
+         }) do
+      {:ok, _} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(
+          "Failed to create_publish_log after posting to X (be aware: we might publish repeated notebooks): #{inspect(reason)}"
+        )
+
+        {:error, "Failed to create publish log: #{inspect(reason)}"}
+    end
+  end
 end
