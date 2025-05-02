@@ -61,7 +61,10 @@ defmodule NotesclubWeb.NotebookLive.Show do
   def handle_event("toggle-star", _params, %{assigns: %{current_user: nil}} = socket) do
     {:noreply,
      socket
-     |> put_flash(:error, "Log in to star this notebook — boosting its rank in 'Top Starred' and increasing its chances of being featured on Bluesky and X.")}
+     |> put_flash(
+       :error,
+       "Log in to star this notebook — boosting its rank in 'Top Starred' and increasing its chances of being featured on Bluesky and X."
+     )}
   end
 
   def handle_event("toggle-star", _params, socket) do

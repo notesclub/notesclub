@@ -52,26 +52,29 @@ defmodule Notesclub.X do
             {:ok, response}
 
           {:error, _reason} ->
-            # If error occurs, try refreshing the token and post again
-            if token.refresh_token do
-              case XAPI.refresh_access_token(token.refresh_token) do
-                {:ok, new_access_token, new_refresh_token} ->
-                  # Update token in database
-                  {:ok, updated_token} =
-                    XTokens.update_token(token, %{
-                      access_token: new_access_token,
-                      refresh_token: new_refresh_token
-                    })
-
-                  XAPI.post(message, updated_token.access_token)
-
-                error ->
-                  error
-              end
-            else
-              {:error, :no_refresh_token}
-            end
+            refresh_token_and_post(message, token)
         end
+    end
+  end
+
+  defp refresh_token_and_post(message, %{refresh_token: nil}) do
+    {:error, :no_refresh_token}
+  end
+
+  defp refresh_token_and_post(message, token) do
+    case XAPI.refresh_access_token(token.refresh_token) do
+      {:ok, new_access_token, new_refresh_token} ->
+        # Update token in database
+        {:ok, updated_token} =
+          XTokens.update_token(token, %{
+            access_token: new_access_token,
+            refresh_token: new_refresh_token
+          })
+
+        XAPI.post(message, updated_token.access_token)
+
+      error ->
+        error
     end
   end
 end
