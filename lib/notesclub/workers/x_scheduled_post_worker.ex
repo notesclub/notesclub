@@ -39,7 +39,7 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
   end
 
   defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
-    "#{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
+    "#{notebook.title} by #{notebook.user.name} https://notes.club#{path}"
   end
 
   defp get_message(notebook, path) do
