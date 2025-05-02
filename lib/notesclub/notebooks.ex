@@ -14,9 +14,9 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
+  alias Notesclub.PublishLogs.PublishLog
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
-
   alias Notesclub.Workers.UrlContentSyncWorker
 
   require Logger
@@ -165,6 +165,27 @@ defmodule Notesclub.Notebooks do
       order_by: -n.id
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Returns the notebook with the highest clap_count from the last specified number of days.
+  Preloads user and repo associations.
+
+  ## Examples
+
+      iex> get_top_notebook_by_claps_since(14)
+      %Notebook{}
+
+  """
+  @spec get_top_notebook_by_claps_since(integer()) :: Notebook.t() | nil
+  def get_top_notebook_by_claps_since(num_days_ago) when is_integer(num_days_ago) do
+    from(n in Notebook,
+      where: n.inserted_at >= from_now(-(^num_days_ago), "day"),
+      order_by: [desc: :clap_count, desc: :id],
+      preload: [:user, :repo],
+      limit: 1
+    )
+    |> Repo.one()
   end
 
   @doc """
@@ -806,6 +827,46 @@ defmodule Notesclub.Notebooks do
       preload: ^preload
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Returns the most starred notebook from the last 14 days for a given platform.
+
+  ## Examples
+
+      iex> get_most_starred_recent_notebook("x")
+      %Notebook{}
+
+      iex> get_most_starred_recent_notebook("x")
+      nil
+  """
+  def get_most_starred_recent_notebook(platform) do
+    days_ago = 14
+
+    exclude_ids =
+      from(p in PublishLog,
+        where: p.platform == ^platform,
+        where: p.inserted_at >= from_now(-(^days_ago), "day"),
+        select: p.notebook_id
+      )
+      |> Repo.all()
+
+    # Subquery to get star counts for notebooks
+    star_counts =
+      from nu in NotebookUser,
+        group_by: nu.notebook_id,
+        select: %{notebook_id: nu.notebook_id, star_count: count(nu.id)}
+
+    Notebook
+    |> join(:inner, [n], sc in subquery(star_counts), on: n.id == sc.notebook_id)
+    |> where([n], not is_nil(n.content))
+    |> where([n], fragment("length(?)", n.content) >= 200)
+    |> where([n], n.inserted_at >= from_now(-(^days_ago), "day"))
+    |> where([n], n.id not in ^exclude_ids)
+    |> order_by([n, sc], desc: sc.star_count)
+    |> limit(1)
+    |> preload(:user)
+    |> Repo.one()
   end
 
   @spec get_star_count(integer()) :: integer()

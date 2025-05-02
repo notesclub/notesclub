@@ -85,6 +85,12 @@ end
 
 config :notesclub, env: config_env()
 
+if config_env() in [:prod, :dev] do
+  config :notesclub, :x_client_id, System.get_env("X_CLIENT_ID")
+  config :notesclub, :x_client_secret, System.get_env("X_CLIENT_SECRET")
+  config :notesclub, :x_callback_url, System.get_env("X_CALLBACK_URL")
+end
+
 if config_env() == :prod do
   github_api_key = System.get_env("NOTESCLUB_GITHUB_API_KEY")
   config :notesclub, :github_api_key, github_api_key

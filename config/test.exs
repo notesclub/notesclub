@@ -31,6 +31,11 @@ config :phoenix, :plug_init_mode, :runtime
 
 config :notesclub, Oban, testing: :manual, queues: false, plugins: false
 
+# X API V2
+config :notesclub, :x_client_id, "123"
+config :notesclub, :x_client_secret, "secret"
+config :notesclub, :x_callback_url, "https://localhost:4000/callback"
+
 if File.exists?("config/test_secrets.exs") do
   import_config "test_secrets.exs"
 end

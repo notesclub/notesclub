@@ -3,6 +3,8 @@ defmodule NotesclubWeb.AuthController do
   plug Ueberauth
 
   alias Notesclub.Accounts
+  alias Notesclub.Workers.XScheduledPostWorker
+  alias Notesclub.X
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
@@ -48,6 +50,32 @@ defmodule NotesclubWeb.AuthController do
     conn
     |> configure_session(drop: true)
     |> redirect(to: "/")
+  end
+
+  def botsignin(conn, _params) do
+    redirect(conn, external: X.get_authorize_url())
+  end
+
+  def botcallback(conn, %{"code" => auth_code}) do
+    case X.authenticate(auth_code) do
+      {:ok, _access_token} ->
+        # Successfully authenticated and stored token
+        # Post once immediately as a test, cron will handle scheduled posts
+
+        XScheduledPostWorker.new(%{}) |> Oban.insert()
+
+        conn
+        |> put_flash(
+          :info,
+          "Successfully authenticated with X. Automated posting is now configured to run every 8 hours."
+        )
+        |> redirect(to: "/")
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Failed to authenticate with X.")
+        |> redirect(to: "/")
+    end
   end
 
   defp to_user_params(auth) do

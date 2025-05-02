@@ -14,11 +14,13 @@
 
   <p class="bg-green-100 rounded-full px-4 py-2 text-green-800" role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="info" :if={live_flash(@flash, :info)}><%= live_flash(@flash, :info) %></p>
+    phx-value-key="info" :if={Phoenix.Flash.get(@flash, :info)}><%= Phoenix.Flash.get(@flash, :info) %></p>
 
-  <p class="bg-red-100 rounded-full px-4 py-2 text-red-800" role="alert"
+  <p
+    class="bg-red-100 rounded-full px-4 py-2 text-red-800"
+    role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="error" :if={live_flash(@flash, :error)}><%= live_flash(@flash, :error) %></p>
+    phx-value-key="error" :if={Phoenix.Flash.get(@flash, :error)}><%= Phoenix.Flash.get(@flash, :error) %></p>
 
   <%= @inner_content %>
 </main>
