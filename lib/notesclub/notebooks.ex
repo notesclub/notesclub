@@ -830,12 +830,23 @@ defmodule Notesclub.Notebooks do
     |> Repo.all()
   end
 
-  def get_most_starred_recent_notebook do
+  @doc """
+  Returns the most starred notebook from the last 14 days for a given platform.
+
+  ## Examples
+
+      iex> get_most_starred_recent_notebook("x")
+      %Notebook{}
+
+      iex> get_most_starred_recent_notebook("x")
+      nil
+  """
+  def get_most_starred_recent_notebook(platform) do
     days_ago = 14
 
     exclude_ids =
       from(p in PublishLog,
-        where: p.platform == "x",
+        where: p.platform == ^platform,
         where: p.inserted_at >= from_now(-(^days_ago), "day"),
         select: p.notebook_id
       )

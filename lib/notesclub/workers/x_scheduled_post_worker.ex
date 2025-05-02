@@ -14,7 +14,7 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    case Notebooks.get_most_starred_recent_notebook() do
+    case Notebooks.get_most_starred_recent_notebook("x") do
       nil ->
         {:ok, "No notebook found"}
 

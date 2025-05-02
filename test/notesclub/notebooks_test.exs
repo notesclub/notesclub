@@ -538,7 +538,7 @@ defmodule Notesclub.NotebooksTest do
       {:ok, _} = Stars.toggle_star(nil_content_notebook, user3)
 
       # Check that the most starred notebook is the recent one
-      most_starred = Notebooks.get_most_starred_recent_notebook()
+      most_starred = Notebooks.get_most_starred_recent_notebook("x")
       assert most_starred.id == recent_starred.id
       assert most_starred.user.id == recent_starred.user_id
 
@@ -549,7 +549,7 @@ defmodule Notesclub.NotebooksTest do
         inserted_at: DateTools.days_ago(2)
       })
 
-      most_starred2 = Notebooks.get_most_starred_recent_notebook()
+      most_starred2 = Notebooks.get_most_starred_recent_notebook("x")
       assert most_starred2.id == recent_less_starred.id
 
       # Publish most_starred2
@@ -560,7 +560,7 @@ defmodule Notesclub.NotebooksTest do
       })
 
       # Not any more recent notebooks
-      refute Notebooks.get_most_starred_recent_notebook()
+      refute Notebooks.get_most_starred_recent_notebook("x")
     end
 
     test "returns nil when no notebooks meet the criteria", %{user: user} do
@@ -594,7 +594,7 @@ defmodule Notesclub.NotebooksTest do
           user_id: user.id
         })
 
-      assert Notebooks.get_most_starred_recent_notebook() == nil
+      assert Notebooks.get_most_starred_recent_notebook("x") == nil
     end
 
     test "handles notebooks published to platforms other than 'x'", %{
@@ -616,7 +616,7 @@ defmodule Notesclub.NotebooksTest do
         inserted_at: DateTools.days_ago(2)
       })
 
-      most_starred = Notebooks.get_most_starred_recent_notebook()
+      most_starred = Notebooks.get_most_starred_recent_notebook("x")
       assert most_starred.id == target_notebook.id
     end
   end
