@@ -14,10 +14,9 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
+  alias Notesclub.PublishLogs.PublishLog
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
-  alias Notesclub.PublishLogs.PublishLog
-
   alias Notesclub.Workers.UrlContentSyncWorker
 
   require Logger

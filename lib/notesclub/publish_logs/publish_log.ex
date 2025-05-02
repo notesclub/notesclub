@@ -1,4 +1,8 @@
 defmodule Notesclub.PublishLogs.PublishLog do
+  @moduledoc """
+  Schema for the publish logs on platforms.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

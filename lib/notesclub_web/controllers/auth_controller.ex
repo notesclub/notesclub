@@ -3,8 +3,8 @@ defmodule NotesclubWeb.AuthController do
   plug Ueberauth
 
   alias Notesclub.Accounts
-  alias Notesclub.X
   alias Notesclub.Workers.XScheduledPostWorker
+  alias Notesclub.X
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn

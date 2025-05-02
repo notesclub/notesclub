@@ -6,7 +6,7 @@ defmodule Notesclub.X do
   alias Notesclub.X.XAPI
   alias Notesclub.X.XTokens
 
-  def get_authorize_url() do
+  def get_authorize_url do
     XAPI.generate_authorize_url(
       Application.get_env(:notesclub, :x_client_id),
       Application.get_env(:notesclub, :x_callback_url)
@@ -57,7 +57,7 @@ defmodule Notesclub.X do
     end
   end
 
-  defp refresh_token_and_post(message, %{refresh_token: nil}) do
+  defp refresh_token_and_post(_, %{refresh_token: nil}) do
     {:error, :no_refresh_token}
   end
 

@@ -7,10 +7,10 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
     queue: :default,
     max_attempts: 3
 
-  alias Notesclub.X
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Paths
   alias Notesclub.PublishLogs
+  alias Notesclub.X
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
