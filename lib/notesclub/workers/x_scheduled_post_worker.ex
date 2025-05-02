@@ -7,9 +7,11 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
     queue: :default,
     max_attempts: 3
 
-  import Logger
+  require Logger
 
+  alias Notesclub.Accounts.User
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Paths
   alias Notesclub.PublishLogs
   alias Notesclub.X
