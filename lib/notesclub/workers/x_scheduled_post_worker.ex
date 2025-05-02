@@ -36,17 +36,13 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
     end
   end
 
-  defp get_message(notebook, path) do
+  defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
     "#{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
   end
 
-  # defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
-  #   "#{notebook.title} by #{notebook.user.username} https://notes.club#{path}"
-  # end
-
-  # defp get_message(notebook, path) do
-  #   "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
-  # end
+  defp get_message(notebook, path) do
+    "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
+  end
 
   defp create_publish_log(notebook) do
     case PublishLogs.create_publish_log(%{
