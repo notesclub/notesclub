@@ -41,7 +41,7 @@ defmodule Notesclub.MixProject do
 
   defp core_deps do
     [
-      {:phoenix, "~> 1.7.10"},
+      {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.7"},
       {:postgrex, ">= 0.0.0"},
@@ -49,7 +49,7 @@ defmodule Notesclub.MixProject do
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_view, "~> 2.0.3"},
       {:phoenix_live_reload, "~> 1.4.1", only: :dev},
-      {:phoenix_live_view, "~> 0.20.3"},
+      {:phoenix_live_view, "~> 1.0.11"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
@@ -62,10 +62,11 @@ defmodule Notesclub.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.5"},
       {:mock, "~> 0.3.7"},
-      {:appsignal, "~> 2.8.0"},
-      {:appsignal_phoenix, "~> 2.3.5"},
+      {:appsignal, "~> 2.15.5"},
+      {:appsignal_phoenix, "~> 2.7.0"},
       {:faker, "~> 0.17", only: :test},
-      {:oban, "2.18.2"},
+      {:oban, "2.19.4"},
+      {:oban_web, "~> 2.11.3"},
       {:timex, "~> 3.0"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
@@ -83,11 +84,8 @@ defmodule Notesclub.MixProject do
   end
 
   defp oban_pro_deps do
-    if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
-      [
-        {:oban_pro, "~> 1.4.14", repo: "oban"},
-        {:oban_web, "~> 2.10.5", repo: "oban"}
-      ]
+    if System.get_env("NOTESCLUB_IS_OBAN_PRO_ENABLED") == "true" do
+      [{:oban_pro, "~> 1.5.4", repo: "oban"}]
     else
       []
     end

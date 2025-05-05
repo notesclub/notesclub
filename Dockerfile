@@ -46,7 +46,7 @@ ENV MIX_ENV="prod"
 # install mix dependencies
 COPY mix.exs mix.lock ./
 
-ENV NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED="true"
+ENV NOTESCLUB_IS_OBAN_PRO_ENABLED="true"
 
 RUN --mount=type=secret,id=OBAN_KEY_FINGERPRINT \
   --mount=type=secret,id=OBAN_LICENSE_KEY \
