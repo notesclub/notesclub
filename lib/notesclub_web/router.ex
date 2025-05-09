@@ -1,8 +1,10 @@
 defmodule NotesclubWeb.Router do
   use NotesclubWeb, :router
 
+  import Oban.Web.Router
   import Redirect
   import NotesclubWeb.UserAuth
+
   alias NotesclubWeb.Plugs.AssetInterceptor
 
   require Notesclub.Compile
@@ -23,26 +25,22 @@ defmodule NotesclubWeb.Router do
     plug(:accepts, ["json"])
   end
 
-  Notesclub.Compile.only_if_loaded :oban_web do
-    require Oban.Web.Router
+  pipeline :admin_auth do
+    plug(:auth)
 
-    pipeline :admin_auth do
-      plug(:auth)
-
-      defp auth(conn, _opts) do
-        username = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
-        password = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_PASSWORD")
-        Plug.BasicAuth.basic_auth(conn, username: username, password: password)
-      end
+    defp auth(conn, _opts) do
+      username = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_USERNAME")
+      password = System.fetch_env!("NOTESCLUB_OBAN_WEB_DASHBOARD_PASSWORD")
+      Plug.BasicAuth.basic_auth(conn, username: username, password: password)
     end
+  end
 
-    scope "/", NotesclubWeb do
-      pipe_through([:browser, :admin_auth])
+  scope "/", NotesclubWeb do
+    pipe_through([:browser, :admin_auth])
 
-      Oban.Web.Router.oban_dashboard("/oban")
+    oban_dashboard("/oban")
 
-      get("/x/signin", AuthController, :botsignin)
-    end
+    get("/x/signin", AuthController, :botsignin)
   end
 
   redirect("/last_week", "/", :permanent)

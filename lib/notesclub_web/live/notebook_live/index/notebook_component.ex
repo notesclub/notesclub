@@ -22,7 +22,7 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
     ~H"""
     <%= if assigns[:search] && !String.contains?(@notebook.github_filename, @search) do %>
       <p class="text-gray-400">
-        <%= Notebooks.content_fragment(@notebook, @search) %>
+        {Notebooks.content_fragment(@notebook, @search)}
       </p>
     <% end %>
     """

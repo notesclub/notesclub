@@ -58,7 +58,7 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-if System.get_env("NOTESCLUB_IS_OBAN_WEB_PRO_ENABLED") == "true" do
+if System.get_env("NOTESCLUB_IS_OBAN_PRO_ENABLED") == "true" do
   config :notesclub, Oban,
     engine: Oban.Pro.Engines.Smart,
     repo: Notesclub.Repo,
