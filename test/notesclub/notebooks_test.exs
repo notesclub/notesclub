@@ -442,7 +442,7 @@ defmodule Notesclub.NotebooksTest do
     end
   end
 
-  describe "get_most_starred_recent_notebook/0" do
+  describe "get_non_published_most_starred_notebook/1" do
     import Notesclub.PublishLogsFixtures
 
     setup do
@@ -452,115 +452,69 @@ defmodule Notesclub.NotebooksTest do
       {:ok, %{user: user, user2: user2, user3: user3}}
     end
 
-    test "returns the most starred notebook created in the last 14 days", %{
+    test "returns the most starred notebook that has not been published to the given platform", %{
       user: user,
       user2: user2,
       user3: user3
     } do
-      # Recent, 2 stars, long content, not published
-      recent_starred =
+      # Create three notebooks with long content
+      notebook1 =
         notebook_fixture(%{
-          inserted_at: DateTools.days_ago(7),
+          inserted_at: DateTools.days_ago(10),
           content: String.duplicate("a", 200),
           user_id: user.id
         })
 
-      {:ok, _} = Stars.toggle_star(recent_starred, user2)
-      {:ok, _} = Stars.toggle_star(recent_starred, user3)
-
-      # Recent, 1 star, long content, not published
-      recent_less_starred =
+      notebook2 =
         notebook_fixture(%{
-          inserted_at: DateTools.days_ago(5),
+          inserted_at: DateTools.days_ago(8),
           content: String.duplicate("b", 200),
-          user_id: user.id
+          user_id: user2.id
         })
 
-      {:ok, _} = Stars.toggle_star(recent_less_starred, user2)
-
-      # Older, 3 stars, long content, not published (should be ignored)
-      old_starred =
+      notebook3 =
         notebook_fixture(%{
-          inserted_at: DateTools.days_ago(15),
+          inserted_at: DateTools.days_ago(6),
           content: String.duplicate("c", 200),
-          user_id: user.id
+          user_id: user3.id
         })
 
-      {:ok, _} = Stars.toggle_star(old_starred, user)
-      {:ok, _} = Stars.toggle_star(old_starred, user2)
-      {:ok, _} = Stars.toggle_star(old_starred, user3)
+      # Add stars: notebook1 gets 1, notebook2 gets 2, notebook3 gets 3
+      {:ok, _} = Stars.toggle_star(notebook1, user)
+      {:ok, _} = Stars.toggle_star(notebook2, user)
+      {:ok, _} = Stars.toggle_star(notebook2, user2)
+      {:ok, _} = Stars.toggle_star(notebook3, user)
+      {:ok, _} = Stars.toggle_star(notebook3, user2)
+      {:ok, _} = Stars.toggle_star(notebook3, user3)
 
-      # Recent, 3 stars, long content, published recently (should be ignored)
-      published_notebook =
-        notebook_fixture(%{
-          inserted_at: DateTools.days_ago(3),
-          content: String.duplicate("d", 200),
-          user_id: user.id
-        })
-
-      {:ok, _} = Stars.toggle_star(published_notebook, user)
-      {:ok, _} = Stars.toggle_star(published_notebook, user2)
-      {:ok, _} = Stars.toggle_star(published_notebook, user3)
-
+      # Publish notebook3 to platform 'x', so it should be excluded
       publish_log_fixture(%{
-        notebook_id: published_notebook.id,
+        notebook_id: notebook3.id,
         platform: "x",
         inserted_at: DateTools.days_ago(2)
       })
 
-      # Recent, 3 stars, short content (should be ignored)
-      short_content_notebook =
-        notebook_fixture(%{
-          inserted_at: DateTools.days_ago(4),
-          content: String.duplicate("e", 199),
-          user_id: user.id
-        })
+      # Post notebook2
+      result = Notebooks.get_non_published_most_starred_notebook("x")
+      assert result.id == notebook2.id
 
-      {:ok, _} = Stars.toggle_star(short_content_notebook, user)
-      {:ok, _} = Stars.toggle_star(short_content_notebook, user2)
-      {:ok, _} = Stars.toggle_star(short_content_notebook, user3)
-
-      assert Stars.star_count(recent_starred) == 2
-      assert Stars.starred?(recent_starred, user2)
-      assert Stars.starred?(recent_starred, user3)
-      assert recent_starred.content == String.duplicate("a", 200)
-
-      # Recent, 3 stars, nil content (should be ignored)
-      nil_content_notebook =
-        notebook_fixture(%{
-          inserted_at: DateTools.days_ago(4),
-          content: nil,
-          user_id: user.id
-        })
-
-      {:ok, _} = Stars.toggle_star(nil_content_notebook, user)
-      {:ok, _} = Stars.toggle_star(nil_content_notebook, user2)
-      {:ok, _} = Stars.toggle_star(nil_content_notebook, user3)
-
-      # Check that the most starred notebook is the recent one
-      most_starred = Notebooks.get_most_starred_recent_notebook("x")
-      assert most_starred.id == recent_starred.id
-      assert most_starred.user.id == recent_starred.user_id
-
-      # Publish most_starred
       publish_log_fixture(%{
-        notebook_id: most_starred.id,
+        notebook_id: notebook2.id,
         platform: "x",
         inserted_at: DateTools.days_ago(2)
       })
 
-      most_starred2 = Notebooks.get_most_starred_recent_notebook("x")
-      assert most_starred2.id == recent_less_starred.id
+      # Post notebook1
+      result = Notebooks.get_non_published_most_starred_notebook("x")
+      assert result.id == notebook1.id
 
-      # Publish most_starred2
       publish_log_fixture(%{
-        notebook_id: most_starred2.id,
+        notebook_id: notebook1.id,
         platform: "x",
         inserted_at: DateTools.days_ago(2)
       })
 
-      # Not any more recent notebooks
-      refute Notebooks.get_most_starred_recent_notebook("x")
+      assert nil == Notebooks.get_non_published_most_starred_notebook("x")
     end
 
     test "returns nil when no notebooks meet the criteria", %{user: user} do
@@ -594,7 +548,7 @@ defmodule Notesclub.NotebooksTest do
           user_id: user.id
         })
 
-      assert Notebooks.get_most_starred_recent_notebook("x") == nil
+      assert Notebooks.get_non_published_most_starred_notebook("x") == nil
     end
 
     test "handles notebooks published to platforms other than 'x'", %{
@@ -616,7 +570,7 @@ defmodule Notesclub.NotebooksTest do
         inserted_at: DateTools.days_ago(2)
       })
 
-      most_starred = Notebooks.get_most_starred_recent_notebook("x")
+      most_starred = Notebooks.get_non_published_most_starred_notebook("x")
       assert most_starred.id == target_notebook.id
     end
   end

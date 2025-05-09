@@ -830,27 +830,17 @@ defmodule Notesclub.Notebooks do
   end
 
   @doc """
-  Returns the most starred notebook from the last 14 days for a given platform.
+  Returns the most starred notebook that has not been published to the given platform.
 
   ## Examples
 
-      iex> get_most_starred_recent_notebook("x")
+      iex> get_non_published_most_starred_notebook("x")
       %Notebook{}
 
-      iex> get_most_starred_recent_notebook("x")
+      iex> get_non_published_most_starred_notebook("x")
       nil
   """
-  def get_most_starred_recent_notebook(platform) do
-    days_ago = 14
-
-    exclude_ids =
-      from(p in PublishLog,
-        where: p.platform == ^platform,
-        where: p.inserted_at >= from_now(-(^days_ago), "day"),
-        select: p.notebook_id
-      )
-      |> Repo.all()
-
+  def get_non_published_most_starred_notebook(platform) do
     # Subquery to get star counts for notebooks
     star_counts =
       from nu in NotebookUser,
@@ -859,10 +849,12 @@ defmodule Notesclub.Notebooks do
 
     Notebook
     |> join(:inner, [n], sc in subquery(star_counts), on: n.id == sc.notebook_id)
+    |> join(:left, [n, _sc], pl in PublishLog,
+      on: pl.notebook_id == n.id and pl.platform == ^platform
+    )
+    |> where([n, _sc, pl], is_nil(pl.id))
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
-    |> where([n], n.inserted_at >= from_now(-(^days_ago), "day"))
-    |> where([n], n.id not in ^exclude_ids)
     |> order_by([n, sc], desc: sc.star_count)
     |> limit(1)
     |> preload(:user)

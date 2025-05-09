@@ -20,7 +20,7 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    case Notebooks.get_most_starred_recent_notebook(@platform) do
+    case Notebooks.get_non_published_most_starred_notebook(@platform) do
       nil ->
         {:ok, "No notebook found"}
 
@@ -39,11 +39,11 @@ defmodule Notesclub.Workers.XScheduledPostWorker do
   end
 
   defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
-    "#{notebook.title} by #{notebook.user.name} https://notes.club#{path}"
+    "#{notebook.title} by #{notebook.user.name} https://notes.club#{path} #ElixirLang #Livebook"
   end
 
   defp get_message(notebook, path) do
-    "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path}"
+    "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path} #ElixirLang #Livebook"
   end
 
   defp create_publish_log(notebook) do
