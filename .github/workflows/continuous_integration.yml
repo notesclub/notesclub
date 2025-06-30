@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Elixir and OTP
-        uses: erlef/setup-beam@v1.18
+        uses: erlef/setup-beam@v1.20
         id: setup-beam
         with:
           otp-version: '25.3.2.20'
