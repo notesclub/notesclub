@@ -127,8 +127,7 @@ defmodule Notesclub.Notebooks do
             |> Enum.map(&String.trim/1)
             |> Enum.reject(&(&1 == ""))
             # allow partial lexeme match
-            |> Enum.map(&"#{&1}:*")
-            |> Enum.join(" & ")
+            |> Enum.map_join(" & ", &"#{&1}:*")
 
           # Join user so we can search in user.name via trigram
           query =
