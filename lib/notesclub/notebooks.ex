@@ -119,6 +119,10 @@ defmodule Notesclub.Notebooks do
           search = "%#{content}%"
           where(query, [notebook], ilike(notebook.content, ^search))
 
+        {:full_text_search, search_term}, query when is_nil(search_term) ->
+          # If search_term is nil, return the query as-is
+          query
+
         {:full_text_search, search_term}, query ->
           # Prefix match for lexemes in full-text search
           tsquery =
