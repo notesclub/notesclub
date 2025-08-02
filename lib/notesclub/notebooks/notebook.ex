@@ -11,13 +11,14 @@ defmodule Notesclub.Notebooks.Notebook do
   alias Notesclub.Packages.Package
   alias Notesclub.Repos.Repo
 
-  @optional ~w(inserted_at user_id repo_id url content title)a
+  @optional ~w(inserted_at user_id repo_id url content title search_vector)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
   typed_schema "notebooks" do
     field(:url, :string)
     field(:content, :string)
     field(:title, :string, default: "")
+    field(:search_vector, :string, virtual: true)
 
     # url to commit — provided by Github Search API
     field(:github_html_url, :string)

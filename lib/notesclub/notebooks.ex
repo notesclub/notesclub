@@ -119,6 +119,54 @@ defmodule Notesclub.Notebooks do
           search = "%#{content}%"
           where(query, [notebook], ilike(notebook.content, ^search))
 
+        {:full_text_search, search_term}, query ->
+          # Use PostgreSQL full-text search with ranking
+          # Convert search term to proper tsquery format
+          formatted_query =
+            search_term
+            |> String.split(" ")
+            |> Enum.map(&String.trim/1)
+            |> Enum.filter(&(&1 != ""))
+            |> Enum.join(" & ")
+
+          if formatted_query != "" do
+            where(
+              query,
+              [notebook],
+              fragment("? @@ to_tsquery('english', ?)", notebook.search_vector, ^formatted_query)
+            )
+          else
+            query
+          end
+
+        {:order, :relevance}, query ->
+          # Order by relevance using ts_rank
+          search_term = opts[:full_text_search]
+
+          if search_term do
+            formatted_query =
+              search_term
+              |> String.split(" ")
+              |> Enum.map(&String.trim/1)
+              |> Enum.filter(&(&1 != ""))
+              |> Enum.join(" & ")
+
+            if formatted_query != "" do
+              order_by(query, [notebook],
+                desc:
+                  fragment(
+                    "ts_rank(?, to_tsquery('english', ?))",
+                    notebook.search_vector,
+                    ^formatted_query
+                  )
+              )
+            else
+              query
+            end
+          else
+            query
+          end
+
         {:ids, ids}, query ->
           where(query, [notebook], notebook.id in ^ids)
 
