@@ -272,9 +272,9 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp get_notebooks(%{assigns: %{search: search}}, :search, page, exclude_ids) do
     # Check if search is wrapped in quotes for exact search
-    if String.starts_with?(search, "\"") and String.ends_with?(search, "\"") do
+    if search && String.starts_with?(search, "\"") && String.ends_with?(search, "\"") do
       # Exact search - remove quotes and use existing logic
-      exact_search = String.slice(search, 1..-2)
+      exact_search = String.slice(search, 1..(String.length(search) - 2))
       per_page = trunc(@per_page / 2)
 
       searchable_matches =

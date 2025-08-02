@@ -123,11 +123,15 @@ defmodule Notesclub.Notebooks do
           # Use PostgreSQL full-text search with ranking
           # Convert search term to proper tsquery format
           formatted_query =
-            search_term
-            |> String.split(" ")
-            |> Enum.map(&String.trim/1)
-            |> Enum.filter(&(&1 != ""))
-            |> Enum.join(" & ")
+            if search_term do
+              search_term
+              |> String.split(" ")
+              |> Enum.map(&String.trim/1)
+              |> Enum.filter(&(&1 != ""))
+              |> Enum.join(" & ")
+            else
+              ""
+            end
 
           if formatted_query != "" do
             where(
@@ -188,11 +192,15 @@ defmodule Notesclub.Notebooks do
 
   defp apply_relevance_ordering(query, search_term) do
     formatted_query =
-      search_term
-      |> String.split(" ")
-      |> Enum.map(&String.trim/1)
-      |> Enum.filter(&(&1 != ""))
-      |> Enum.join(" & ")
+      if search_term do
+        search_term
+        |> String.split(" ")
+        |> Enum.map(&String.trim/1)
+        |> Enum.filter(&(&1 != ""))
+        |> Enum.join(" & ")
+      else
+        ""
+      end
 
     if formatted_query != "" do
       order_by(query, [notebook],
