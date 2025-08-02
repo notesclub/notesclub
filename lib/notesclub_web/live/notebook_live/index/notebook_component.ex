@@ -20,12 +20,20 @@ defmodule NotesclubWeb.NotebookLive.Index.NotebookComponent do
 
   defp search_fragment(assigns) do
     ~H"""
-    <%= if assigns[:search] && !String.contains?(@notebook.github_filename, @search) do %>
+    <%= if assigns[:search] && !String.contains?(@notebook.github_filename, extract_search_term(@search)) do %>
       <p class="text-gray-400">
-        {Notebooks.content_fragment(@notebook, @search)}
+        {Notebooks.content_fragment(@notebook, extract_search_term(@search))}
       </p>
     <% end %>
     """
+  end
+
+  defp extract_search_term(search) when is_binary(search) do
+    if String.starts_with?(search, "\"") && String.ends_with?(search, "\"") do
+      String.slice(search, 1..(String.length(search) - 2))
+    else
+      search
+    end
   end
 
   defp notebook_path(notebook) do

@@ -95,7 +95,9 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ "@BrooklinJazz</a>"
   end
 
-  test "GET /search returns notebooks that match filename or content", %{conn: conn} do
+  test "GET /search returns notebooks that match filename or content (exact search)", %{
+    conn: conn
+  } do
     notebook_fixture(github_filename: "found.livemd")
 
     notebook_fixture(
@@ -105,26 +107,94 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
 
     notebook_fixture(github_filename: "not_present.livemd")
 
-    {:ok, _view, html} = live(conn, "/search?q=found")
+    {:ok, _view, html} = live(conn, "/search?q=\"found\"")
 
     assert html =~ "found.livemd"
     assert html =~ "any-name.livemd"
+    # Content fragment is only shown when filename doesn't contain search term
     assert html =~ "abc found xyz"
 
     refute html =~ "not_present.livemd"
   end
 
-  test "GET /search returns notebooks with content that match title", %{conn: conn} do
+  test "GET /search returns notebooks with content that match title (exact search)", %{conn: conn} do
     notebook_fixture(
       github_filename: "livebook.livemd",
       title: "Found",
       content: "abc found xyz"
     )
 
-    {:ok, _view, html} = live(conn, "/search?q=found")
+    {:ok, _view, html} = live(conn, "/search?q=\"found\"")
 
     assert html =~ "livebook.livemd"
+    # Content fragment is shown because filename doesn't contain search term
     assert html =~ "abc found xyz"
+  end
+
+  test "GET /search full-text search returns relevant notebooks", %{conn: conn} do
+    notebook_fixture(
+      github_filename: "machine_learning.livemd",
+      title: "Introduction to Machine Learning",
+      content: "This notebook covers neural networks and deep learning concepts."
+    )
+
+    notebook_fixture(
+      github_filename: "data_analysis.livemd",
+      title: "Data Analysis with Elixir",
+      content: "Introduction to whatever and learning."
+    )
+
+    notebook_fixture(
+      github_filename: "unrelated.livemd",
+      title: "Web Development",
+      content: "Building web applications with Phoenix framework."
+    )
+
+    {:ok, _view, html} = live(conn, "/search?q=introduction+learning")
+
+    assert html =~ "machine_learning.livemd"
+    assert html =~ "Introduction to Machine Learning"
+    refute html =~ "unrelated.livemd"
+  end
+
+  test "GET /search full-text search with single word", %{conn: conn} do
+    notebook_fixture(
+      github_filename: "neural_networks.livemd",
+      title: "Neural Networks Tutorial",
+      content: "Deep learning with neural networks and backpropagation."
+    )
+
+    notebook_fixture(
+      github_filename: "web_app.livemd",
+      title: "Web Application",
+      content: "Building web applications with Phoenix."
+    )
+
+    {:ok, _view, html} = live(conn, "/search?q=neural")
+
+    assert html =~ "neural_networks.livemd"
+    assert html =~ "Neural Networks Tutorial"
+    refute html =~ "web_app.livemd"
+  end
+
+  test "GET /search full-text search matches content", %{conn: conn} do
+    notebook_fixture(
+      github_filename: "tutorial.livemd",
+      title: "Elixir Tutorial",
+      content: "This notebook teaches you about pattern matching and recursion in Elixir."
+    )
+
+    notebook_fixture(
+      github_filename: "other.livemd",
+      title: "Other Topic",
+      content: "This notebook is about something else entirely."
+    )
+
+    {:ok, _view, html} = live(conn, "/search?q=pattern matching")
+
+    assert html =~ "tutorial.livemd"
+    assert html =~ "Elixir Tutorial"
+    refute html =~ "other.livemd"
   end
 
   test "GET /search empty search should change the path to /", %{conn: conn} do

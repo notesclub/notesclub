@@ -271,34 +271,51 @@ defmodule NotesclubWeb.NotebookLive.Index do
   end
 
   defp get_notebooks(%{assigns: %{search: search}}, :search, page, exclude_ids) do
-    per_page = trunc(@per_page / 2)
+    # Check if search is wrapped in quotes for exact search
+    if search && String.starts_with?(search, "\"") && String.ends_with?(search, "\"") do
+      # Exact search - remove quotes and use existing logic
+      exact_search = String.slice(search, 1..(String.length(search) - 2))
+      per_page = trunc(@per_page / 2)
 
-    searchable_matches =
+      searchable_matches =
+        Notebooks.list_notebooks(
+          searchable: exact_search,
+          per_page: per_page,
+          page: page,
+          order: :desc,
+          exclude_ids: exclude_ids,
+          require_content: true,
+          select_content: true,
+          preload: [:user, :repo, :packages]
+        )
+
+      exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
+
+      content_matches =
+        Notebooks.list_notebooks(
+          content: exact_search,
+          per_page: per_page,
+          page: page,
+          order: :desc,
+          exclude_ids: exclude_ids,
+          require_content: true,
+          select_content: true,
+          preload: [:user, :repo, :packages]
+        )
+
+      searchable_matches ++ content_matches
+    else
+      # Full-text search
       Notebooks.list_notebooks(
-        searchable: search,
-        per_page: per_page,
+        full_text_search: search,
+        per_page: @per_page,
         page: page,
-        order: :desc,
+        order: :relevance,
         exclude_ids: exclude_ids,
         require_content: true,
         select_content: true,
         preload: [:user, :repo, :packages]
       )
-
-    exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
-
-    content_matches =
-      Notebooks.list_notebooks(
-        content: search,
-        per_page: per_page,
-        page: page,
-        order: :desc,
-        exclude_ids: exclude_ids,
-        require_content: true,
-        select_content: true,
-        preload: [:user, :repo, :packages]
-      )
-
-    searchable_matches ++ content_matches
+    end
   end
 end
