@@ -142,30 +142,7 @@ defmodule Notesclub.Notebooks do
         {:order, :relevance}, query ->
           # Order by relevance using ts_rank
           search_term = opts[:full_text_search]
-
-          if search_term do
-            formatted_query =
-              search_term
-              |> String.split(" ")
-              |> Enum.map(&String.trim/1)
-              |> Enum.filter(&(&1 != ""))
-              |> Enum.join(" & ")
-
-            if formatted_query != "" do
-              order_by(query, [notebook],
-                desc:
-                  fragment(
-                    "ts_rank(?, to_tsquery('english', ?))",
-                    notebook.search_vector,
-                    ^formatted_query
-                  )
-              )
-            else
-              query
-            end
-          else
-            query
-          end
+          apply_relevance_ordering(query, search_term)
 
         {:ids, ids}, query ->
           where(query, [notebook], notebook.id in ^ids)
@@ -203,6 +180,31 @@ defmodule Notesclub.Notebooks do
         opts
         |> Keyword.delete(:package_name)
         |> Keyword.put(:ids, notebook_ids)
+    end
+  end
+
+  @spec apply_relevance_ordering(Ecto.Query.t(), binary | nil) :: Ecto.Query.t()
+  defp apply_relevance_ordering(query, nil), do: query
+
+  defp apply_relevance_ordering(query, search_term) do
+    formatted_query =
+      search_term
+      |> String.split(" ")
+      |> Enum.map(&String.trim/1)
+      |> Enum.filter(&(&1 != ""))
+      |> Enum.join(" & ")
+
+    if formatted_query != "" do
+      order_by(query, [notebook],
+        desc:
+          fragment(
+            "ts_rank(?, to_tsquery('english', ?))",
+            notebook.search_vector,
+            ^formatted_query
+          )
+      )
+    else
+      query
     end
   end
 
