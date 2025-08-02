@@ -11,7 +11,7 @@
   </p>
   <form id="search" class="px-4 sm:flex sm:justify-center mt-4 mb-4 sm:mb-8" phx-submit="search">
     <div>
-      <input type="text" name="value" value={@search} autofocus phx-debounce="300" phx-keydown="search"
+      <input type="text" name="value" value={@search} placeholder="Full-text search" autofocus phx-debounce="300" phx-keydown="search"
         class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
     </div>
     <div class="pt-2 sm:pt-0 sm:pl-4">
