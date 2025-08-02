@@ -135,6 +135,7 @@ defmodule Notesclub.Notebooks do
             join(query, :inner, [n], u in User, on: u.id == n.user_id)
 
           # Combine full-text search with trigram substring search
+          # Prioritize user name matches by using a more sophisticated ranking
           where(
             query,
             [n, u],
@@ -205,12 +206,18 @@ defmodule Notesclub.Notebooks do
       end
 
     if formatted_query != "" do
-      order_by(query, [notebook],
+      # Join with user table to access user name for ranking
+      query = join(query, :inner, [n], u in User, on: u.id == n.user_id)
+
+      order_by(query, [n, u],
         desc:
           fragment(
-            "ts_rank(?, to_tsquery('english', ?))",
-            notebook.search_vector,
-            ^formatted_query
+            # Boost ranking when user name matches the search term
+            "ts_rank(?, to_tsquery('english', ?)) + CASE WHEN ? ILIKE ? THEN 2.0 ELSE 0.0 END",
+            n.search_vector,
+            ^formatted_query,
+            u.name,
+            ^"%#{search_term}%"
           )
       )
     else
