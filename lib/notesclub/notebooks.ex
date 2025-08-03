@@ -119,29 +119,35 @@ defmodule Notesclub.Notebooks do
           search = "%#{content}%"
           where(query, [notebook], ilike(notebook.content, ^search))
 
-        {:full_text_search, search_term}, query ->
-          # Use PostgreSQL full-text search with ranking
-          # Convert search term to proper tsquery format
-          formatted_query =
-            if search_term do
-              search_term
-              |> String.split(" ")
-              |> Enum.map(&String.trim/1)
-              |> Enum.filter(&(&1 != ""))
-              |> Enum.join(" & ")
-            else
-              ""
-            end
+        {:full_text_search, search_term}, query when is_nil(search_term) ->
+          # If search_term is nil, return the query as-is
+          query
 
-          if formatted_query != "" do
-            where(
-              query,
-              [notebook],
-              fragment("? @@ to_tsquery('english', ?)", notebook.search_vector, ^formatted_query)
-            )
-          else
-            query
-          end
+        {:full_text_search, search_term}, query ->
+          # Prefix match for lexemes in full-text search
+          tsquery =
+            search_term
+            |> String.split(" ")
+            |> Enum.map(&String.trim/1)
+            |> Enum.reject(&(&1 == ""))
+            # allow partial lexeme match
+            |> Enum.map_join(" & ", &"#{&1}:*")
+
+          # Join user so we can search in user.name via trigram
+          query =
+            join(query, :inner, [n], u in User, on: u.id == n.user_id)
+
+          # Combine full-text search with trigram substring search
+          # Prioritize user name matches by using a more sophisticated ranking
+          where(
+            query,
+            [n, u],
+            fragment("? @@ to_tsquery('english', ?)", n.search_vector, ^tsquery) or
+              fragment("? ILIKE ?", n.github_owner_login, ^"%#{search_term}%") or
+              fragment("? ILIKE ?", n.github_repo_name, ^"%#{search_term}%") or
+              fragment("? ILIKE ?", u.name, ^"%#{search_term}%") or
+              fragment("? ILIKE ?", n.github_filename, ^"%#{search_term}%")
+          )
 
         {:order, :relevance}, query ->
           # Order by relevance using ts_rank
@@ -203,12 +209,18 @@ defmodule Notesclub.Notebooks do
       end
 
     if formatted_query != "" do
-      order_by(query, [notebook],
+      # Join with user table to access user name for ranking
+      query = join(query, :inner, [n], u in User, on: u.id == n.user_id)
+
+      order_by(query, [n, u],
         desc:
           fragment(
-            "ts_rank(?, to_tsquery('english', ?))",
-            notebook.search_vector,
-            ^formatted_query
+            # Boost ranking when user name matches the search term
+            "ts_rank(?, to_tsquery('english', ?)) + CASE WHEN ? ILIKE ? THEN 2.0 ELSE 0.0 END",
+            n.search_vector,
+            ^formatted_query,
+            u.name,
+            ^"%#{search_term}%"
           )
       )
     else
