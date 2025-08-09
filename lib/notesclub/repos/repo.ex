@@ -3,6 +3,8 @@ defmodule Notesclub.Repos.Repo do
   import Ecto.Changeset
   alias Notesclub.Accounts.User
 
+  @timestamps_opts []
+
   typed_schema "repos" do
     field :name, :string
     field :full_name, :string

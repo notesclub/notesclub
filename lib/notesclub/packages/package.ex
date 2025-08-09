@@ -8,6 +8,8 @@ defmodule Notesclub.Packages.Package do
 
   alias Notesclub.Notebooks.Notebook
 
+  @timestamps_opts []
+
   typed_schema "packages" do
     field(:name, :string)
 

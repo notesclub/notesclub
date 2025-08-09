@@ -6,6 +6,8 @@ defmodule Notesclub.Accounts.User do
   use TypedEctoSchema
   import Ecto.Changeset
 
+  @timestamps_opts []
+
   typed_schema "users" do
     field :username, :string
     field :avatar_url, :string
