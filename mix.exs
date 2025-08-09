@@ -57,7 +57,7 @@ defmodule Notesclub.MixProject do
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.7.1"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.5"},
@@ -85,7 +85,7 @@ defmodule Notesclub.MixProject do
 
   defp oban_pro_deps do
     if System.get_env("NOTESCLUB_IS_OBAN_PRO_ENABLED") == "true" do
-      [{:oban_pro, "~> 1.5.4", repo: "oban"}]
+      [{:oban_pro, "~> 1.6.2", repo: "oban"}]
     else
       []
     end

@@ -5,6 +5,8 @@ defmodule Notesclub.X.XToken do
   use TypedEctoSchema
   import Ecto.Changeset
 
+  @timestamps_opts []
+
   typed_schema "x_tokens" do
     field :access_token, :string
     field :refresh_token, :string, default: nil

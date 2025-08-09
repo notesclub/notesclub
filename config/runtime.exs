@@ -89,6 +89,9 @@ if config_env() in [:prod, :dev] do
   config :notesclub, :x_client_id, System.get_env("X_CLIENT_ID")
   config :notesclub, :x_client_secret, System.get_env("X_CLIENT_SECRET")
   config :notesclub, :x_callback_url, System.get_env("X_CALLBACK_URL")
+
+  config :notesclub, :bluesky_handle, System.get_env("BLUESKY_HANDLE")
+  config :notesclub, :bluesky_password, System.get_env("BLUESKY_PASSWORD")
 end
 
 if config_env() == :prod do

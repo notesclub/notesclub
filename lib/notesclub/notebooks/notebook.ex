@@ -14,6 +14,8 @@ defmodule Notesclub.Notebooks.Notebook do
   @optional ~w(inserted_at user_id repo_id url content title search_vector)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
+  @timestamps_opts []
+
   typed_schema "notebooks" do
     field(:url, :string)
     field(:content, :string)
