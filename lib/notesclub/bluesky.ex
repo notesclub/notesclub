@@ -1,5 +1,8 @@
 defmodule Notesclub.Bluesky do
-  alias Notesclub.Bluesky.Post
+  @moduledoc """
+  Main interface for Bluesky functionality
+  """
+  alias Notesclub.Bluesky.Api
 
-  defdelegate post(message), to: Post
+  defdelegate post(message), to: Api
 end

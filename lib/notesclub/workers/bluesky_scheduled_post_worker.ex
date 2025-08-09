@@ -10,11 +10,11 @@ defmodule Notesclub.Workers.BlueskyScheduledPostWorker do
   require Logger
 
   alias Notesclub.Accounts.User
+  alias Notesclub.Bluesky
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Paths
   alias Notesclub.PublishLogs
-  alias Notesclub.Bluesky
 
   @platform "bluesky"
 

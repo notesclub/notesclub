@@ -1,4 +1,4 @@
-defmodule Notesclub.BlueskyApi do
+defmodule Notesclub.Bluesky.Api do
   @moduledoc """
   Client for interacting with the Bluesky API.
   """
