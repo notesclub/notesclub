@@ -93,18 +93,75 @@ defmodule Notesclub.Bluesky.Api do
   end
 
   defp extract_link_facets(text) do
-    # Regular expression to match URLs (http/https)
-    url_regex = ~r/https?:\/\/[^\s]+/
+    # Extract URL facets and hashtag facets, then combine them
+    url_facets = extract_url_facets(text)
+    hashtag_facets = extract_hashtag_facets(text)
+
+    # Combine and sort by byte position
+    (url_facets ++ hashtag_facets)
+    |> Enum.sort_by(fn facet -> facet["index"]["byteStart"] end)
+  end
+
+  defp extract_url_facets(text) do
+    # More precise regex to match URLs with proper boundaries
+    # This matches http/https URLs but stops at whitespace or common delimiters
+    url_regex = ~r/https?:\/\/[^\s\]]+/
 
     Regex.scan(url_regex, text, return: :index)
     |> Enum.map(fn [{start_char_index, length}] ->
+      # Extract the raw URL
+      raw_url = String.slice(text, start_char_index, length)
+
+      # Clean the URL by removing common trailing punctuation that shouldn't be part of URLs
+      cleaned_url = Regex.replace(~r/[.,!?;:]+$/, raw_url, "")
+
       # Convert character indices to byte indices
-      # Bluesky API requires byte positions, not character positions
+      # Calculate the byte position of the cleaned URL within the original text
+      byte_start = text |> String.slice(0, start_char_index) |> byte_size()
+      byte_end = byte_start + byte_size(cleaned_url)
+
+      # Validate that this is a proper URI before including it
+      case URI.parse(cleaned_url) do
+        %URI{scheme: scheme, host: host}
+        when scheme in ["http", "https"] and
+               not is_nil(host) and
+               host != "" and
+               host != "." ->
+          %{
+            "index" => %{
+              "byteStart" => byte_start,
+              "byteEnd" => byte_end
+            },
+            "features" => [
+              %{
+                "$type" => "app.bsky.richtext.facet#link",
+                "uri" => cleaned_url
+              }
+            ]
+          }
+
+        _ ->
+          # Skip invalid URIs
+          nil
+      end
+    end)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp extract_hashtag_facets(text) do
+    # Regular expression to match hashtags (#word)
+    hashtag_regex = ~r/#[a-zA-Z0-9_]+/
+
+    Regex.scan(hashtag_regex, text, return: :index)
+    |> Enum.map(fn [{start_char_index, length}] ->
+      # Convert character indices to byte indices
       byte_start = text |> String.slice(0, start_char_index) |> byte_size()
       byte_end = text |> String.slice(0, start_char_index + length) |> byte_size()
 
-      # Extract the actual URL
-      url = String.slice(text, start_char_index, length)
+      # Extract the hashtag (including the #)
+      hashtag = String.slice(text, start_char_index, length)
+      # Remove the # to get just the tag name
+      tag_name = String.slice(hashtag, 1..-1//1)
 
       %{
         "index" => %{
@@ -113,8 +170,8 @@ defmodule Notesclub.Bluesky.Api do
         },
         "features" => [
           %{
-            "$type" => "app.bsky.richtext.facet#link",
-            "uri" => url
+            "$type" => "app.bsky.richtext.facet#tag",
+            "tag" => tag_name
           }
         ]
       }

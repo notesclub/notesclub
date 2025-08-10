@@ -16,7 +16,10 @@ defmodule Notesclub.Notebooks.Paths do
   end
 
   def url_to_path(url) when is_binary(url) do
-    path = String.replace(url, "https://github.com", "")
+    path =
+      url
+      |> String.replace("https://github.com", "")
+      |> URI.encode()
 
     if String.contains?(path, "/blob/main/") do
       path
