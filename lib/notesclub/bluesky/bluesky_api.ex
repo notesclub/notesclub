@@ -59,14 +59,21 @@ defmodule Notesclub.Bluesky.Api do
   defp create_post(access_token, handle, text) do
     post_url = "#{@bluesky_base_url}/xrpc/com.atproto.repo.createRecord"
 
+    facets = extract_link_facets(text)
+
+    record = %{
+      "$type" => "app.bsky.feed.post",
+      "text" => text,
+      "createdAt" => DateTime.utc_now() |> DateTime.to_iso8601()
+    }
+
+    # Add facets only if there are links to make clickable
+    record = if facets != [], do: Map.put(record, "facets", facets), else: record
+
     post_data = %{
       "repo" => handle,
       "collection" => "app.bsky.feed.post",
-      "record" => %{
-        "$type" => "app.bsky.feed.post",
-        "text" => text,
-        "createdAt" => DateTime.utc_now() |> DateTime.to_iso8601()
-      }
+      "record" => record
     }
 
     headers = [
@@ -83,5 +90,34 @@ defmodule Notesclub.Bluesky.Api do
       {:error, reason} ->
         {:error, "HTTP request failed: #{inspect(reason)}"}
     end
+  end
+
+  defp extract_link_facets(text) do
+    # Regular expression to match URLs (http/https)
+    url_regex = ~r/https?:\/\/[^\s]+/
+
+    Regex.scan(url_regex, text, return: :index)
+    |> Enum.map(fn [{start_char_index, length}] ->
+      # Convert character indices to byte indices
+      # Bluesky API requires byte positions, not character positions
+      byte_start = text |> String.slice(0, start_char_index) |> byte_size()
+      byte_end = text |> String.slice(0, start_char_index + length) |> byte_size()
+
+      # Extract the actual URL
+      url = String.slice(text, start_char_index, length)
+
+      %{
+        "index" => %{
+          "byteStart" => byte_start,
+          "byteEnd" => byte_end
+        },
+        "features" => [
+          %{
+            "$type" => "app.bsky.richtext.facet#link",
+            "uri" => url
+          }
+        ]
+      }
+    end)
   end
 end
