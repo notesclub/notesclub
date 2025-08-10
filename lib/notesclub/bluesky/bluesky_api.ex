@@ -105,19 +105,17 @@ defmodule Notesclub.Bluesky.Api do
   defp extract_url_facets(text) do
     # More precise regex to match URLs with proper boundaries
     # This matches http/https URLs but stops at whitespace or common delimiters
-    url_regex = ~r/https?:\/\/[^\s\]]+/
+    url_regex = ~r/https?:\/\/[^\s\]]+/u
 
     Regex.scan(url_regex, text, return: :index)
-    |> Enum.map(fn [{start_char_index, length}] ->
-      # Extract the raw URL
-      raw_url = String.slice(text, start_char_index, length)
+    |> Enum.map(fn [{byte_start, byte_length}] ->
+      # Extract the raw URL using binary_part since Regex.scan with return: :index gives byte indices
+      raw_url = binary_part(text, byte_start, byte_length)
 
       # Clean the URL by removing common trailing punctuation that shouldn't be part of URLs
       cleaned_url = Regex.replace(~r/[.,!?;:]+$/, raw_url, "")
 
-      # Convert character indices to byte indices
-      # Calculate the byte position of the cleaned URL within the original text
-      byte_start = text |> String.slice(0, start_char_index) |> byte_size()
+      # Calculate the actual byte end position based on the cleaned URL
       byte_end = byte_start + byte_size(cleaned_url)
 
       # Validate that this is a proper URI before including it
@@ -149,17 +147,17 @@ defmodule Notesclub.Bluesky.Api do
   end
 
   defp extract_hashtag_facets(text) do
-    # Regular expression to match hashtags (#word)
-    hashtag_regex = ~r/#[a-zA-Z0-9_]+/
+    # Regular expression to match hashtags (#word) - now supports Unicode characters
+    hashtag_regex = ~r/#[\p{L}\p{N}_]+/u
 
     Regex.scan(hashtag_regex, text, return: :index)
-    |> Enum.map(fn [{start_char_index, length}] ->
-      # Convert character indices to byte indices
-      byte_start = text |> String.slice(0, start_char_index) |> byte_size()
-      byte_end = text |> String.slice(0, start_char_index + length) |> byte_size()
+    |> Enum.map(fn [{byte_start, byte_length}] ->
+      # Extract the hashtag using binary_part since Regex.scan with return: :index gives byte indices
+      hashtag = binary_part(text, byte_start, byte_length)
 
-      # Extract the hashtag (including the #)
-      hashtag = String.slice(text, start_char_index, length)
+      # The byte end position
+      byte_end = byte_start + byte_length
+
       # Remove the # to get just the tag name
       tag_name = String.slice(hashtag, 1..-1//1)
 
