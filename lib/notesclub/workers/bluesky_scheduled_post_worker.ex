@@ -38,17 +38,16 @@ defmodule Notesclub.Workers.BlueskyScheduledPostWorker do
     end
   end
 
-  defp get_message(%Notebook{user: %User{twitter_username: nil, name: nil}} = notebook, path) do
-    "#{notebook.title} https://notes.club#{path} #ElixirLang #Livebook"
+  defp get_message(%Notebook{user: %User{name: nil, username: nil}} = notebook, path) do
+    "#{notebook.title} https://notes.club#{path} #ElixirLang"
   end
 
-  defp get_message(%Notebook{user: %User{twitter_username: nil}} = notebook, path) do
-    "#{notebook.title} by #{notebook.user.name} https://notes.club#{path} #ElixirLang #Livebook"
+  defp get_message(%Notebook{user: %User{name: nil, username: username}} = notebook, path) do
+    "#{notebook.title} by #{username} https://notes.club#{path} #ElixirLang"
   end
 
-  defp get_message(notebook, path) do
-    # Note: Bluesky doesn't use @ mentions the same way as Twitter, but we'll keep this format for consistency
-    "#{notebook.title} by @#{notebook.user.twitter_username} https://notes.club#{path} #ElixirLang #Livebook"
+  defp get_message(%Notebook{} = notebook, path) do
+    "#{notebook.title} by #{notebook.user.name} https://notes.club#{path} #ElixirLang"
   end
 
   defp create_publish_log(notebook) do
