@@ -925,7 +925,7 @@ defmodule Notesclub.Notebooks do
     |> where([n, _sc, pl], is_nil(pl.id))
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
-    |> order_by([n, sc], desc: sc.star_count)
+    |> order_by([n, sc], desc: sc.star_count, desc: n.id)
     |> limit(1)
     |> preload(:user)
     |> Repo.one()
