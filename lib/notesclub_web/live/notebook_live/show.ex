@@ -63,7 +63,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
      socket
      |> put_flash(
        :error,
-       "Log in to star this notebook — boosting its rank in 'Top Starred' and increasing its chances of being featured on Bluesky and X."
+       "Log in to star this notebook and we'll share it on Bluesky and X."
      )}
   end
 
