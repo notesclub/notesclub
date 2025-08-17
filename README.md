@@ -1,6 +1,6 @@
 # Notesclub · Discover Livebook Notebooks
 
-Every day we add new Livebook notebooks from Github.
+We add new Livebook notebooks from Github every day.
 
 https://notes.club
 
