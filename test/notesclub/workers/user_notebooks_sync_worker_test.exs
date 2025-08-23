@@ -116,7 +116,15 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
                    args: %{"notebook_id" => ^n2_id}
                  },
                  %Oban.Job{
+                   worker: "Notesclub.Workers.NotebookRatingWorker",
+                   args: %{"notebook_id" => ^n2_id}
+                 },
+                 %Oban.Job{
                    worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n1_id}
+                 },
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.NotebookRatingWorker",
                    args: %{"notebook_id" => ^n1_id}
                  }
                ] = all_enqueued()
@@ -200,7 +208,15 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
                    args: %{"notebook_id" => ^n2_id}
                  },
                  %Oban.Job{
+                   worker: "Notesclub.Workers.NotebookRatingWorker",
+                   args: %{"notebook_id" => ^n2_id}
+                 },
+                 %Oban.Job{
                    worker: "Notesclub.Workers.UrlContentSyncWorker",
+                   args: %{"notebook_id" => ^n1_id}
+                 },
+                 %Oban.Job{
+                   worker: "Notesclub.Workers.NotebookRatingWorker",
                    args: %{"notebook_id" => ^n1_id}
                  }
                ] = all_enqueued()

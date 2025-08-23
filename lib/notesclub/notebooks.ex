@@ -11,12 +11,14 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.NotebookUser
+  alias Notesclub.Notebooks.Rater
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
   alias Notesclub.PublishLogs.PublishLog
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
+  alias Notesclub.Workers.NotebookRatingWorker
   alias Notesclub.Workers.UrlContentSyncWorker
 
   require Logger
@@ -87,6 +89,9 @@ defmodule Notesclub.Notebooks do
           |> join(:left, [n, u], sc in subquery(star_counts), on: n.id == sc.notebook_id)
           # Order by the joined star_count field, handling NULLs
           |> order_by([n, u, sc], desc_nulls_last: sc.star_count)
+
+        {:order, :ai_rating}, query ->
+          order_by(query, desc_nulls_last: :ai_rating)
 
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
@@ -469,8 +474,19 @@ defmodule Notesclub.Notebooks do
     |> maybe_put_user_and_repo_assoc(attrs)
     |> Repo.insert()
     |> set_user_id(attrs)
+    |> set_ai_rating()
   end
 
+  defp set_ai_rating({:ok, notebook}) do
+    # Enqueue notebook rating worker to handle AI rating asynchronously
+    %{notebook_id: notebook.id}
+    |> NotebookRatingWorker.new()
+    |> Oban.insert()
+
+    {:ok, notebook}
+  end
+
+  defp set_ai_rating(result), do: result
   defp set_user_id(result, %{user_id: _}), do: result
 
   # When we put the associations notebook.repo and notebook.repo.user
@@ -801,6 +817,26 @@ defmodule Notesclub.Notebooks do
     end)
   end
 
+  @doc """
+  Rates a notebook based on how interesting it would be to Elixir developers.
+  Returns a rating from 0 (not interesting) to 1000 (max interest).
+
+  Uses OpenRouter AI to analyze the notebook content and provide a structured rating
+  along with relevant tags for categorization.
+
+  ## Examples
+
+      iex> rate_notebook_interest(notebook)
+      {:ok, 750}
+
+      iex> rate_notebook_interest(notebook_without_elixir)
+      {:ok, 120}
+  """
+  @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
+  def rate_notebook_interest(%Notebook{} = notebook) do
+    Rater.rate_notebook_interest(notebook)
+  end
+
   # Gets starred notebooks associated with a user, preloading necessary associations
   @spec list_starred_notebooks_by_user(User.t(), Keyword.t()) :: [Notebook.t()]
   def list_starred_notebooks_by_user(%User{} = user, opts \\ []) do
@@ -926,6 +962,18 @@ defmodule Notesclub.Notebooks do
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
     |> order_by([n, sc], desc: sc.star_count, desc: n.id)
+    |> limit(1)
+    |> preload(:user)
+    |> Repo.one()
+  end
+
+  def get_non_published_highest_ai_rated_notebook(platform) do
+    Notebook
+    |> join(:left, [n], pl in PublishLog, on: pl.notebook_id == n.id and pl.platform == ^platform)
+    |> where([n], not is_nil(n.content))
+    |> where([n], not is_nil(n.ai_rating))
+    |> where([n], fragment("length(?)", n.content) >= 200)
+    |> order_by([n], desc: n.ai_rating, desc: n.id)
     |> limit(1)
     |> preload(:user)
     |> Repo.one()

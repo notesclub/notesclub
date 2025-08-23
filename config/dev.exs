@@ -65,6 +65,11 @@ config :notesclub, NotesclubWeb.Endpoint,
     ]
   ]
 
+if !System.get_env("OPENROUTER_API_KEY") do
+  # Use a fake LLM calls in development
+  config :notesclub, :notebook_rater_implementation, Notesclub.Rater.FakeRater
+end
+
 config :logger, level: :debug
 # skip cron scheduler logs
 # config :notesclub, Notesclub.Scheduler,

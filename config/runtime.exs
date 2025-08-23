@@ -92,6 +92,8 @@ if config_env() in [:prod, :dev] do
 
   config :notesclub, :bluesky_handle, System.get_env("BLUESKY_HANDLE")
   config :notesclub, :bluesky_password, System.get_env("BLUESKY_PASSWORD")
+
+  config :notesclub, :openrouter_api_key, System.get_env("OPENROUTER_API_KEY")
 end
 
 if config_env() == :prod do
