@@ -89,6 +89,9 @@ defmodule Notesclub.Notebooks do
           # Order by the joined star_count field, handling NULLs
           |> order_by([n, u, sc], desc_nulls_last: sc.star_count)
 
+        {:order, :ai_rating}, query ->
+          order_by(query, desc_nulls_last: :ai_rating)
+
         {:github_filename, github_filename}, query ->
           search = "%#{github_filename}%"
           where(query, [notebook], ilike(notebook.github_filename, ^search))
@@ -470,8 +473,19 @@ defmodule Notesclub.Notebooks do
     |> maybe_put_user_and_repo_assoc(attrs)
     |> Repo.insert()
     |> set_user_id(attrs)
+    |> set_ai_rating()
   end
 
+  defp set_ai_rating({:ok, notebook}) do
+    # Enqueue notebook rating worker to handle AI rating asynchronously
+    %{notebook_id: notebook.id}
+    |> Notesclub.Workers.NotebookRatingWorker.new()
+    |> Oban.insert()
+
+    {:ok, notebook}
+  end
+
+  defp set_ai_rating(result), do: result
   defp set_user_id(result, %{user_id: _}), do: result
 
   # When we put the associations notebook.repo and notebook.repo.user
@@ -802,7 +816,7 @@ defmodule Notesclub.Notebooks do
     end)
   end
 
-    @doc """
+  @doc """
   Rates a notebook based on how interesting it would be to Elixir developers.
   Returns a rating from 0 (not interesting) to 1000 (max interest).
 

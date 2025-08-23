@@ -1,4 +1,4 @@
-defmodule Notesclub.Notebooks.Rater.API do
+defmodule Notesclub.Notebooks.Rater.AiRater do
   @moduledoc """
   OpenRouter API client for AI-powered notebook analysis.
   """

@@ -214,7 +214,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
     Notebooks.list_notebooks(
       per_page: @per_page,
       page: page,
-      order: :star_count,
+      order: :ai_rating,
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]

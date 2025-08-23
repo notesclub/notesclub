@@ -11,7 +11,7 @@ defmodule Notesclub.Notebooks.Notebook do
   alias Notesclub.Packages.Package
   alias Notesclub.Repos.Repo
 
-  @optional ~w(inserted_at user_id repo_id url content title search_vector)a
+  @optional ~w(inserted_at user_id repo_id url content title search_vector ai_rating)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
 
   @timestamps_opts []
@@ -21,6 +21,7 @@ defmodule Notesclub.Notebooks.Notebook do
     field(:content, :string)
     field(:title, :string, default: "")
     field(:search_vector, :string, virtual: true)
+    field(:ai_rating, :integer)
 
     # url to commit — provided by Github Search API
     field(:github_html_url, :string)
@@ -50,6 +51,7 @@ defmodule Notesclub.Notebooks.Notebook do
     notebook
     |> cast(attrs, @optional ++ @required)
     |> validate_required(@required)
+    |> validate_number(:ai_rating, greater_than_or_equal_to: 0, less_than_or_equal_to: 1000)
     |> unique_constraint(:github_html_url)
   end
 end

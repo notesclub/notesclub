@@ -7,22 +7,8 @@ defmodule Notesclub.Notebooks.Rater do
   alias Notesclub.Notebooks.Notebook
 
   @doc """
-  Rates a notebook based on how interesting it would be to Elixir developers.
+  Rates a notebook based on how interesting it would be to Elixir developers via an AI-powered rating.
   Returns a rating from 0 (not interesting) to 1000 (max interest).
-
-  The rating considers factors like:
-  - Presence and quality of Elixir code cells
-  - Length and depth of content
-  - Use of Elixir packages/libraries
-  - Educational value for Elixir developers
-  - Code complexity and examples
-
-  The AI also assigns relevant tags to categorize the content, such as:
-  - "ai" for AI/ML content
-  - "advent-of-code", "advent-of-code-2024" for Advent of Code solutions
-  - "phoenix", "liveview" for web development
-  - "otp", "genserver" for OTP patterns
-  - "beginner", "intermediate", "advanced" for difficulty levels
 
   ## Examples
 
@@ -35,7 +21,10 @@ defmodule Notesclub.Notebooks.Rater do
   """
   @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
   def rate_notebook_interest(%Notebook{} = notebook) do
-    implementation().rate_notebook_interest(notebook)
+    with {:ok, rating} <- implementation().rate_notebook_interest(notebook),
+         {:ok, _notebook} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}) do
+      {:ok, rating}
+    end
   end
 
   defp implementation do
