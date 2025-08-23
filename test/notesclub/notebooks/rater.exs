@@ -1,8 +1,8 @@
 defmodule Notesclub.Notebooks.RaterTest do
   use Notesclub.DataCase
 
-  alias Notesclub.Notebooks.Rater
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.Rater
 
   describe "rate_notebook_interest/1" do
     test "returns error for notebook without content" do

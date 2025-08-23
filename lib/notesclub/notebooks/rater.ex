@@ -3,8 +3,8 @@ defmodule Notesclub.Notebooks.Rater do
   Context module for AI-powered notebook rating functionality.
   """
 
-  alias Notesclub.Notebooks.Rater.AiRater
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.Rater.AiRater
 
   @doc """
   Rates a notebook based on how interesting it would be to Elixir developers via an AI-powered rating.

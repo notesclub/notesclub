@@ -18,6 +18,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.PublishLogs.PublishLog
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
+  alias Notesclub.Workers.NotebookRatingWorker
   alias Notesclub.Workers.UrlContentSyncWorker
 
   require Logger
@@ -479,7 +480,7 @@ defmodule Notesclub.Notebooks do
   defp set_ai_rating({:ok, notebook}) do
     # Enqueue notebook rating worker to handle AI rating asynchronously
     %{notebook_id: notebook.id}
-    |> Notesclub.Workers.NotebookRatingWorker.new()
+    |> NotebookRatingWorker.new()
     |> Oban.insert()
 
     {:ok, notebook}
