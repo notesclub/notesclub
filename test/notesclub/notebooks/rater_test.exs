@@ -2,29 +2,44 @@ defmodule Notesclub.Notebooks.RaterTest do
   use Notesclub.DataCase
 
   alias Notesclub.Notebooks.Rater
-  alias Notesclub.Notebooks.Notebook
+  import Notesclub.NotebooksFixtures
 
   describe "rate_notebook_interest/1" do
-    test "returns error for notebook without content" do
-      notebook = %Notebook{content: nil}
+    test "returns 0 for notebook without content" do
+      notebook = notebook_fixture(%{content: nil})
       assert {:ok, 0} = Rater.rate_notebook_interest(notebook)
     end
 
-    test "returns error for notebook with empty content" do
-      notebook = %Notebook{content: ""}
+    test "returns 0 for notebook with empty content" do
+      notebook = notebook_fixture(%{content: ""})
       assert {:ok, 0} = Rater.rate_notebook_interest(notebook)
     end
 
     test "rates a notebook" do
-      notebook = %Notebook{
-        title: "Advanced GenServer Tutorial",
-        github_filename: "genserver_tutorial.livemd",
-        content: """
-        # Advanced GenServer Tutorial
+      notebook =
+        notebook_fixture(%{
+          title: "Advanced GenServer Tutorial",
+          github_filename: "genserver_tutorial.livemd",
+          content: """
+          # Advanced GenServer Tutorial
 
-        ...
-        """
-      }
+          This tutorial covers advanced GenServer patterns in Elixir.
+
+          ```elixir
+          defmodule MyGenServer do
+            use GenServer
+
+            def start_link(opts) do
+              GenServer.start_link(__MODULE__, :ok, opts)
+            end
+
+            def init(:ok) do
+              {:ok, %{}}
+            end
+          end
+          ```
+          """
+        })
 
       {:ok, number} = Rater.rate_notebook_interest(notebook)
       assert number > 0
