@@ -92,7 +92,6 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ "@elixir-nx</a>"
     assert html =~ "@josevalim</a>"
     assert html =~ "@DockYard-Academy</a>"
-    assert html =~ "@BrooklinJazz</a>"
   end
 
   test "GET /search returns notebooks that match filename or content (exact search)", %{

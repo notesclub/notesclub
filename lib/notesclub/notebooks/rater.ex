@@ -3,7 +3,7 @@ defmodule Notesclub.Notebooks.Rater do
   Context module for AI-powered notebook rating functionality.
   """
 
-  alias Notesclub.Notebooks.Rater.API
+  alias Notesclub.Notebooks.Rater.AiRater
   alias Notesclub.Notebooks.Notebook
 
   @doc """
@@ -35,6 +35,10 @@ defmodule Notesclub.Notebooks.Rater do
   """
   @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
   def rate_notebook_interest(%Notebook{} = notebook) do
-    API.rate_notebook_interest(notebook)
+    implementation().rate_notebook_interest(notebook)
+  end
+
+  defp implementation do
+    Application.get_env(:notesclub, :notebook_rater_implementation, AiRater)
   end
 end
