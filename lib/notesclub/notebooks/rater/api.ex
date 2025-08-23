@@ -148,17 +148,7 @@ defmodule Notesclub.Notebooks.Rater.API do
           - Use interesting libraries or frameworks
           - Present complex problem-solving approaches
 
-          Also assign relevant tags to categorize the notebook content. Use lowercase, hyphenated tags such as:
-          - "ai" for AI/ML content
-          - "phoenix", "liveview" for web-related content
-          - "advent-of-code", "advent-of-code-2024", "advent-of-code-2023" for Advent of Code solutions
-          - "visualization", "analytics" for data-related content
-          - "otp", "genserver", "supervisor" for OTP patterns
-          - "beginner", "intermediate", "advanced" for difficulty levels
-          - "tutorial" for content types
-          - "game-development", "graphics", "audio" for game/media content
-          - "crypto" for cryptocurrency and blockchain content
-          - "iot" for hardware-related content
+
           """
         },
         %{
@@ -179,16 +169,9 @@ defmodule Notesclub.Notebooks.Rater.API do
                 minimum: 0,
                 maximum: 1000,
                 description: "Interest rating from 0-1000 for Elixir developers"
-              },
-              tags: %{
-                type: "array",
-                items: %{
-                  type: "string"
-                },
-                description: "Relevant tags categorizing the notebook content (lowercase, hyphenated)"
               }
             },
-            required: ["rating", "tags"],
+            required: ["rating"],
             additionalProperties: false
           }
         }
@@ -213,8 +196,8 @@ defmodule Notesclub.Notebooks.Rater.API do
 
       content when is_binary(content) ->
         case Jason.decode(content) do
-          {:ok, %{"rating" => rating, "tags" => tags} = _response} when is_integer(rating) and rating >= 0 and rating <= 1000 and is_list(tags) ->
-            Logger.info("Notebook rated: #{rating}/1000 with tags: #{inspect(tags)}")
+          {:ok, %{"rating" => rating} = _response} when is_integer(rating) and rating >= 0 and rating <= 1000 ->
+            Logger.info("Notebook rated: #{rating}/1000")
             {:ok, rating}
 
           {:ok, invalid_response} ->
@@ -274,8 +257,8 @@ defmodule Notesclub.Notebooks.Rater.API do
           - 701-900: Very interesting (advanced concepts, comprehensive examples, real-world applications)
           - 901-1000: Extremely interesting (cutting-edge techniques, exceptional educational value, expert-level content)
 
-          Please respond with ONLY a JSON object containing a "rating" number (0-1000) and a "tags" array with relevant tags.
-          Example: {"rating": 650, "tags": ["otp", "genserver", "intermediate"]}
+          Please respond with ONLY a JSON object containing a "rating" number (0-1000).
+          Example: {"rating": 650}
           """
         },
         %{
@@ -312,12 +295,8 @@ defmodule Notesclub.Notebooks.Rater.API do
           |> String.trim()
 
         case Jason.decode(cleaned_content) do
-          {:ok, %{"rating" => rating, "tags" => tags} = _response} when is_integer(rating) and rating >= 0 and rating <= 1000 and is_list(tags) ->
-            Logger.info("Fallback notebook rated: #{rating}/1000 with tags: #{inspect(tags)}")
-            {:ok, rating}
-
           {:ok, %{"rating" => rating} = _response} when is_integer(rating) and rating >= 0 and rating <= 1000 ->
-            Logger.info("Fallback notebook rated: #{rating}/1000 (no tags)")
+            Logger.info("Fallback notebook rated: #{rating}/1000")
             {:ok, rating}
 
           {:ok, invalid_response} ->
