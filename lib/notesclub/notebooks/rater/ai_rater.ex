@@ -19,13 +19,13 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
       {:ok, content} ->
         make_rating_request(content)
 
-      {:error, reason} ->
-        {:error, reason}
+      {:error, :no_content} ->
+        {:ok, 0}
     end
   end
 
-  defp prepare_content(%Notebook{content: nil}), do: {:ok, 0}
-  defp prepare_content(%Notebook{content: ""}), do: {:ok, 0}
+  defp prepare_content(%Notebook{content: nil}), do: {:error, :no_content}
+  defp prepare_content(%Notebook{content: ""}), do: {:error, :no_content}
 
   defp prepare_content(%Notebook{content: content, title: title, github_filename: filename}) do
     truncated_content = truncate_content(content, @max_content_chars)
