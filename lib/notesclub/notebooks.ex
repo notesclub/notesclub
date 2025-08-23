@@ -11,6 +11,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.NotebookUser
+  alias Notesclub.Notebooks.Rater
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
@@ -799,6 +800,26 @@ defmodule Notesclub.Notebooks do
     |> Enum.map(fn n ->
       update_notebook(n, %{title: extract_title(n.content)})
     end)
+  end
+
+    @doc """
+  Rates a notebook based on how interesting it would be to Elixir developers.
+  Returns a rating from 0 (not interesting) to 1000 (max interest).
+
+  Uses OpenRouter AI to analyze the notebook content and provide a structured rating
+  along with relevant tags for categorization.
+
+  ## Examples
+
+      iex> rate_notebook_interest(notebook)
+      {:ok, 750}
+
+      iex> rate_notebook_interest(notebook_without_elixir)
+      {:ok, 120}
+  """
+  @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
+  def rate_notebook_interest(%Notebook{} = notebook) do
+    Rater.rate_notebook_interest(notebook)
   end
 
   # Gets starred notebooks associated with a user, preloading necessary associations
