@@ -22,19 +22,26 @@ defmodule Notesclub.Workers.BlueskyScheduledPostWorker do
   def perform(%Oban.Job{}) do
     case Notebooks.get_non_published_most_starred_notebook(@platform) do
       nil ->
-        {:ok, "No notebook found"}
+        case Notebooks.get_non_published_highest_ai_rated_notebook(@platform) do
+          nil -> {:ok, "No non-shared notebook found"}
+          notebook -> share(notebook)
+        end
 
       notebook ->
-        path = Paths.url_to_path(notebook)
-        message = get_message(notebook, path)
+        share(notebook)
+    end
+  end
 
-        case Bluesky.post(message) do
-          {:ok, _response} ->
-            create_publish_log(notebook)
+  defp share(notebook) do
+    path = Paths.url_to_path(notebook)
+    message = get_message(notebook, path)
 
-          {:error, reason} ->
-            {:error, "Failed to post to Bluesky: #{inspect(reason)}"}
-        end
+    case Bluesky.post(message) do
+      {:ok, _response} ->
+        create_publish_log(notebook)
+
+      {:error, reason} ->
+        {:error, "Failed to post to Bluesky: #{inspect(reason)}"}
     end
   end
 

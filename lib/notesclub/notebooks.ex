@@ -966,6 +966,18 @@ defmodule Notesclub.Notebooks do
     |> Repo.one()
   end
 
+  def get_non_published_highest_ai_rated_notebook(platform) do
+    Notebook
+    |> join(:left, [n], pl in PublishLog, on: pl.notebook_id == n.id and pl.platform == ^platform)
+    |> where([n], not is_nil(n.content))
+    |> where([n], not is_nil(n.ai_rating))
+    |> where([n], fragment("length(?)", n.content) >= 200)
+    |> order_by([n], desc: n.ai_rating, desc: n.id)
+    |> limit(1)
+    |> preload(:user)
+    |> Repo.one()
+  end
+
   @spec get_star_count(integer()) :: integer()
   def get_star_count(notebook_id) when is_integer(notebook_id) do
     from(nu in NotebookUser,
