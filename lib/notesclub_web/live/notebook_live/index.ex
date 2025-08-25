@@ -60,9 +60,10 @@ defmodule NotesclubWeb.NotebookLive.Index do
      )}
   end
 
-  defp run_action(%{"q" => search}, :search, socket) do
+  defp run_action(%{"q" => search} = params, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
-    socket = assign(socket, search: search, notebooks: [])
+    sort = extract_sort(params)
+    socket = assign(socket, search: search, notebooks: [], sort: sort)
     notebooks = get_notebooks(socket, :search, 0, [])
 
     {:noreply,
@@ -77,8 +78,9 @@ defmodule NotesclubWeb.NotebookLive.Index do
      )}
   end
 
-  defp run_action(_, :search, socket) do
-    socket = assign(socket, search: nil, notebooks: [])
+  defp run_action(params, :search, socket) do
+    sort = extract_sort(params)
+    socket = assign(socket, search: nil, notebooks: [], sort: sort)
     notebooks = get_notebooks(socket, :search, 0, [])
 
     {:noreply,
@@ -287,7 +289,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
     )
   end
 
-  defp get_notebooks(%{assigns: %{search: search}}, :search, page, exclude_ids) do
+  defp get_notebooks(%{assigns: %{search: search, sort: sort}}, :search, page, exclude_ids) do
     # Check if search is wrapped in quotes for exact search
     if search && String.starts_with?(search, "\"") && String.ends_with?(search, "\"") do
       # Exact search - remove quotes and use existing logic
@@ -299,7 +301,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
           searchable: exact_search,
           per_page: per_page,
           page: page,
-          order: :desc,
+          order: order_for(sort),
           exclude_ids: exclude_ids,
           require_content: true,
           select_content: true,
@@ -313,7 +315,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
           content: exact_search,
           per_page: per_page,
           page: page,
-          order: :desc,
+          order: order_for(sort),
           exclude_ids: exclude_ids,
           require_content: true,
           select_content: true,
@@ -327,7 +329,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         full_text_search: search,
         per_page: @per_page,
         page: page,
-        order: :relevance,
+        order: order_for_search(sort),
         exclude_ids: exclude_ids,
         require_content: true,
         select_content: true,
@@ -344,6 +346,10 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp order_for(:top), do: :ai_rating
   defp order_for(_), do: :desc
 
+  defp order_for_search(:top), do: :ai_rating
+  defp order_for_search(:new), do: :desc
+  defp order_for_search(_), do: :relevance
+
   defp path_for_action(:home, _assigns, sort), do: "/" <> sort_query(sort)
 
   defp path_for_action(:author, %{author: author}, sort) when is_binary(author),
@@ -356,8 +362,12 @@ defmodule NotesclubWeb.NotebookLive.Index do
        when is_binary(author) and is_binary(repo),
        do: "/#{author}/#{repo}" <> sort_query(sort)
 
-  defp path_for_action(other, _assigns, _sort) when other in [:random, :top, :search, :starred],
-    do: "/"
+  defp path_for_action(:search, %{search: search}, sort) do
+    base = "/search?q=" <> URI.encode_www_form(search || "")
+    if sort == :top, do: base <> "&sort=top", else: base
+  end
+
+  defp path_for_action(other, _assigns, _sort) when other in [:random, :top, :starred], do: "/"
 
   defp sort_query(:new), do: ""
   defp sort_query(:top), do: "?sort=top"

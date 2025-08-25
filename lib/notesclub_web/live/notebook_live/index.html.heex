@@ -17,7 +17,7 @@
     <div class="pt-2 sm:pt-0 sm:pl-4">
       <input type="submit" name="Submit" value="Search"
         class="cursor-pointer items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-      <%= if @action in [:home, :author, :package, :repo] do %>
+      <%= if @action in [:home, :author, :package, :repo, :search] do %>
         <button phx-click="toggle-sort" type="button" class="ml-6 inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
           <span class={["px-2", @sort == :new && "bg-indigo-600 text-white rounded"]}>New</span>
           <span class="px-2">|</span>
