@@ -18,13 +18,14 @@
       <input type="submit" name="Submit" value="Search"
         class="cursor-pointer items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
       <%= if @action in [:home, :author, :package, :repo, :search] do %>
-        <button phx-click="toggle-sort" type="button" class="ml-6 inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          <span class={["px-2", @sort == :new && "bg-indigo-600 text-white rounded"]}>New</span>
+        <div class="ml-6 inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <button phx-click="set-sort" phx-value-sort="new" type="button" class={["px-2", @sort == :new && "bg-indigo-600 text-white rounded"]}>New</button>
           <span class="px-2">|</span>
-          <span class={["px-2", @sort == :top && "bg-indigo-600 text-white rounded"]}>Top</span>
-        </button>
+          <button phx-click="set-sort" phx-value-sort="top" type="button" class={["px-2", @sort == :top && "bg-indigo-600 text-white rounded"]}>Top</button>
+          <span class="px-2">|</span>
+          <button phx-click="set-sort" phx-value-sort="random" type="button" class={["px-2", @sort == :random && "bg-indigo-600 text-white rounded"]}>Random</button>
+        </div>
       <% end %>
-      <a phx-click="random" class="cursor-pointer ml-2 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Random</a>
     </div>
   </form>
 

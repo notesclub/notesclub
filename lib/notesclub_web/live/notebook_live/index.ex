@@ -154,7 +154,14 @@ defmodule NotesclubWeb.NotebookLive.Index do
         socket =
           socket
           |> assign(timestamp: timestamp)
-          |> push_patch(to: ~p"/search?q=#{params["value"]}")
+          |> push_patch(
+            to:
+              path_for_action(
+                :search,
+                %{search: params["value"]},
+                socket.assigns[:sort] || :new
+              )
+          )
 
         {:noreply, socket}
 
@@ -163,7 +170,12 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
       true ->
         # In LiveView tests we do NOT run js so timestamp=nil
-        socket = push_patch(socket, to: ~p"/search?q=#{params["value"]}")
+        socket =
+          push_patch(
+            socket,
+            to:
+              path_for_action(:search, %{search: params["value"]}, socket.assigns[:sort] || :new)
+          )
 
         {:noreply, socket}
     end
@@ -181,9 +193,31 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, push_patch(socket, to: ~p"/")}
   end
 
+  def handle_event(
+        "set-sort",
+        %{"sort" => sort_str},
+        %{assigns: %{live_action: live_action}} = socket
+      ) do
+    sort =
+      case sort_str do
+        "new" -> :new
+        "top" -> :top
+        "random" -> :random
+        _ -> :new
+      end
+
+    {:noreply, push_patch(socket, to: path_for_action(live_action, socket.assigns, sort))}
+  end
+
   def handle_event("toggle-sort", _, %{assigns: %{live_action: live_action}} = socket) do
     current_sort = socket.assigns[:sort] || :new
-    new_sort = if current_sort == :new, do: :top, else: :new
+
+    new_sort =
+      case current_sort do
+        :new -> :top
+        :top -> :random
+        _ -> :new
+      end
 
     {:noreply, push_patch(socket, to: path_for_action(live_action, socket.assigns, new_sort))}
   end
@@ -338,16 +372,18 @@ defmodule NotesclubWeb.NotebookLive.Index do
     end
   end
 
-  defp extract_sort(%{"sort" => sort}) when sort in ["new", "top"],
+  defp extract_sort(%{"sort" => sort}) when sort in ["new", "top", "random"],
     do: String.to_existing_atom(sort)
 
   defp extract_sort(_), do: :new
 
   defp order_for(:top), do: :ai_rating
+  defp order_for(:random), do: :random
   defp order_for(_), do: :desc
 
   defp order_for_search(:top), do: :ai_rating
   defp order_for_search(:new), do: :desc
+  defp order_for_search(:random), do: :random
   defp order_for_search(_), do: :relevance
 
   defp path_for_action(:home, _assigns, sort), do: "/" <> sort_query(sort)
@@ -364,11 +400,16 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp path_for_action(:search, %{search: search}, sort) do
     base = "/search?q=" <> URI.encode_www_form(search || "")
-    if sort == :top, do: base <> "&sort=top", else: base
+
+    case sort do
+      :new -> base
+      other -> base <> "&sort=" <> Atom.to_string(other)
+    end
   end
 
   defp path_for_action(other, _assigns, _sort) when other in [:random, :top, :starred], do: "/"
 
   defp sort_query(:new), do: ""
   defp sort_query(:top), do: "?sort=top"
+  defp sort_query(:random), do: "?sort=random"
 end
