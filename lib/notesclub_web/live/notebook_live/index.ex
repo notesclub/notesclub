@@ -12,29 +12,32 @@ defmodule NotesclubWeb.NotebookLive.Index do
   def per_page, do: @per_page
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, last_search_time: 0, notebooks_count: Notebooks.count())}
+    {:ok, assign(socket, last_search_time: 0, notebooks_count: Notebooks.count(), sort: :new)}
   end
 
   def handle_params(params, _url, %{assigns: %{live_action: live_action}} = socket) do
     run_action(params, live_action, socket)
   end
 
-  defp run_action(%{"package" => package}, :package, socket) do
-    socket = assign(socket, package: package, author: nil, repo: nil)
+  defp run_action(%{"package" => package} = params, :package, socket) do
+    sort = extract_sort(params)
+    socket = assign(socket, package: package, author: nil, repo: nil, sort: sort)
     notebooks = get_notebooks(socket, :package, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :package)}
   end
 
-  defp run_action(%{"repo" => repo, "author" => author}, :repo, socket) do
-    socket = assign(socket, author: author, repo: repo, package: nil)
+  defp run_action(%{"repo" => repo, "author" => author} = params, :repo, socket) do
+    sort = extract_sort(params)
+    socket = assign(socket, author: author, repo: repo, package: nil, sort: sort)
     notebooks = get_notebooks(socket, :repo, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :repo)}
   end
 
-  defp run_action(%{"author" => username}, :author, socket) do
+  defp run_action(%{"author" => username} = params, :author, socket) do
     # Render 404 if author does not exist
     Accounts.get_by_username!(username)
-    socket = assign(socket, author: username, repo: nil, package: nil)
+    sort = extract_sort(params)
+    socket = assign(socket, author: username, repo: nil, package: nil, sort: sort)
     notebooks = get_notebooks(socket, :author, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :author)}
   end
@@ -90,7 +93,9 @@ defmodule NotesclubWeb.NotebookLive.Index do
      )}
   end
 
-  defp run_action(_params, :home, socket) do
+  defp run_action(params, :home, socket) do
+    sort = extract_sort(params)
+    socket = assign(socket, sort: sort)
     notebooks = get_notebooks(socket, :home, 0, [])
 
     {:noreply,
@@ -174,6 +179,13 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply, push_patch(socket, to: ~p"/")}
   end
 
+  def handle_event("toggle-sort", _, %{assigns: %{live_action: live_action}} = socket) do
+    current_sort = socket.assigns[:sort] || :new
+    new_sort = if current_sort == :new, do: :top, else: :new
+
+    {:noreply, push_patch(socket, to: path_for_action(live_action, socket.assigns, new_sort))}
+  end
+
   def handle_event("load-more", _, socket) do
     %{assigns: %{page: page, notebooks: notebooks, live_action: live_action}} = socket
 
@@ -188,11 +200,11 @@ defmodule NotesclubWeb.NotebookLive.Index do
      )}
   end
 
-  defp get_notebooks(_socket, :home, page, exclude_ids) do
+  defp get_notebooks(%{assigns: %{sort: sort}}, :home, page, exclude_ids) do
     Notebooks.list_notebooks(
       per_page: @per_page,
       page: page,
-      order: :desc,
+      order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]
@@ -221,25 +233,30 @@ defmodule NotesclubWeb.NotebookLive.Index do
     )
   end
 
-  defp get_notebooks(%{assigns: %{repo: repo, author: author}}, :repo, page, exclude_ids) do
+  defp get_notebooks(
+         %{assigns: %{repo: repo, author: author, sort: sort}},
+         :repo,
+         page,
+         exclude_ids
+       ) do
     Notebooks.list_notebooks(
       github_repo_name: repo,
       github_owner_login: author,
       per_page: @per_page,
       page: page,
-      order: :desc,
+      order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]
     )
   end
 
-  defp get_notebooks(%{assigns: %{author: author}}, :author, page, exclude_ids) do
+  defp get_notebooks(%{assigns: %{author: author, sort: sort}}, :author, page, exclude_ids) do
     Notebooks.list_notebooks(
       github_owner_login: author,
       per_page: @per_page,
       page: page,
-      order: :desc,
+      order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]
@@ -258,12 +275,12 @@ defmodule NotesclubWeb.NotebookLive.Index do
     )
   end
 
-  defp get_notebooks(%{assigns: %{package: package}}, :package, page, exclude_ids) do
+  defp get_notebooks(%{assigns: %{package: package, sort: sort}}, :package, page, exclude_ids) do
     Notebooks.list_notebooks(
       package_name: package,
       per_page: @per_page,
       page: page,
-      order: :desc,
+      order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
       preload: [:user, :repo, :packages]
@@ -318,4 +335,30 @@ defmodule NotesclubWeb.NotebookLive.Index do
       )
     end
   end
+
+  defp extract_sort(%{"sort" => sort}) when sort in ["new", "top"],
+    do: String.to_existing_atom(sort)
+
+  defp extract_sort(_), do: :new
+
+  defp order_for(:top), do: :ai_rating
+  defp order_for(_), do: :desc
+
+  defp path_for_action(:home, _assigns, sort), do: "/" <> sort_query(sort)
+
+  defp path_for_action(:author, %{author: author}, sort) when is_binary(author),
+    do: "/#{author}" <> sort_query(sort)
+
+  defp path_for_action(:package, %{package: package}, sort) when is_binary(package),
+    do: "/hex/#{package}" <> sort_query(sort)
+
+  defp path_for_action(:repo, %{author: author, repo: repo}, sort)
+       when is_binary(author) and is_binary(repo),
+       do: "/#{author}/#{repo}" <> sort_query(sort)
+
+  defp path_for_action(other, _assigns, _sort) when other in [:random, :top, :search, :starred],
+    do: "/"
+
+  defp sort_query(:new), do: ""
+  defp sort_query(:top), do: "?sort=top"
 end
