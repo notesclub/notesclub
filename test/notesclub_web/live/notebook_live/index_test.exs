@@ -353,4 +353,190 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
   test "/last_week redirects to /", %{conn: conn} do
     {:error, {:redirect, %{to: "/"}}} = live(conn, "/last_week")
   end
+
+  test "GET /?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
+    notebook_fixture(github_filename: "lowai.livemd", ai_rating: 150)
+    notebook_fixture(github_filename: "highai.livemd", ai_rating: 750)
+
+    {:ok, _view, html} = live(conn, "/?sort=top")
+
+    assert html =~ ~s(phx-value-sort="top")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~r/highai\.livemd.*lowai\.livemd/s
+  end
+
+  test "GET / orders notebooks new to old by default", %{conn: conn} do
+    notebook_fixture(github_filename: "older-home.livemd")
+    notebook_fixture(github_filename: "newer-home.livemd")
+
+    {:ok, _view, html} = live(conn, "/")
+
+    assert html =~ ~r/newer-home\.livemd.*older-home\.livemd/s
+  end
+
+  test "GET /?sort=random highlights Random", %{conn: conn} do
+    notebook_fixture(github_filename: "whatever2.livemd")
+
+    {:ok, _view, html} = live(conn, "/?sort=random")
+
+    assert html =~ ~s(phx-value-sort="random")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+  end
+
+  test "GET /:author?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
+    user_fixture(username: "someone")
+
+    notebook_fixture(
+      github_filename: "low-author.livemd",
+      github_owner_login: "someone",
+      ai_rating: 150
+    )
+
+    notebook_fixture(
+      github_filename: "high-author.livemd",
+      github_owner_login: "someone",
+      ai_rating: 750
+    )
+
+    {:ok, _view, html} = live(conn, "/someone?sort=top")
+
+    assert html =~ ~s(phx-value-sort="top")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~r/high-author\.livemd.*low-author\.livemd/s
+  end
+
+  test "GET /:author orders notebooks new to old by default", %{conn: conn} do
+    user = user_fixture()
+
+    notebook_fixture(
+      github_filename: "older-author-def.livemd",
+      github_owner_login: user.username
+    )
+
+    notebook_fixture(
+      github_filename: "newer-author-def.livemd",
+      github_owner_login: user.username
+    )
+
+    {:ok, _view, html} = live(conn, "/#{user.username}")
+
+    assert html =~ ~r/newer-author-def\.livemd.*older-author-def\.livemd/s
+  end
+
+  test "GET /:author?sort=random highlights Random", %{conn: conn} do
+    user_fixture(username: "someone")
+    notebook_fixture(github_filename: "b.livemd", github_owner_login: "someone")
+
+    {:ok, _view, html} = live(conn, "/someone?sort=random")
+
+    assert html =~ ~s(phx-value-sort="random")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+  end
+
+  test "GET /hex/:package?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
+    package = Notesclub.PackagesFixtures.package_fixture(name: "ecto")
+
+    nb_low =
+      notebook_fixture(
+        github_filename: "low-pkg.livemd",
+        content: "Mix.install([:ecto])",
+        ai_rating: 150
+      )
+
+    nb_high =
+      notebook_fixture(
+        github_filename: "high-pkg.livemd",
+        content: "Mix.install([:ecto])",
+        ai_rating: 750
+      )
+
+    nb_low = Notesclub.Notebooks.get_notebook!(nb_low.id, preload: :packages)
+    nb_high = Notesclub.Notebooks.get_notebook!(nb_high.id, preload: :packages)
+    assert :ok = Notesclub.NotebooksPackages.link!(nb_low, [package])
+    assert :ok = Notesclub.NotebooksPackages.link!(nb_high, [package])
+
+    {:ok, _view, html} = live(conn, "/hex/ecto?sort=top")
+
+    assert html =~ ~s(phx-value-sort="top")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~r/high-pkg\.livemd.*low-pkg\.livemd/s
+  end
+
+  test "GET /hex/:package orders notebooks new to old by default", %{conn: conn} do
+    pkg = "pkgdef-" <> Integer.to_string(System.unique_integer([:positive]))
+    package = Notesclub.PackagesFixtures.package_fixture(name: pkg)
+
+    nb_old = notebook_fixture(github_filename: "older-pkg-def.livemd")
+    nb_new = notebook_fixture(github_filename: "newer-pkg-def.livemd")
+
+    nb_old = Notesclub.Notebooks.get_notebook!(nb_old.id, preload: :packages)
+    nb_new = Notesclub.Notebooks.get_notebook!(nb_new.id, preload: :packages)
+    assert :ok = Notesclub.NotebooksPackages.link!(nb_old, [package])
+    assert :ok = Notesclub.NotebooksPackages.link!(nb_new, [package])
+
+    {:ok, _view, html} = live(conn, "/hex/#{pkg}")
+
+    assert html =~ ~r/newer-pkg-def\.livemd.*older-pkg-def\.livemd/s
+  end
+
+  test "GET /hex/:package?sort=random highlights Random", %{conn: conn} do
+    nb = notebook_fixture(github_filename: "pkg2.livemd", content: "Mix.install([:nx])")
+    package = Notesclub.PackagesFixtures.package_fixture(name: "nx")
+    nb = Notesclub.Notebooks.get_notebook!(nb.id, preload: :packages)
+    assert :ok = Notesclub.NotebooksPackages.link!(nb, [package])
+
+    {:ok, _view, html} = live(conn, "/hex/nx?sort=random")
+
+    assert html =~ ~s(phx-value-sort="random")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+  end
+
+  test "GET /search?q=term&sort=top highlights Top and orders by ai_rating", %{conn: conn} do
+    notebook_fixture(
+      github_filename: "low-search.livemd",
+      title: "Intro to Something",
+      content: "Intro",
+      ai_rating: 150
+    )
+
+    notebook_fixture(
+      github_filename: "high-search.livemd",
+      title: "Intro to Anything",
+      content: "Intro",
+      ai_rating: 750
+    )
+
+    {:ok, _view, html} = live(conn, "/search?q=intro&sort=top")
+
+    assert html =~ ~s(phx-value-sort="top")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~r/high-search\.livemd.*low-search\.livemd/s
+  end
+
+  test "GET /search?q=term orders notebooks new to old by default", %{conn: conn} do
+    notebook_fixture(
+      github_filename: "older-search-def.livemd",
+      title: "Intro to Something",
+      content: "Intro"
+    )
+
+    notebook_fixture(
+      github_filename: "newer-search-def.livemd",
+      title: "Intro to Anything",
+      content: "Intro"
+    )
+
+    {:ok, _view, html} = live(conn, "/search?q=intro")
+
+    assert html =~ ~r/newer-search-def\.livemd.*older-search-def\.livemd/s
+  end
+
+  test "GET /search?q=term&sort=random highlights Random", %{conn: conn} do
+    notebook_fixture(github_filename: "search2.livemd", title: "Guide")
+
+    {:ok, _view, html} = live(conn, "/search?q=guide&sort=random")
+
+    assert html =~ ~s(phx-value-sort="random")
+    assert html =~ ~s(bg-indigo-600 text-white rounded)
+  end
 end
