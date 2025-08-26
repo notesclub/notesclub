@@ -19,12 +19,12 @@ defmodule Notesclub.Workers.NotebookRatingWorker do
       %Notebook{ai_rating: ai_rating} when not is_nil(ai_rating) ->
         :ok
 
-      %Notebook{content: nil} ->
-        Notebooks.update_notebook(notebook, %{ai_rating: 0})
+      %Notebook{content: nil} = notebook ->
+        {:ok, _} = Notebooks.update_notebook(notebook, %{ai_rating: 0})
         {:cancel, "no content; skipping AI rating"}
 
-      %Notebook{content: ""} ->
-        Notebooks.update_notebook(notebook, %{ai_rating: 0})
+      %Notebook{content: ""} = notebook ->
+        {:ok, _} = Notebooks.update_notebook(notebook, %{ai_rating: 0})
         {:cancel, "empty content; skipping AI rating"}
 
       %Notebook{} = notebook ->
