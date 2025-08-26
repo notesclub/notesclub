@@ -970,6 +970,7 @@ defmodule Notesclub.Notebooks do
   def get_non_published_highest_ai_rated_notebook(platform) do
     Notebook
     |> join(:left, [n], pl in PublishLog, on: pl.notebook_id == n.id and pl.platform == ^platform)
+    |> where([n, pl], is_nil(pl.id))
     |> where([n], not is_nil(n.content))
     |> where([n], not is_nil(n.ai_rating))
     |> where([n], fragment("length(?)", n.content) >= 200)
