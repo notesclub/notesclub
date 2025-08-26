@@ -961,7 +961,7 @@ defmodule Notesclub.Notebooks do
     |> where([n, _sc, pl], is_nil(pl.id))
     |> where([n], not is_nil(n.content))
     |> where([n], fragment("length(?)", n.content) >= 200)
-    |> order_by([n, sc], desc: sc.star_count, desc: n.id)
+    |> order_by([n, sc], desc: sc.star_count, asc: fragment("RANDOM()"))
     |> limit(1)
     |> preload(:user)
     |> Repo.one()
@@ -974,7 +974,8 @@ defmodule Notesclub.Notebooks do
     |> where([n], not is_nil(n.content))
     |> where([n], not is_nil(n.ai_rating))
     |> where([n], fragment("length(?)", n.content) >= 200)
-    |> order_by([n], desc: n.ai_rating, desc: n.id)
+    #  Randomly order notebooks with same rating to avoid sharing same-author notebooks in a row
+    |> order_by([n], desc: n.ai_rating, asc: fragment("RANDOM()"))
     |> limit(1)
     |> preload(:user)
     |> Repo.one()
