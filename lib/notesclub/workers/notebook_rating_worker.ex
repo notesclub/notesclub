@@ -4,6 +4,7 @@ defmodule Notesclub.Workers.NotebookRatingWorker do
   """
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Rater
+  alias Notesclub.Notebooks.Notebook
 
   use Oban.Worker,
     queue: :default,
@@ -11,11 +12,25 @@ defmodule Notesclub.Workers.NotebookRatingWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"notebook_id" => notebook_id}}) do
-    with notebook <- Notebooks.get_notebook!(notebook_id),
-         {:ok, _rating} <- Rater.rate_notebook_interest(notebook) do
-      :ok
-    else
-      {:error, error} -> {:error, error}
+    case Notebooks.get_notebook(notebook_id) do
+      nil ->
+        {:cancel, "notebook does NOT exist"}
+
+      %Notebook{ai_rating: ai_rating} when not is_nil(ai_rating) ->
+        :ok
+
+      %Notebook{content: nil} ->
+        {:cancel, "no content; skipping AI rating"}
+
+      %Notebook{content: ""} ->
+        {:cancel, "empty content; skipping AI rating"}
+
+      %Notebook{} = notebook ->
+        case Rater.rate_notebook_interest(notebook) do
+          {:ok, _rating} -> :ok
+          {:error, :no_content} -> {:cancel, "empty content; skipping AI rating"}
+          {:error, error} -> {:error, error}
+        end
     end
   end
 end

@@ -20,7 +20,7 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
         make_rating_request(content)
 
       {:error, :no_content} ->
-        {:ok, 0}
+        {:error, :no_content}
     end
   end
 
