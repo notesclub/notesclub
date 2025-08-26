@@ -65,6 +65,10 @@ config :notesclub, NotesclubWeb.Endpoint,
     ]
   ]
 
+config :phoenix_live_view,
+  debug_heex_annotations: true,
+  debug_tags_location: true
+
 if !System.get_env("OPENROUTER_API_KEY") do
   # Use a fake LLM calls in development
   config :notesclub, :notebook_rater_implementation, Notesclub.Rater.FakeRater
