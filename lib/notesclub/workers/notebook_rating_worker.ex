@@ -3,8 +3,8 @@ defmodule Notesclub.Workers.NotebookRatingWorker do
   Worker to rate notebooks using AI-powered rating functionality
   """
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.Rater
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Notebooks.Rater
 
   use Oban.Worker,
     queue: :default,
