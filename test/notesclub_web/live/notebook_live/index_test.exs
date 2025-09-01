@@ -361,7 +361,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/?sort=top")
 
     assert html =~ ~s(phx-value-sort="top")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
     assert html =~ ~r/highai\.livemd.*lowai\.livemd/s
   end
 
@@ -380,7 +380,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/?sort=random")
 
     assert html =~ ~s(phx-value-sort="random")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
   end
 
   test "GET /:author?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
@@ -401,7 +401,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/someone?sort=top")
 
     assert html =~ ~s(phx-value-sort="top")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
     assert html =~ ~r/high-author\.livemd.*low-author\.livemd/s
   end
 
@@ -430,7 +430,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/someone?sort=random")
 
     assert html =~ ~s(phx-value-sort="random")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
   end
 
   test "GET /hex/:package?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
@@ -458,7 +458,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/hex/ecto?sort=top")
 
     assert html =~ ~s(phx-value-sort="top")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
     assert html =~ ~r/high-pkg\.livemd.*low-pkg\.livemd/s
   end
 
@@ -488,7 +488,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/hex/nx?sort=random")
 
     assert html =~ ~s(phx-value-sort="random")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
   end
 
   test "GET /search?q=term&sort=top highlights Top and orders by ai_rating", %{conn: conn} do
@@ -509,7 +509,7 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/search?q=intro&sort=top")
 
     assert html =~ ~s(phx-value-sort="top")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
     assert html =~ ~r/high-search\.livemd.*low-search\.livemd/s
   end
 
@@ -537,6 +537,6 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     {:ok, _view, html} = live(conn, "/search?q=guide&sort=random")
 
     assert html =~ ~s(phx-value-sort="random")
-    assert html =~ ~s(bg-indigo-600 text-white rounded)
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
   end
 end
