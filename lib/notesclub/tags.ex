@@ -8,8 +8,8 @@ defmodule Notesclub.Tags do
   import Ecto.Query, warn: false
   alias Notesclub.Repo
 
-  alias Notesclub.Tags.Tag
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Tags.Tag
 
   @doc """
   List all tags.
@@ -87,7 +87,7 @@ defmodule Notesclub.Tags do
   def link!(%Notebook{} = notebook, tags) when is_list(tags) do
     notebook_changeset =
       notebook
-      |> Notesclub.Notebooks.Notebook.changeset(%{})
+      |> Notebook.changeset(%{})
       |> Ecto.Changeset.put_assoc(:tags, tags)
 
     case Repo.update(notebook_changeset) do

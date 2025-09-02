@@ -3,8 +3,8 @@ defmodule Notesclub.Notebooks.Analyser do
   Context module for AI-powered notebook analysis functionality.
   """
 
-  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Analyser.AiAnalyser
+  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Tags
 
   @doc """
@@ -28,8 +28,6 @@ defmodule Notesclub.Notebooks.Analyser do
       {:ok, rating, tag_names}
     end
   end
-
-
 
   defp implementation do
     Application.get_env(:notesclub, :notebook_analyser_implementation, AiAnalyser)

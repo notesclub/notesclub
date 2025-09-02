@@ -81,8 +81,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-        package: nil,
-        tag: nil,
+       package: nil,
+       tag: nil,
        action: :search
      )}
   end
@@ -99,8 +99,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-        package: nil,
-        tag: nil,
+       package: nil,
+       tag: nil,
        action: :search
      )}
   end
@@ -117,8 +117,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        search: nil,
        author: nil,
        repo: nil,
-        package: nil,
-        tag: nil,
+       package: nil,
+       tag: nil,
        action: :home
      )}
   end

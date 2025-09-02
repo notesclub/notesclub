@@ -15,8 +15,8 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
-  alias Notesclub.Workers.NotebookPackagesWorker
   alias Notesclub.Workers.NotebookAnalysisWorker
+  alias Notesclub.Workers.NotebookPackagesWorker
   alias Notesclub.Workers.RepoSyncWorker
 
   @doc """

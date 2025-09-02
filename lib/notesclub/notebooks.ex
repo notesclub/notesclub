@@ -9,9 +9,9 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Accounts
   alias Notesclub.Accounts.User
   alias Notesclub.Notebooks
+  alias Notesclub.Notebooks.Analyser
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.NotebookUser
-  alias Notesclub.Notebooks.Analyser
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages

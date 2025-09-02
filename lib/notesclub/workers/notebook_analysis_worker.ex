@@ -3,8 +3,8 @@ defmodule Notesclub.Workers.NotebookAnalysisWorker do
   Worker to analyse notebooks using AI-powered analysis functionality
   """
   alias Notesclub.Notebooks
-  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Analyser
+  alias Notesclub.Notebooks.Notebook
 
   use Oban.Worker,
     queue: :default,

@@ -1,8 +1,8 @@
 defmodule Notesclub.Notebooks.AnalyserTest do
   use Notesclub.DataCase
 
-  alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Analyser
+  alias Notesclub.Notebooks.Notebook
 
   describe "analyse_notebook/1" do
     test "returns error for notebook without content" do

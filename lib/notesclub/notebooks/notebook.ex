@@ -8,10 +8,10 @@ defmodule Notesclub.Notebooks.Notebook do
 
   alias Notesclub.Accounts.User
   alias Notesclub.Notebooks.NotebookUser
-  alias Notesclub.Packages.Package
   alias Notesclub.NotebooksTags.NotebookTag
-  alias Notesclub.Tags.Tag
+  alias Notesclub.Packages.Package
   alias Notesclub.Repos.Repo
+  alias Notesclub.Tags.Tag
 
   @optional ~w(inserted_at user_id repo_id url content title search_vector ai_rating)a
   @required ~w(github_filename github_html_url github_owner_login github_owner_avatar_url github_repo_name)a
