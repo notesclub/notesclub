@@ -9,6 +9,8 @@ defmodule Notesclub.Notebooks.Notebook do
   alias Notesclub.Accounts.User
   alias Notesclub.Notebooks.NotebookUser
   alias Notesclub.Packages.Package
+  alias Notesclub.NotebooksTags.NotebookTag
+  alias Notesclub.Tags.Tag
   alias Notesclub.Repos.Repo
 
   @optional ~w(inserted_at user_id repo_id url content title search_vector ai_rating)a
@@ -40,6 +42,13 @@ defmodule Notesclub.Notebooks.Notebook do
       :packages,
       Package,
       join_through: "notebooks_packages",
+      on_replace: :delete
+    )
+
+    many_to_many(
+      :tags,
+      Tag,
+      join_through: NotebookTag,
       on_replace: :delete
     )
 

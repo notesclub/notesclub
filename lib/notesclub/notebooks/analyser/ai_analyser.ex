@@ -5,6 +5,7 @@ defmodule Notesclub.Notebooks.Analyser.AiAnalyser do
 
   require Logger
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Tags
 
   @openrouter_base_url "https://openrouter.ai/api/v1"
   @model "openai/gpt-4o-mini"
@@ -103,7 +104,7 @@ defmodule Notesclub.Notebooks.Analyser.AiAnalyser do
 
           Also, provide a list of tags that best describe the notebook.
           You can only use the following tags:
-          'gen-server','otp','data-science','ai','sql','python','apis','tutorial','beginner','intermediate','advanced','workshop','testing','debugging','algorithms','data-structures','etl','llm','security','iot','robotics'
+          #{Tags.list_tag_names() |> Enum.join(",")}
           Do not use any other tags. If there is no relevant tag, return an empty array.
 
           Please respond with ONLY a JSON object containing a "rating" number (0-1000) and "tags" array of strings.
@@ -135,7 +136,7 @@ defmodule Notesclub.Notebooks.Analyser.AiAnalyser do
                 type: "array",
                 items: %{
                   type: "string",
-                  enum: ["gen-server", "otp", "data-science", "ai", "sql", "python", "apis", "tutorial", "beginner", "intermediate", "advanced", "workshop", "testing", "debugging", "algorithms", "data-structures", "etl", "llm", "security", "iot", "robotics"]
+                  enum: Tags.list_tag_names()
                 }
               }
             },

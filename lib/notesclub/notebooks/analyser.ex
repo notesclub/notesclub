@@ -5,6 +5,7 @@ defmodule Notesclub.Notebooks.Analyser do
 
   alias Notesclub.Notebooks.Notebook
   alias Notesclub.Notebooks.Analyser.AiAnalyser
+  alias Notesclub.Tags
 
   @doc """
   Analyses a notebook based on how interesting it would be to Elixir developers via AI-powered analysis.
@@ -21,12 +22,14 @@ defmodule Notesclub.Notebooks.Analyser do
   """
   @spec analyse_notebook(Notebook.t()) :: {:ok, integer(), list(String.t())} | {:error, term()}
   def analyse_notebook(%Notebook{} = notebook) do
-    with {:ok, rating, tags} <- implementation().analyse_notebook(notebook),
-         {:ok, _notebook} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}) do
-          IO.inspect(tags, label: "-------------- tags --------------")
-      {:ok, rating, tags}
+    with {:ok, rating, tag_names} <- implementation().analyse_notebook(notebook),
+         {:ok, updated} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}),
+         :ok <- Tags.link_tags_to_notebook(updated, tag_names) do
+      {:ok, rating, tag_names}
     end
   end
+
+
 
   defp implementation do
     Application.get_env(:notesclub, :notebook_analyser_implementation, AiAnalyser)
