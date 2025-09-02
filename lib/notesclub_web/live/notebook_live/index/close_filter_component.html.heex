@@ -1,5 +1,5 @@
 <div>
-  <%= if assigns[:author] || assigns[:repo] || assigns[:package] do %>
+  <%= if assigns[:author] || assigns[:repo] || assigns[:package] || assigns[:tag] do %>
     <div class="sm:mt-0">
       <div class="-m-1 flex flex-wrap items-center">
         <span class="m-1 inline-flex items-center rounded-full border border-gray-200 bg-white py-1.5 pl-3 pr-2 text-sm font-medium text-gray-900">
@@ -11,7 +11,7 @@
             </svg>
           </button>
         </span>
-        <%= if @action != :starred && !assigns[:repo] && !assigns[:package] do %>
+        <%= if @action != :starred && assigns[:author] && !assigns[:repo] && !assigns[:package] && !assigns[:tag] do %>
           <.link navigate={~p"/#{assigns[:author]}/stars"} class="text-xs">
             Stars
           </.link>

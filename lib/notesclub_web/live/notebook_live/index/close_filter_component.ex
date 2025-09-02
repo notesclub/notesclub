@@ -6,6 +6,10 @@ defmodule NotesclubWeb.NotebookLive.Index.CloseFilterComponent do
 
   use NotesclubWeb, :live_component
 
+  def filter_type(%{tag: tag, author: nil, repo: nil, package: nil}) do
+    "#{tag} (tag)"
+  end
+
   def filter_type(%{package: package, author: nil}) do
     "#{package} (hex package)"
   end

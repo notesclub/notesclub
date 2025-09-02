@@ -15,6 +15,7 @@ defmodule Notesclub.Notebooks do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.NotebooksPackages.NotebookPackage
   alias Notesclub.Packages
+  alias Notesclub.Tags
   alias Notesclub.PublishLogs.PublishLog
   alias Notesclub.Repos
   alias Notesclub.Repos.Repo, as: RepoSchema
@@ -46,6 +47,7 @@ defmodule Notesclub.Notebooks do
   def list_notebooks(opts \\ []) do
     preload = opts[:preload] || []
     opts = replace_package_name_with_ids(opts, opts[:package_name])
+    opts = replace_tag_name_with_ids(opts, opts[:tag_name])
 
     base_query =
       from n in Notebook,
@@ -193,6 +195,23 @@ defmodule Notesclub.Notebooks do
 
         opts
         |> Keyword.delete(:package_name)
+        |> Keyword.put(:ids, notebook_ids)
+    end
+  end
+
+  @spec replace_tag_name_with_ids(list, binary | nil) :: list
+  defp replace_tag_name_with_ids(opts, nil), do: opts
+
+  defp replace_tag_name_with_ids(opts, tag_name) do
+    case Tags.get_by_name(tag_name, preload: :notebooks) do
+      nil ->
+        opts
+
+      tag ->
+        notebook_ids = Enum.map(tag.notebooks, & &1.id)
+
+        opts
+        |> Keyword.delete(:tag_name)
         |> Keyword.put(:ids, notebook_ids)
     end
   end

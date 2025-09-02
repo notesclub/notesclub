@@ -21,14 +21,21 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp run_action(%{"package" => package} = params, :package, socket) do
     sort = extract_sort(params)
-    socket = assign(socket, package: package, author: nil, repo: nil, sort: sort)
+    socket = assign(socket, package: package, tag: nil, author: nil, repo: nil, sort: sort)
     notebooks = get_notebooks(socket, :package, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :package)}
   end
 
+  defp run_action(%{"tag" => tag} = params, :tag, socket) do
+    sort = extract_sort(params)
+    socket = assign(socket, tag: tag, author: nil, repo: nil, package: nil, sort: sort)
+    notebooks = get_notebooks(socket, :tag, 0, [])
+    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :tag)}
+  end
+
   defp run_action(%{"repo" => repo, "author" => author} = params, :repo, socket) do
     sort = extract_sort(params)
-    socket = assign(socket, author: author, repo: repo, package: nil, sort: sort)
+    socket = assign(socket, author: author, repo: repo, package: nil, tag: nil, sort: sort)
     notebooks = get_notebooks(socket, :repo, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :repo)}
   end
@@ -37,7 +44,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
     # Render 404 if author does not exist
     Accounts.get_by_username!(username)
     sort = extract_sort(params)
-    socket = assign(socket, author: username, repo: nil, package: nil, sort: sort)
+    socket = assign(socket, author: username, repo: nil, package: nil, tag: nil, sort: sort)
     notebooks = get_notebooks(socket, :author, 0, [])
     {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :author)}
   end
@@ -56,7 +63,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        action: :starred,
        author: username,
        repo: nil,
-       package: nil
+       package: nil,
+       tag: nil
      )}
   end
 
@@ -73,7 +81,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-       package: nil,
+        package: nil,
+        tag: nil,
        action: :search
      )}
   end
@@ -90,7 +99,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        notebooks: notebooks,
        author: nil,
        repo: nil,
-       package: nil,
+        package: nil,
+        tag: nil,
        action: :search
      )}
   end
@@ -107,7 +117,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
        search: nil,
        author: nil,
        repo: nil,
-       package: nil,
+        package: nil,
+        tag: nil,
        action: :home
      )}
   end
@@ -123,6 +134,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
        author: nil,
        repo: nil,
        package: nil,
+       tag: nil,
        action: :random
      )}
   end
@@ -138,6 +150,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
        author: nil,
        repo: nil,
        package: nil,
+       tag: nil,
        action: :top
      )}
   end
@@ -323,6 +336,18 @@ defmodule NotesclubWeb.NotebookLive.Index do
     )
   end
 
+  defp get_notebooks(%{assigns: %{tag: tag, sort: sort}}, :tag, page, exclude_ids) do
+    Notebooks.list_notebooks(
+      tag_name: tag,
+      per_page: @per_page,
+      page: page,
+      order: order_for(sort),
+      exclude_ids: exclude_ids,
+      require_content: true,
+      preload: [:user, :repo, :packages]
+    )
+  end
+
   defp get_notebooks(%{assigns: %{search: search, sort: sort}}, :search, page, exclude_ids) do
     # Check if search is wrapped in quotes for exact search
     if search && String.starts_with?(search, "\"") && String.ends_with?(search, "\"") do
@@ -393,6 +418,9 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp path_for_action(:package, %{package: package}, sort) when is_binary(package),
     do: "/hex/#{package}" <> sort_query(sort)
+
+  defp path_for_action(:tag, %{tag: tag}, sort) when is_binary(tag),
+    do: "/tags/#{tag}" <> sort_query(sort)
 
   defp path_for_action(:repo, %{author: author, repo: repo}, sort)
        when is_binary(author) and is_binary(repo),

@@ -39,9 +39,9 @@
       />
     </div>
   </form>
-  
+
 <!-- Sort Navigation -->
-  <%= if @action in [:home, :author, :package, :repo, :search] do %>
+  <%= if @action in [:home, :author, :package, :repo, :search, :tag] do %>
     <div class="px-4 flex justify-center mb-4">
       <div class="inline-flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
         <button
@@ -86,7 +86,7 @@
 
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-      <%= if !@author && !@repo && !@package do %>
+      <%= if !@author && !@repo && !@package && !@tag do %>
         <.live_component
           module={NotesclubWeb.NotebookLive.Index.FeaturedComponent}
           id="f"
@@ -98,6 +98,7 @@
         author={@author}
         repo={@repo}
         package={@package}
+        tag={@tag}
         action={@action}
         id="f"
       />

@@ -36,6 +36,15 @@ defmodule Notesclub.Tags do
   end
 
   @doc """
+  Get tag by name with optional preloads.
+  """
+  @spec get_by_name(binary, list) :: Tag.t() | nil
+  def get_by_name(name, preload: tables) do
+    tag = Repo.get_by(Tag, name: normalize(name))
+    tag && Repo.preload(tag, tables)
+  end
+
+  @doc """
   Get or create tag by name.
   """
   @spec get_or_create_by_name(binary) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}
