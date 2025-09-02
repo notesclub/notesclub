@@ -256,7 +256,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -267,7 +267,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :random,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -278,7 +278,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: :ai_rating,
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -296,7 +296,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -308,7 +308,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -320,7 +320,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       exclude_ids: exclude_ids,
       order: :desc,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -332,7 +332,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -344,7 +344,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       order: order_for(sort),
       exclude_ids: exclude_ids,
       require_content: true,
-      preload: [:user, :repo, :packages]
+      preload: [:user, :repo, :packages, :tags]
     )
   end
 
@@ -364,7 +364,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
           exclude_ids: exclude_ids,
           require_content: true,
           select_content: true,
-          preload: [:user, :repo, :packages]
+          preload: [:user, :repo, :packages, :tags]
         )
 
       exclude_ids = exclude_ids ++ Enum.map(searchable_matches, & &1.id)
@@ -378,7 +378,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
           exclude_ids: exclude_ids,
           require_content: true,
           select_content: true,
-          preload: [:user, :repo, :packages]
+          preload: [:user, :repo, :packages, :tags]
         )
 
       searchable_matches ++ content_matches
@@ -392,7 +392,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         exclude_ids: exclude_ids,
         require_content: true,
         select_content: true,
-        preload: [:user, :repo, :packages]
+        preload: [:user, :repo, :packages, :tags]
       )
     end
   end
