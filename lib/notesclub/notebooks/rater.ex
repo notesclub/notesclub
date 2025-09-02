@@ -21,9 +21,10 @@ defmodule Notesclub.Notebooks.Rater do
   """
   @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
   def rate_notebook_interest(%Notebook{} = notebook) do
-    with {:ok, rating} <- implementation().rate_notebook_interest(notebook),
+    with {:ok, rating, tags} <- implementation().rate_notebook_interest(notebook),
          {:ok, _notebook} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}) do
-      {:ok, rating}
+          IO.inspect(tags, label: "-------------- tags --------------")
+      {:ok, rating, tags}
     end
   end
 

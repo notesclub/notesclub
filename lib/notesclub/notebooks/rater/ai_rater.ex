@@ -13,7 +13,7 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
   @doc """
   Rates a notebook's interest level for Elixir developers using OpenRouter's structured outputs.
   """
-  @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
+  @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer(), list(string())} | {:error, term()}
   def rate_notebook_interest(%Notebook{} = notebook) do
     case prepare_content(notebook) do
       {:ok, content} ->
@@ -100,8 +100,13 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
           - 701-900: Very interesting (advanced concepts, comprehensive examples, real-world applications)
           - 901-1000: Extremely interesting (cutting-edge techniques, exceptional educational value, expert-level content)
 
-          Please respond with ONLY a JSON object containing a "rating" number (0-1000).
-          Example: {"rating": 650}
+          Also, provide a list of tags that best describe the notebook.
+          You can only use the following tags:
+          'gen-server','otp','data-science','ai','sql','python','apis','tutorial','beginner','intermediate','advanced','workshop','testing','debugging','algorithms','data-structures','etl','llm','security','iot','robotics'
+          Do not use any other tags. If there is no relevant tag, return an empty array.
+
+          Please respond with ONLY a JSON object containing a "rating" number (0-1000) and "tags" array of strings.
+          Example: {"rating": 650, "tags": ["GenServer", "Advanced"]}
           """
         },
         %{
@@ -124,9 +129,16 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
                 minimum: 0,
                 maximum: 1000,
                 description: "Interest rating from 0-1000 for Elixir developers"
+              },
+              tags: %{
+                type: "array",
+                items: %{
+                  type: "string",
+                  enum: ["gen-server", "otp", "data-science", "ai", "sql", "python", "apis", "tutorial", "beginner", "intermediate", "advanced", "workshop", "testing", "debugging", "algorithms", "data-structures", "etl", "llm", "security", "iot", "robotics"]
+                }
               }
             },
-            required: ["rating"],
+            required: ["rating", "tags"],
             additionalProperties: false
           }
         }
@@ -145,10 +157,10 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
   defp parse_response(%{"choices" => [%{"message" => %{"content" => content}} | _]})
        when is_binary(content) do
     case Jason.decode(content) do
-      {:ok, %{"rating" => rating} = _response}
+      {:ok, %{"rating" => rating, "tags" => tags} = _response}
       when is_integer(rating) and rating >= 0 and rating <= 1000 ->
         Logger.debug("Notebook rated: #{rating}/1000")
-        {:ok, rating}
+        {:ok, rating, tags}
 
       {:ok, invalid_response} ->
         Logger.error("Invalid rating response structure: #{inspect(invalid_response)}")
