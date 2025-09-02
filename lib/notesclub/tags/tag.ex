@@ -10,7 +10,7 @@ defmodule Notesclub.Tags.Tag do
   alias Notesclub.NotebooksTags.NotebookTag
 
   @timestamps_opts []
-  @valid_tag_names ["gen-server", "otp", "data-science", "ai", "sql", "python", "apis", "tutorial", "beginner", "intermediate", "advanced", "workshop", "testing", "debugging", "algorithms", "data-structures", "etl", "llm", "security", "iot", "robotics"]
+  @valid_tag_names ["ai", "llm", "security", "iot", "tutorial", "beginner", "intermediate", "advanced", "gen-server", "otp", "data-science", "sql", "python", "apis", "workshop", "testing", "debugging", "algorithms", "data-structures", "etl", "robotics"]
 
   typed_schema "tags" do
     field(:name, :string)
