@@ -1,22 +1,22 @@
-defmodule Notesclub.Notebooks.RaterTest do
+defmodule Notesclub.Notebooks.AnalyserTest do
   use Notesclub.DataCase
 
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Notebooks.Rater
+  alias Notesclub.Notebooks.Analyser
 
-  describe "rate_notebook_interest/1" do
+  describe "analyse_notebook/1" do
     test "returns error for notebook without content" do
       notebook = %Notebook{content: nil}
-      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Analyser.analyse_notebook(notebook)
     end
 
     test "returns error for notebook with empty content" do
       notebook = %Notebook{content: ""}
-      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Analyser.analyse_notebook(notebook)
     end
 
     @tag :integration
-    test "rates an Elixir-heavy notebook highly" do
+    test "analyses an Elixir-heavy notebook highly" do
       notebook = %Notebook{
         title: "Advanced GenServer Tutorial",
         github_filename: "genserver_tutorial.livemd",
@@ -75,10 +75,11 @@ defmodule Notesclub.Notebooks.RaterTest do
 
       # This test requires an actual API key, so we'll skip it in regular test runs
       # In a real scenario, you'd mock the API call or use integration tests
-      case Rater.rate_notebook_interest(notebook) do
-        {:ok, rating} ->
+      case Analyser.analyse_notebook(notebook) do
+        {:ok, rating, tags} ->
           assert is_integer(rating)
           assert rating >= 0 and rating <= 1000
+          assert is_list(tags)
           # We expect this to be rated highly due to advanced Elixir content
           assert rating > 500
 
@@ -93,7 +94,7 @@ defmodule Notesclub.Notebooks.RaterTest do
     end
 
     @tag :integration
-    test "rates a non-Elixir notebook lowly" do
+    test "analyses a non-Elixir notebook lowly" do
       notebook = %Notebook{
         title: "Python Data Analysis",
         github_filename: "python_analysis.livemd",
@@ -118,10 +119,11 @@ defmodule Notesclub.Notebooks.RaterTest do
         """
       }
 
-      case Rater.rate_notebook_interest(notebook) do
-        {:ok, rating} ->
+      case Analyser.analyse_notebook(notebook) do
+        {:ok, rating, tags} ->
           assert is_integer(rating)
           assert rating >= 0 and rating <= 1000
+          assert is_list(tags)
           # We expect this to be rated lowly due to lack of Elixir content
           assert rating < 300
 

@@ -1,10 +1,10 @@
-defmodule Notesclub.Workers.NotebookRatingWorker do
+defmodule Notesclub.Workers.NotebookAnalysisWorker do
   @moduledoc """
-  Worker to rate notebooks using AI-powered rating functionality
+  Worker to analyse notebooks using AI-powered analysis functionality
   """
   alias Notesclub.Notebooks
   alias Notesclub.Notebooks.Notebook
-  alias Notesclub.Notebooks.Rater
+  alias Notesclub.Notebooks.Analyser
 
   use Oban.Worker,
     queue: :default,
@@ -21,15 +21,15 @@ defmodule Notesclub.Workers.NotebookRatingWorker do
 
       %Notebook{content: nil} = notebook ->
         {:ok, _} = Notebooks.update_notebook(notebook, %{ai_rating: 0})
-        {:cancel, "no content; skipping AI rating"}
+        {:cancel, "no content; skipping AI analysis"}
 
       %Notebook{content: ""} = notebook ->
         {:ok, _} = Notebooks.update_notebook(notebook, %{ai_rating: 0})
-        {:cancel, "empty content; skipping AI rating"}
+        {:cancel, "empty content; skipping AI analysis"}
 
       %Notebook{} = notebook ->
-        case Rater.rate_notebook_interest(notebook) do
-          {:ok, _rating} -> :ok
+        case Analyser.analyse_notebook(notebook) do
+          {:ok, _rating, _tags} -> :ok
           {:error, :no_content} -> {:cancel, "empty content; skipping AI rating"}
           {:error, error} -> {:error, error}
         end

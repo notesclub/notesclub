@@ -71,7 +71,7 @@ config :phoenix_live_view,
 
 if !System.get_env("OPENROUTER_API_KEY") do
   # Use a fake LLM calls in development
-  config :notesclub, :notebook_rater_implementation, Notesclub.Rater.FakeRater
+  config :notesclub, :notebook_analyser_implementation, Notesclub.Notebooks.Analyser.FakeAnalyser
 end
 
 config :logger, level: :debug

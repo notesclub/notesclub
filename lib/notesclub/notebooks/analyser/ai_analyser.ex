@@ -1,4 +1,4 @@
-defmodule Notesclub.Notebooks.Rater.AiRater do
+defmodule Notesclub.Notebooks.Analyser.AiAnalyser do
   @moduledoc """
   OpenRouter API client for AI-powered notebook analysis.
   """
@@ -11,13 +11,14 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
   @max_content_chars 150_000
 
   @doc """
-  Rates a notebook's interest level for Elixir developers using OpenRouter's structured outputs.
+  Analyses a notebook's interest level for Elixir developers using OpenRouter's structured outputs.
+  Returns both a rating and relevant tags.
   """
-  @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer(), list(string())} | {:error, term()}
-  def rate_notebook_interest(%Notebook{} = notebook) do
+  @spec analyse_notebook(Notebook.t()) :: {:ok, integer(), list(String.t())} | {:error, term()}
+  def analyse_notebook(%Notebook{} = notebook) do
     case prepare_content(notebook) do
       {:ok, content} ->
-        make_rating_request(content)
+        make_analysis_request(content)
 
       {:error, :no_content} ->
         {:error, :no_content}
@@ -54,7 +55,7 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
     |> Kernel.<>("...")
   end
 
-  defp make_rating_request(content) do
+  defp make_analysis_request(content) do
     api_key = get_api_key()
 
     if api_key == nil, do: raise("no api key")
@@ -70,15 +71,15 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
            ]
          ) do
       {:ok, %{status: 200, body: body}} ->
-        Logger.info("Fallback request response: #{inspect(body)}")
+        Logger.info("Analysis request response: #{inspect(body)}")
         parse_response(body)
 
       {:ok, %{status: status, body: body}} ->
-        Logger.error("OpenRouter fallback API error: #{status} - #{inspect(body)}")
+        Logger.error("OpenRouter analysis API error: #{status} - #{inspect(body)}")
         {:error, {:api_error, status, body}}
 
       {:error, reason} ->
-        Logger.error("OpenRouter fallback request failed: #{inspect(reason)}")
+        Logger.error("OpenRouter analysis request failed: #{inspect(reason)}")
         {:error, {:request_failed, reason}}
     end
   end
@@ -119,7 +120,7 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
       response_format: %{
         type: "json_schema",
         json_schema: %{
-          name: "notebook_rating",
+          name: "notebook_analysis",
           strict: true,
           schema: %{
             type: "object",
@@ -159,15 +160,15 @@ defmodule Notesclub.Notebooks.Rater.AiRater do
     case Jason.decode(content) do
       {:ok, %{"rating" => rating, "tags" => tags} = _response}
       when is_integer(rating) and rating >= 0 and rating <= 1000 ->
-        Logger.debug("Notebook rated: #{rating}/1000")
+        Logger.debug("Notebook analysed: #{rating}/1000 with tags: #{inspect(tags)}")
         {:ok, rating, tags}
 
       {:ok, invalid_response} ->
-        Logger.error("Invalid rating response structure: #{inspect(invalid_response)}")
+        Logger.error("Invalid analysis response structure: #{inspect(invalid_response)}")
         {:error, :invalid_response}
 
       {:error, reason} ->
-        Logger.error("Failed to parse rating JSON: #{inspect(reason)}")
+        Logger.error("Failed to parse analysis JSON: #{inspect(reason)}")
         Logger.error("Raw content was: #{inspect(content)}")
         {:error, {:json_parse_error, reason}}
     end

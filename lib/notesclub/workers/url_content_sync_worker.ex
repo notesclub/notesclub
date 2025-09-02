@@ -16,7 +16,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
   alias Notesclub.Notebooks.Urls
   alias Notesclub.Repos.Repo
   alias Notesclub.Workers.NotebookPackagesWorker
-  alias Notesclub.Workers.NotebookRatingWorker
+  alias Notesclub.Workers.NotebookAnalysisWorker
   alias Notesclub.Workers.RepoSyncWorker
 
   @doc """
@@ -115,7 +115,7 @@ defmodule Notesclub.Workers.UrlContentSyncWorker do
 
         # Enqueue rating only when there is non-empty content and no existing rating
         if notebook.content && notebook.content != "" && is_nil(notebook.ai_rating) do
-          NotebookRatingWorker.new(%{notebook_id: notebook.id})
+          NotebookAnalysisWorker.new(%{notebook_id: notebook.id})
           |> Oban.insert()
         end
 

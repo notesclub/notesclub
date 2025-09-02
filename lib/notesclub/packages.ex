@@ -1,6 +1,6 @@
 defmodule Notesclub.Packages do
   @moduledoc """
-  The Packages context.
+  The Hex Packages context.
   """
 
   import Ecto.Query, warn: false
