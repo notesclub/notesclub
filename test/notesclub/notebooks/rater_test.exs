@@ -5,14 +5,14 @@ defmodule Notesclub.Notebooks.RaterTest do
   import Notesclub.NotebooksFixtures
 
   describe "rate_notebook_interest/1" do
-    test "returns 0 for notebook without content" do
+    test "returns error for notebook without content" do
       notebook = notebook_fixture(%{content: nil})
-      assert {:ok, 0} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
     end
 
-    test "returns 0 for notebook with empty content" do
+    test "returns error for notebook with empty content" do
       notebook = notebook_fixture(%{content: ""})
-      assert {:ok, 0} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
     end
 
     test "rates a notebook" do

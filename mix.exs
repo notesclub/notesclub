@@ -48,7 +48,7 @@ defmodule Notesclub.MixProject do
       {:phoenix_html, "~> 4.0.0"},
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_view, "~> 2.0.3"},
-      {:phoenix_live_reload, "~> 1.4.1", only: :dev},
+      {:phoenix_live_reload, "~> 1.6.0", only: :dev},
       {:phoenix_live_view, "~> 1.1.8"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
@@ -80,7 +80,7 @@ defmodule Notesclub.MixProject do
       {:html_entities, "~> 0.5"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.8"},
-      {:tidewave, "~> 0.2", only: :dev}
+      {:tidewave, "~> 0.4", only: :dev}
     ]
   end
 

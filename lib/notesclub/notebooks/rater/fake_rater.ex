@@ -7,11 +7,11 @@ defmodule Notesclub.Notebooks.Rater.FakeRater do
 
   @spec rate_notebook_interest(Notebook.t()) :: {:ok, integer()} | {:error, term()}
   def rate_notebook_interest(%Notebook{content: nil}) do
-    {:ok, 0}
+    {:error, :no_content}
   end
 
   def rate_notebook_interest(%Notebook{content: ""}) do
-    {:ok, 0}
+    {:error, :no_content}
   end
 
   def rate_notebook_interest(_notebook) do
