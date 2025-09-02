@@ -6,13 +6,20 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   alias Notesclub.Accounts
   alias Notesclub.Notebooks
+  alias Notesclub.Tags
 
   @per_page 20
 
   def per_page, do: @per_page
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, last_search_time: 0, notebooks_count: Notebooks.count(), sort: :new)}
+    {:ok,
+     assign(socket,
+       last_search_time: 0,
+       notebooks_count: Notebooks.count(),
+       sort: :new,
+       empty_message: nil
+     )}
   end
 
   def handle_params(params, _url, %{assigns: %{live_action: live_action}} = socket) do
@@ -29,8 +36,38 @@ defmodule NotesclubWeb.NotebookLive.Index do
   defp run_action(%{"tag" => tag} = params, :tag, socket) do
     sort = extract_sort(params)
     socket = assign(socket, tag: tag, author: nil, repo: nil, package: nil, sort: sort)
-    notebooks = get_notebooks(socket, :tag, 0, [])
-    {:noreply, assign(socket, page: 0, search: nil, notebooks: notebooks, action: :tag)}
+
+    case Tags.get_by_name(tag) do
+      nil ->
+        {:noreply,
+         assign(socket,
+           page: 0,
+           search: nil,
+           notebooks: [],
+           action: :tag,
+           empty_message: "We don't have that tag yet!"
+         )}
+
+      _tag ->
+        notebooks = get_notebooks(socket, :tag, 0, [])
+
+        socket =
+          assign(socket,
+            page: 0,
+            search: nil,
+            notebooks: notebooks,
+            action: :tag
+          )
+
+        socket =
+          if notebooks == [] do
+            assign(socket, empty_message: "No notebooks with that tag yet!")
+          else
+            assign(socket, empty_message: nil)
+          end
+
+        {:noreply, socket}
+    end
   end
 
   defp run_action(%{"repo" => repo, "author" => author} = params, :repo, socket) do
