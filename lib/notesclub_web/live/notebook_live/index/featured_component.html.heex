@@ -1,12 +1,23 @@
-<%# hidden until all notebooks are re-analysed %>
-<div class="hidden font-medium text-xs pb-2 sm:pb-2 bg-white rounded-t-lg pl-3 leading-6">
-  <span>Tags:</span>
-  <%= for tag <- @tags_to_show do %>
-    <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-800"><%= link tag, to: ~p"/tags/#{tag}" %></span>
-  <% end %>
-  <%= if @show_all_tags do %>
-    <span phx-click="dont-show-all-tags" phx-target={@myself} class="cursor-pointer rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700 hover:bg-gray-200">less</span>
-  <% else %>
-    <span phx-click="show-all-tags" phx-target={@myself} class="cursor-pointer rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700 hover:bg-gray-200">more</span>
-  <% end %>
+<div>
+  <div class="font-medium text-xs pb-2 sm:pb-2 bg-white rounded-t-lg pl-3 leading-6">
+    <span>Tags:</span>
+    <%= for tag <- @tags_to_show do %>
+      <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-800"><%= link tag, to: ~p"/tags/#{tag}" %></span>
+    <% end %>
+    <%= if @show_all_tags do %>
+      <span phx-click="dont-show-all-tags" phx-target={@myself} class="cursor-pointer rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700 hover:bg-gray-200">less</span>
+    <% else %>
+      <span phx-click="show-all-tags" phx-target={@myself} class="cursor-pointer rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700 hover:bg-gray-200">more</span>
+    <% end %>
+  </div>
+  <div class="font-medium text-xs pb-2 sm:pb-2 bg-white rounded-t-lg pl-3 leading-6">
+    <span>Hex packages:</span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "ecto", to: ~p"/hex/ecto" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "kino", to: ~p"/hex/kino" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "bumblebee", to: ~p"/hex/bumblebee" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "explorer", to: ~p"/hex/explorer" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "nx", to: ~p"/hex/nx" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "axon", to: ~p"/hex/axon" %></span>
+    <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-blue-800"><%= link "scidata", to: ~p"/hex/scidata" %></span>
+  </div>
 </div>
