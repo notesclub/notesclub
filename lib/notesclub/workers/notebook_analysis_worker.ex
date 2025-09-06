@@ -16,9 +16,6 @@ defmodule Notesclub.Workers.NotebookAnalysisWorker do
       nil ->
         {:cancel, "notebook does NOT exist"}
 
-      %Notebook{ai_rating: ai_rating} when not is_nil(ai_rating) ->
-        :ok
-
       %Notebook{content: nil} = notebook ->
         {:ok, _} = Notebooks.update_notebook(notebook, %{ai_rating: 0})
         {:cancel, "no content; skipping AI analysis"}
