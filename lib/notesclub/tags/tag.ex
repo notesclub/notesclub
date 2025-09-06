@@ -12,7 +12,6 @@ defmodule Notesclub.Tags.Tag do
   @timestamps_opts []
   @valid_tag_names [
     "ai",
-    "llm",
     "security",
     "iot",
     "tutorial",
@@ -23,7 +22,6 @@ defmodule Notesclub.Tags.Tag do
     "otp",
     "data-science",
     "sql",
-    "python",
     "apis",
     "workshop",
     "testing",
