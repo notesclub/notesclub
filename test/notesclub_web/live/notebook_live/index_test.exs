@@ -87,11 +87,10 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
 
     {:ok, _view, html} = live(conn, "/")
 
-    assert html =~ "Featured:"
-    assert html =~ "@livebook-dev</a>"
-    assert html =~ "@elixir-nx</a>"
-    assert html =~ "@josevalim</a>"
-    assert html =~ "@DockYard-Academy</a>"
+    assert html =~ "Tags:"
+    assert html =~ "tutorial"
+    assert html =~ "Hex packages:"
+    assert html =~ "bumblebee"
   end
 
   test "GET /search returns notebooks that match filename or content (exact search)", %{
