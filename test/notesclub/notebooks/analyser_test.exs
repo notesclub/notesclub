@@ -1,21 +1,21 @@
-defmodule Notesclub.Notebooks.RaterTest do
+defmodule Notesclub.Notebooks.AnalyserTest do
   use Notesclub.DataCase
 
-  alias Notesclub.Notebooks.Rater
+  alias Notesclub.Notebooks.Analyser
   import Notesclub.NotebooksFixtures
 
-  describe "rate_notebook_interest/1" do
+  describe "analyse_notebook/1" do
     test "returns error for notebook without content" do
       notebook = notebook_fixture(%{content: nil})
-      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Analyser.analyse_notebook(notebook)
     end
 
     test "returns error for notebook with empty content" do
       notebook = notebook_fixture(%{content: ""})
-      assert {:error, :no_content} = Rater.rate_notebook_interest(notebook)
+      assert {:error, :no_content} = Analyser.analyse_notebook(notebook)
     end
 
-    test "rates a notebook" do
+    test "analyses a notebook" do
       notebook =
         notebook_fixture(%{
           title: "Advanced GenServer Tutorial",
@@ -41,9 +41,10 @@ defmodule Notesclub.Notebooks.RaterTest do
           """
         })
 
-      {:ok, number} = Rater.rate_notebook_interest(notebook)
-      assert number > 0
-      assert number <= 1000
+      {:ok, rating, tags} = Analyser.analyse_notebook(notebook)
+      assert rating > 0
+      assert rating <= 1000
+      assert is_list(tags)
     end
   end
 end

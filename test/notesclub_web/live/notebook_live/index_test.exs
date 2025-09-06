@@ -87,11 +87,10 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
 
     {:ok, _view, html} = live(conn, "/")
 
-    assert html =~ "Featured:"
-    assert html =~ "@livebook-dev</a>"
-    assert html =~ "@elixir-nx</a>"
-    assert html =~ "@josevalim</a>"
-    assert html =~ "@DockYard-Academy</a>"
+    assert html =~ "Tags:"
+    assert html =~ "tutorial"
+    assert html =~ "Hex packages:"
+    assert html =~ "bumblebee"
   end
 
   test "GET /search returns notebooks that match filename or content (exact search)", %{
@@ -460,6 +459,62 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert html =~ ~s(phx-value-sort="top")
     assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
     assert html =~ ~r/high-pkg\.livemd.*low-pkg\.livemd/s
+  end
+
+  test "GET /tags/:tag?sort=top highlights Top and orders by ai_rating", %{conn: conn} do
+    # Create tag and notebooks linked to the tag
+    tag = Notesclub.Tags.get_or_create_by_name("ai") |> elem(1)
+
+    nb_low =
+      notebook_fixture(
+        github_filename: "low-tag.livemd",
+        ai_rating: 150
+      )
+
+    nb_high =
+      notebook_fixture(
+        github_filename: "high-tag.livemd",
+        ai_rating: 750
+      )
+
+    nb_low = Notesclub.Notebooks.get_notebook!(nb_low.id, preload: :tags)
+    nb_high = Notesclub.Notebooks.get_notebook!(nb_high.id, preload: :tags)
+    assert :ok = Notesclub.Tags.link!(nb_low, [tag])
+    assert :ok = Notesclub.Tags.link!(nb_high, [tag])
+
+    {:ok, _view, html} = live(conn, "/tags/ai?sort=top")
+
+    assert html =~ ~s(phx-value-sort="top")
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
+    assert html =~ ~r/high-tag\.livemd.*low-tag\.livemd/s
+  end
+
+  test "GET /tags/:tag orders notebooks new to old by default", %{conn: conn} do
+    tag = Notesclub.Tags.get_or_create_by_name("tutorial") |> elem(1)
+
+    nb_old = notebook_fixture(github_filename: "older-tag-def.livemd")
+    nb_new = notebook_fixture(github_filename: "newer-tag-def.livemd")
+
+    nb_old = Notesclub.Notebooks.get_notebook!(nb_old.id, preload: :tags)
+    nb_new = Notesclub.Notebooks.get_notebook!(nb_new.id, preload: :tags)
+    assert :ok = Notesclub.Tags.link!(nb_old, [tag])
+    assert :ok = Notesclub.Tags.link!(nb_new, [tag])
+
+    {:ok, _view, html} = live(conn, "/tags/tutorial")
+
+    assert html =~ ~r/newer-tag-def\.livemd.*older-tag-def\.livemd/s
+  end
+
+  test "GET /tags/:tag?sort=random highlights Random", %{conn: conn} do
+    tag = Notesclub.Tags.get_or_create_by_name("testing") |> elem(1)
+    nb = notebook_fixture(github_filename: "tag2.livemd")
+    nb = Notesclub.Notebooks.get_notebook!(nb.id, preload: :tags)
+    assert :ok = Notesclub.Tags.link!(nb, [tag])
+
+    {:ok, _view, html} = live(conn, "/tags/testing?sort=random")
+
+    assert html =~ ~s(phx-value-sort="random")
+    assert html =~ ~s(bg-indigo-600 text-white shadow-sm)
   end
 
   test "GET /hex/:package orders notebooks new to old by default", %{conn: conn} do

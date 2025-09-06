@@ -16,7 +16,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
   def handle_params(_params, uri, socket) do
     path = String.replace(uri, ~r/https?:\/\/[^\/]+/, "")
     url = Paths.path_to_url(path) |> URI.decode()
-    notebook = Notebooks.get_by!(url: url, preload: [:user, :repo])
+    notebook = Notebooks.get_by!(url: url, preload: [:user, :repo, :tags])
 
     starred =
       if socket.assigns.current_user,
@@ -28,7 +28,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
       |> URI.encode_www_form()
 
     related_notebooks =
-      Notebooks.get_related_by_packages(notebook, limit: 4, preload: [:user, :repo])
+      Notebooks.get_related_by_packages(notebook, limit: 4, preload: [:user, :repo, :tags])
 
     ids = Enum.map(related_notebooks, & &1.id)
     num_random_notebooks = 7 - length(related_notebooks)
@@ -38,7 +38,7 @@ defmodule NotesclubWeb.NotebookLive.Show do
         Notebooks.get_random_notebooks(
           exclude_ids: ids,
           limit: num_random_notebooks,
-          preload: [:user, :repo]
+          preload: [:user, :repo, :tags]
         )
 
     {:noreply,

@@ -21,6 +21,9 @@
             </p>
             <%= search_fragment(assigns) %>
             <div class="font-medium text-xs pb-2 sm:pb-2 bg-white rounded-t-lg leading-6">
+              <%= Enum.map(@notebook.tags, fn tag -> %>
+                <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-800"><%= link tag.name, to: ~p"/tags/#{tag.name}" %></span>
+              <% end) %>
               <%= Enum.map(@notebook.packages, fn package -> %>
                 <span class="rounded-full bg-green-100 px-2.5 py-0.5 text-green-800"><%= link package.name, to: ~p"/hex/#{package.name}" %></span>
               <% end) %>

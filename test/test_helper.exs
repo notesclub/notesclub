@@ -3,8 +3,8 @@ Faker.start()
 
 Application.put_env(
   :notesclub,
-  :notebook_rater_implementation,
-  Notesclub.Notebooks.Rater.FakeRater
+  :notebook_analyser_implementation,
+  Notesclub.Notebooks.Analyser.FakeAnalyser
 )
 
 Ecto.Adapters.SQL.Sandbox.mode(Notesclub.Repo, :manual)

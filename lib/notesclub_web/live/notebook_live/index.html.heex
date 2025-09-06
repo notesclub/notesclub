@@ -12,11 +12,19 @@
     Discover <span class="text-indigo-600">Livebook</span> notebooks (Elixir)
   </h1>
   <p class="mt-1 text-gray-500 sm:text-md md:mt-2 md:text-lg text-center">
-    {@notebooks_count} notebooks and counting. Feel free to <.link
+    {@notebooks_count} notebooks and counting. <.link
       navigate="https://github.com/notesclub/notesclub"
       class="text-blue-600"
       target="_blank"
-    >contribute or star us on GitHub</.link>.
+    >Star us on GitHub</.link> and follow us on <.link
+      navigate="https://bsky.app/profile/notesclub.bsky.social"
+      class="text-blue-600"
+      target="_blank"
+    >Bluesky</.link> and <.link
+      navigate="https://x.com/notesdotclub"
+      class="text-blue-600"
+      target="_blank"
+    >X</.link> so more people know about us.
   </p>
   <!-- Search Form -->
   <form id="search" class="px-4 flex justify-center mt-4 mb-4" phx-submit="search">
@@ -39,9 +47,9 @@
       />
     </div>
   </form>
-  
+
 <!-- Sort Navigation -->
-  <%= if @action in [:home, :author, :package, :repo, :search] do %>
+  <%= if @action in [:home, :author, :package, :repo, :search, :tag] do %>
     <div class="px-4 flex justify-center mb-4">
       <div class="inline-flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
         <button
@@ -86,7 +94,7 @@
 
   <section class="sm:w-3/4 w-11/12 mx-auto overflow-x-hidden">
     <div class="shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-      <%= if !@author && !@repo && !@package do %>
+      <%= if !@author && !@repo && !@package && !@tag do %>
         <.live_component
           module={NotesclubWeb.NotebookLive.Index.FeaturedComponent}
           id="f"
@@ -98,21 +106,33 @@
         author={@author}
         repo={@repo}
         package={@package}
+        tag={@tag}
         action={@action}
         id="f"
       />
 
       <div class="overflow-hidden bg-white shadow">
-        <ul role="list" class="divide-y divide-gray-200">
-          <%= for notebook <- @notebooks do %>
-            <.live_component
-              module={NotesclubWeb.NotebookLive.Index.NotebookComponent}
-              notebook={notebook}
-              search={@search}
-              id={notebook.id}
-            />
-          <% end %>
-        </ul>
+        <%= if @action == :tag and @notebooks == [] do %>
+          <div class="p-6 text-center">
+            <p class="text-gray-700 font-medium">
+              <%= @empty_message || "No notebooks yet!" %>
+            </p>
+            <.link navigate={~p"/"} class="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+              Back
+            </.link>
+          </div>
+        <% else %>
+          <ul role="list" class="divide-y divide-gray-200">
+            <%= for notebook <- @notebooks do %>
+              <.live_component
+                module={NotesclubWeb.NotebookLive.Index.NotebookComponent}
+                notebook={notebook}
+                search={@search}
+                id={notebook.id}
+              />
+            <% end %>
+          </ul>
+        <% end %>
       </div>
     </div>
   </section>

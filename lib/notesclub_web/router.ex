@@ -104,6 +104,7 @@ defmodule NotesclubWeb.Router do
       live("/random", NotebookLive.Index, :random)
       live("/top", NotebookLive.Index, :top)
       live("/hex/:package", NotebookLive.Index, :package)
+      live("/tags/:tag", NotebookLive.Index, :tag)
       live("/:author", NotebookLive.Index, :author)
       live("/:username/stars", NotebookLive.Index, :stars)
       live("/:author/:repo", NotebookLive.Index, :repo)
