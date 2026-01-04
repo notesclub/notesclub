@@ -18,6 +18,7 @@ defmodule NotesclubWeb.Router do
     plug(:put_secure_browser_headers)
     plug(:fetch_current_user)
 
+    plug NotesclubWeb.Plugs.RawUrlRedirector
     plug AssetInterceptor
   end
 
