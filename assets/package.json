@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "mermaid": "^11.14.0"
+    "mermaid": "^11.14.0",
+    "uuid": "11.1.0"
   }
 }
