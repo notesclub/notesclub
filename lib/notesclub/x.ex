@@ -6,10 +6,12 @@ defmodule Notesclub.X do
   alias Notesclub.X.XAPI
   alias Notesclub.X.XTokens
 
-  def get_authorize_url do
+  def get_authorize_url(state: state, code_challenge: code_challenge) do
     XAPI.generate_authorize_url(
       Application.get_env(:notesclub, :x_client_id),
-      Application.get_env(:notesclub, :x_callback_url)
+      Application.get_env(:notesclub, :x_callback_url),
+      state,
+      code_challenge
     )
   end
 
@@ -17,12 +19,12 @@ defmodule Notesclub.X do
   Authenticates with X API using auth code and stores the token.
   Returns {:ok, access_token} or {:error, reason}
   """
-  def authenticate(auth_code) do
+  def authenticate(auth_code, code_verifier) do
     client_id = Application.get_env(:notesclub, :x_client_id)
     callback_url = Application.get_env(:notesclub, :x_callback_url)
 
     with {:ok, access_token, refresh_token} <-
-           XAPI.fetch_token(auth_code, client_id, callback_url),
+           XAPI.fetch_token(auth_code, client_id, callback_url, code_verifier),
          {:ok, _token} <-
            XTokens.create_token(%{
              access_token: access_token,

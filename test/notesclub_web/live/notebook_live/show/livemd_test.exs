@@ -18,8 +18,30 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
   end
 
   test "render/1 removes javascript to prevent XSS" do
-    assert Livemd.render("<script>alert('hi')</script>") == {:safe, "<p>\nalert(‘hi’)</p>\n"}
+    {:safe, script_html} = Livemd.render("<script>alert('hi')</script>")
+    refute script_html =~ "<script"
+    refute script_html =~ "</script>"
+
     assert Livemd.render("<a href=\"javascript:alert('hi');\">hey</a>") == {:safe, "<a>hey</a>"}
+  end
+
+  test "render/1 does not activate encoded HTML" do
+    {:safe, html} = Livemd.render("&lt;img src=x onerror=alert(1)&gt;")
+
+    refute html =~ "<img"
+    assert html =~ "&amp;lt;img"
+  end
+
+  test "render/1 keeps HTML in code blocks escaped" do
+    {:safe, html} =
+      Livemd.render("""
+      ```text
+      <img src=x onerror=alert(1)>
+      ```
+      """)
+
+    refute html =~ "<img"
+    assert html =~ "&lt;img"
   end
 
   # DockYard-Academy has many notebooks with navigation links at the bottom

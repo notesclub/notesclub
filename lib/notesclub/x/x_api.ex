@@ -3,14 +3,14 @@ defmodule Notesclub.X.XAPI do
   X API V2
   """
 
-  def generate_authorize_url(client_id, callback_url) do
+  def generate_authorize_url(client_id, callback_url, state, code_challenge) do
     query_params = %{
       client_id: client_id,
       response_type: "code",
       scope: "tweet.read+users.read+tweet.write+offline.access",
-      code_challenge: "challenge",
-      code_challenge_method: "plain",
-      state: "state",
+      code_challenge: code_challenge,
+      code_challenge_method: "S256",
+      state: state,
       redirect_uri: callback_url
     }
 
@@ -51,8 +51,8 @@ defmodule Notesclub.X.XAPI do
     end
   end
 
-  def fetch_token(code, client_id, callback_url) do
-    url = generate_access_token_url(code, client_id, callback_url)
+  def fetch_token(code, client_id, callback_url, code_verifier) do
+    url = generate_access_token_url(code, client_id, callback_url, code_verifier)
 
     case Req.post(
            url,
@@ -71,13 +71,13 @@ defmodule Notesclub.X.XAPI do
     end
   end
 
-  defp generate_access_token_url(code, client_id, callback_url) do
+  defp generate_access_token_url(code, client_id, callback_url, code_verifier) do
     query_params = %{
       "code" => code,
       "grant_type" => "authorization_code",
       "client_id" => client_id,
       "redirect_uri" => callback_url,
-      "code_verifier" => "challenge"
+      "code_verifier" => code_verifier
     }
 
     "https://api.twitter.com/2/oauth2/token?#{URI.encode_query(query_params)}"

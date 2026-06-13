@@ -30,12 +30,36 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6"), do: [:inet6], else: []
 
+  database_host =
+    case URI.parse(database_url).host do
+      nil ->
+        raise """
+        DATABASE_URL must include a hostname so TLS certificate verification can be enabled.
+        """
+
+      host ->
+        host
+    end
+
+  database_ssl_opts =
+    [
+      verify: :verify_peer,
+      server_name_indication: String.to_charlist(database_host),
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ] ++
+      case System.get_env("DATABASE_CA_CERT_PATH") do
+        nil -> [cacerts: :public_key.cacerts_get()]
+        path -> [cacertfile: path]
+      end
+
   config :notesclub, Notesclub.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
     ssl: true,
-    ssl_opts: [verify: :verify_none]
+    ssl_opts: database_ssl_opts
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

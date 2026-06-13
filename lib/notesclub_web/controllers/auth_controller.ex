@@ -6,6 +6,9 @@ defmodule NotesclubWeb.AuthController do
   alias Notesclub.Workers.XScheduledPostWorker
   alias Notesclub.X
 
+  @x_oauth_state_key :x_oauth_state
+  @x_pkce_verifier_key :x_pkce_verifier
+
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
     |> put_flash(:error, "Failed to authenticate.")
@@ -53,29 +56,45 @@ defmodule NotesclubWeb.AuthController do
   end
 
   def botsignin(conn, _params) do
-    redirect(conn, external: X.get_authorize_url())
+    state = secure_url_token()
+    code_verifier = secure_url_token()
+    code_challenge = pkce_code_challenge(code_verifier)
+
+    conn
+    |> put_session(@x_oauth_state_key, state)
+    |> put_session(@x_pkce_verifier_key, code_verifier)
+    |> redirect(external: X.get_authorize_url(state: state, code_challenge: code_challenge))
   end
 
-  def botcallback(conn, %{"code" => auth_code}) do
-    case X.authenticate(auth_code) do
-      {:ok, _access_token} ->
-        # Successfully authenticated and stored token
-        # Post once immediately as a test, cron will handle scheduled posts
+  def botcallback(conn, %{"code" => auth_code, "state" => state}) do
+    with {:ok, code_verifier} <- verify_x_oauth_session(conn, state),
+         {:ok, _access_token} <- X.authenticate(auth_code, code_verifier) do
+      # Successfully authenticated and stored token.
+      # Post once immediately as a test; cron handles scheduled posts.
+      XScheduledPostWorker.new(%{}) |> Oban.insert()
 
-        XScheduledPostWorker.new(%{}) |> Oban.insert()
-
-        conn
-        |> put_flash(
-          :info,
-          "Successfully authenticated with X. Automated posting is now configured to run every 8 hours."
-        )
-        |> redirect(to: "/")
-
-      {:error, _reason} ->
-        conn
-        |> put_flash(:error, "Failed to authenticate with X.")
-        |> redirect(to: "/")
+      conn
+      |> clear_x_oauth_session()
+      |> put_flash(
+        :info,
+        "Successfully authenticated with X. Automated posting is now configured to run every 8 hours."
+      )
+      |> redirect(to: "/")
+    else
+      _ ->
+        failed_x_auth(conn)
     end
+  end
+
+  def botcallback(conn, _params) do
+    failed_x_auth(conn)
+  end
+
+  defp failed_x_auth(conn) do
+    conn
+    |> clear_x_oauth_session()
+    |> put_flash(:error, "Failed to authenticate with X.")
+    |> redirect(to: "/")
   end
 
   defp to_user_params(auth) do
@@ -91,5 +110,37 @@ defmodule NotesclubWeb.AuthController do
       twitter_username: auth.extra.raw_info.user["twitter_username"],
       last_login_at: DateTime.utc_now()
     }
+  end
+
+  defp verify_x_oauth_session(conn, state) when is_binary(state) do
+    expected_state = get_session(conn, @x_oauth_state_key)
+    code_verifier = get_session(conn, @x_pkce_verifier_key)
+
+    if is_binary(expected_state) and is_binary(code_verifier) and
+         Plug.Crypto.secure_compare(expected_state, state) do
+      {:ok, code_verifier}
+    else
+      {:error, :invalid_oauth_state}
+    end
+  end
+
+  defp verify_x_oauth_session(_conn, _state), do: {:error, :invalid_oauth_state}
+
+  defp clear_x_oauth_session(conn) do
+    conn
+    |> delete_session(@x_oauth_state_key)
+    |> delete_session(@x_pkce_verifier_key)
+  end
+
+  defp secure_url_token do
+    32
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64(padding: false)
+  end
+
+  defp pkce_code_challenge(code_verifier) do
+    :sha256
+    |> :crypto.hash(code_verifier)
+    |> Base.url_encode64(padding: false)
   end
 end

@@ -10,7 +10,7 @@ export default {
   renderMermaidDiagrams() {
     mermaid.initialize({
       startOnLoad: false,
-      securityLevel: 'loose',
+      securityLevel: 'strict',
       theme: 'default'
     });
 
@@ -26,12 +26,18 @@ export default {
           })
           .catch((error) => {
             console.error('Mermaid rendering error:', error);
-            element.innerHTML = `<div class="error">Error rendering Mermaid diagram: ${error.message}</div>`;
+            this.renderError(element, `Error rendering Mermaid diagram: ${error.message}`);
           });
       } catch (error) {
         console.error('Mermaid initialization error:', error);
-        element.innerHTML = `<div class="error">Error initializing Mermaid diagram: ${error.message}</div>`;
+        this.renderError(element, `Error initializing Mermaid diagram: ${error.message}`);
       }
     });
+  },
+  renderError(element, message) {
+    const errorElement = document.createElement("div");
+    errorElement.className = "error";
+    errorElement.textContent = message;
+    element.replaceChildren(errorElement);
   }
 }

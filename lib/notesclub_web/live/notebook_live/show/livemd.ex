@@ -10,11 +10,10 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
   """
   def render(content) do
     content
-    |> HtmlSanitizeEx.markdown_html()
     |> Paths.remove_livemd_extension_from_links()
     |> Earmark.as_html!()
+    |> HtmlSanitizeEx.markdown_html()
     |> highlight_code_blocks()
-    |> unescape_html()
     |> raw()
   end
 
