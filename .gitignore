@@ -35,8 +35,6 @@ npm-debug.log
 # Local environment variables
 .env
 
-mix.lock
-
 # vscode, live sharing
 .vsls.json
 
