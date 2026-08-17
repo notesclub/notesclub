@@ -16,6 +16,7 @@ defmodule Notesclub.GithubAPI do
           | [username: binary, per_page: number, page: number, order: binary]
   defstruct notebooks_data: nil,
             total_count: 0,
+            incomplete_results: false,
             response: nil,
             url: nil,
             errors: %{}
@@ -23,6 +24,7 @@ defmodule Notesclub.GithubAPI do
   @type t :: %__MODULE__{
           notebooks_data: [any()] | nil,
           total_count: non_neg_integer(),
+          incomplete_results: boolean(),
           response: Req.Response.t(),
           url: String.t(),
           errors: map()
@@ -126,52 +128,73 @@ defmodule Notesclub.GithubAPI do
   defp prepare_data(fetch, nil), do: {:error, fetch}
 
   defp prepare_data(%GithubAPI{response: response} = fetch, items) do
-    notebooks_data =
-      items
-      # This filter shouldn't be needed. See function for more info.
-      |> filter_private_repos(response)
-      |> Enum.map(fn item ->
-        repo = item["repository"]
-        owner = repo["owner"]
+    # This filter shouldn't be needed. See function for more info.
+    case filter_private_repos(items, response) do
+      {:ok, public_items} ->
+        fetch =
+          fetch
+          |> Map.put(:notebooks_data, Enum.map(public_items, &extract_notebook_data/1))
+          |> Map.put(:total_count, response.body["total_count"] || 0)
+          |> Map.put(:incomplete_results, response.body["incomplete_results"] == true)
 
-        %{
-          github_filename: item["name"],
-          github_owner_login: owner["login"],
-          github_owner_id: owner["id"],
-          github_owner_avatar_url: owner["avatar_url"],
-          github_repo_name: repo["name"],
-          github_repo_full_name: repo["full_name"],
-          github_repo_fork: repo["fork"],
-          github_html_url: item["html_url"]
-        }
-      end)
+        {:ok, fetch}
 
-    fetch =
-      fetch
-      |> Map.put(:notebooks_data, notebooks_data)
-      |> Map.put(:total_count, response.body["total_count"])
+      {:error, reason} ->
+        {:error, Map.put(fetch, :errors, %{filter_private_repos: reason})}
+    end
+  end
 
-    {:ok, fetch}
+  defp extract_notebook_data(item) do
+    repo = item["repository"]
+    owner = repo["owner"]
+
+    %{
+      github_filename: item["name"],
+      github_owner_login: owner["login"],
+      github_owner_id: owner["id"],
+      github_owner_avatar_url: owner["avatar_url"],
+      github_repo_name: repo["name"],
+      github_repo_full_name: repo["full_name"],
+      github_repo_fork: repo["fork"],
+      github_html_url: item["html_url"]
+    }
   end
 
   #  We make sure we only store public repos/files
   #  Yet, our credentials should only be able to access public repos
   # so this function shouldn't be needed
+  #
+  # If it discards EVERY item, we return an error instead of an empty list:
+  # the response is probably not what we expect —e.g. GitHub stopped returning
+  # `private`— and callers delete the notebooks missing from the response, so
+  # an empty list would delete all the notebooks of the user.
   defp filter_private_repos(items, response) do
-    Enum.filter(items, fn i ->
-      case i["repository"]["private"] do
-        false ->
-          i
+    public_items =
+      Enum.filter(items, fn i ->
+        case i["repository"]["private"] do
+          false ->
+            true
 
-        _ ->
-          Logger.error(
-            "GithubAPI.Search fetched a private repo.\nRepo:\n" <>
-              inspect(i) <> "\nFull GithubAPI's response:\n" <> inspect(response)
-          )
+          _ ->
+            Logger.error(
+              "GithubAPI.Search fetched a private repo.\nRepo:\n" <>
+                inspect(i) <> "\nFull GithubAPI's response:\n" <> inspect(response)
+            )
 
-          false
-      end
-    end)
+            false
+        end
+      end)
+
+    if items != [] and public_items == [] do
+      Logger.error(
+        "GithubAPI.Search discarded ALL items as private.\nFull GithubAPI's response:\n" <>
+          inspect(response)
+      )
+
+      {:error, :all_items_discarded}
+    else
+      {:ok, public_items}
+    end
   end
 
   defp build_url(username: username, per_page: per_page, page: page, order: order) do

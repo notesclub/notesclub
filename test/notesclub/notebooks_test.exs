@@ -332,15 +332,36 @@ defmodule Notesclub.NotebooksTest do
     end
 
     test "delete_notebooks/1 deletes notebooks except the given ids" do
-      _n1 = notebook_fixture(github_owner_login: "one")
-      n2 = notebook_fixture(github_owner_login: "one", content: nil)
-      _n3 = notebook_fixture(github_owner_login: "one")
+      _n1 = notebook_fixture(github_owner_login: "one", github_owner_id: 1)
+      n2 = notebook_fixture(github_owner_login: "one", github_owner_id: 1, content: nil)
+      _n3 = notebook_fixture(github_owner_login: "one", github_owner_id: 1)
       n4 = notebook_fixture(content: nil)
 
-      assert Notebooks.delete_notebooks(%{username: "one", except_ids: [n2.id]}) ==
+      assert Notebooks.delete_notebooks(%{github_owner_id: 1, except_ids: [n2.id]}) ==
                {:ok, {2, nil}}
 
       assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
+    end
+
+    test "delete_notebooks/1 does NOT delete notebooks of a login taken by another account" do
+      # "one" renamed on GitHub and somebody else took the login
+      previous_owner = notebook_fixture(github_owner_login: "one", github_owner_id: 1)
+      new_owner = notebook_fixture(github_owner_login: "one", github_owner_id: 2)
+
+      assert Notebooks.delete_notebooks(%{github_owner_id: 2, except_ids: []}) ==
+               {:ok, {1, nil}}
+
+      assert Notebooks.list_notebooks() |> Enum.map(& &1.id) == [previous_owner.id]
+      refute Notebooks.get_notebook(new_owner.id)
+    end
+
+    test "delete_notebooks/1 does NOT delete anything when the owner id is unknown" do
+      notebook = notebook_fixture(github_owner_login: "one", github_owner_id: nil)
+
+      assert Notebooks.delete_notebooks(%{github_owner_id: nil, except_ids: []}) ==
+               {:error, :unknown_github_owner_id}
+
+      assert Notebooks.get_notebook(notebook.id).id == notebook.id
     end
 
     test "change_notebook/1 returns a notebook changeset" do

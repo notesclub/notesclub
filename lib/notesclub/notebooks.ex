@@ -737,20 +737,48 @@ defmodule Notesclub.Notebooks do
     Repo.delete(notebook)
   end
 
-  def delete_notebooks(%{username: username, except_ids: except_ids}) do
+  @doc """
+  Deletes the notebooks of a GitHub account except the given ids.
+
+  We match on `github_owner_id` —the account's immutable id— and never on its
+  login: GitHub logins can be renamed and the old login can then be taken by
+  somebody else, so deleting by login would delete the notebooks of whoever
+  used to own it.
+
+  Notebooks whose `github_owner_id` we don't know (nil) are never deleted.
+
+  ## Examples
+
+      iex> delete_notebooks(%{github_owner_id: 1234, except_ids: [1, 2]})
+      {:ok, {3, nil}}
+
+      iex> delete_notebooks(%{github_owner_id: nil, except_ids: []})
+      {:error, :unknown_github_owner_id}
+
+  """
+  @spec delete_notebooks(%{github_owner_id: integer() | nil, except_ids: [integer()]}) ::
+          {:ok, {non_neg_integer(), nil}} | {:error, :unknown_github_owner_id | any()}
+  def delete_notebooks(%{github_owner_id: github_owner_id, except_ids: except_ids})
+      when is_integer(github_owner_id) do
     notebook_ids =
       from(n in Notebook,
-        where: n.github_owner_login == ^username,
+        where: n.github_owner_id == ^github_owner_id,
         where: n.id not in ^except_ids,
         select: n.id
       )
       |> Repo.all()
+
+    Logger.warning(
+      "Deleting #{length(notebook_ids)} notebooks of github_owner_id #{github_owner_id}"
+    )
 
     Repo.transaction(fn ->
       Repo.delete_all(from(np in NotebookPackage, where: np.notebook_id in ^notebook_ids))
       Repo.delete_all(from(n in Notebook, where: n.id in ^notebook_ids))
     end)
   end
+
+  def delete_notebooks(%{github_owner_id: _}), do: {:error, :unknown_github_owner_id}
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking notebook changes.
