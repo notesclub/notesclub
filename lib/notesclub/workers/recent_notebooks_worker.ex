@@ -32,9 +32,6 @@ defmodule Notesclub.Workers.RecentNotebooksWorker do
 
       {:error, error} ->
         {:error, "Retry. #{inspect(error)}"}
-
-      _ ->
-        {:error, "Retry. Unknown error."}
     end
   end
 

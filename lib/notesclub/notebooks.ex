@@ -555,6 +555,8 @@ defmodule Notesclub.Notebooks do
     end
   end
 
+  def maybe_put_repo_id(changeset, _), do: changeset
+
   def maybe_put_user_id(changeset, %{user_id: _}), do: changeset
 
   def maybe_put_user_id(changeset, %{github_owner_login: github_owner_login}) do
@@ -563,6 +565,8 @@ defmodule Notesclub.Notebooks do
       %User{} = user -> Ecto.Changeset.put_change(changeset, :user_id, user.id)
     end
   end
+
+  def maybe_put_user_id(changeset, _), do: changeset
 
   def maybe_put_user_and_repo_assoc(changeset, attrs) do
     user_id = Ecto.Changeset.get_change(changeset, :user_id)

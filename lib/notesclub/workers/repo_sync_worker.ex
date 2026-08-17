@@ -4,8 +4,6 @@ defmodule Notesclub.Workers.RepoSyncWorker do
     Afterwards, we update the url of all notebooks of this repo
   """
 
-  require Logger
-
   use Oban.Worker,
     queue: :github_rest,
     unique: [period: 300, states: [:available, :scheduled, :executing]]

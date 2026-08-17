@@ -7,8 +7,6 @@ defmodule NotesclubWeb.Router do
 
   alias NotesclubWeb.Plugs.AssetInterceptor
 
-  require Notesclub.Compile
-
   pipeline :browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
