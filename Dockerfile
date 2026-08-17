@@ -8,13 +8,17 @@
 # This file is based on these images:
 #
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20210902-slim - for the release image
+#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bookworm-20260713-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.14.3-erlang-25.0.3-debian-bullseye-20210902-slim
+#   - Ex: hexpm/elixir:1.14.3-erlang-25.0.3-debian-bookworm-20260713-slim
 #
+# Keep this on bookworm (glibc 2.36) or newer: mdex_native ships a precompiled
+# x86_64-unknown-linux-gnu NIF that requires GLIBC_2.33, which bullseye (2.31)
+# does not have. On bullseye the release boots and then dies with
+# "Failed to load NIF library: ... version `GLIBC_2.33' not found".
 ARG ELIXIR_VERSION=1.20.2
 ARG OTP_VERSION=29.0.3
-ARG DEBIAN_VERSION=bullseye-20260713-slim
+ARG DEBIAN_VERSION=bookworm-20260713-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
@@ -30,7 +34,9 @@ RUN apt-get update -y && apt-get install -y build-essential git curl \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Install Node.js and npm
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+# NodeSource never published Node 16 for bookworm (it went EOL first), so this
+# has to be a currently supported major.
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get -y install nodejs
 
 # prepare build dir
