@@ -2,6 +2,7 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
   use Notesclub.DataCase
 
   import Mock
+  import ExUnit.CaptureLog
   import Notesclub.AccountsFixtures
   import Notesclub.NotebooksFixtures
   import Notesclub.ReposFixtures
@@ -178,15 +179,19 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _ -> @last_page_github_response end]}
       ]) do
-        assert {:ok, "done and NO more pages — 1 old notebooks deleted"} =
-                 perform_job(UserNotebooksSyncWorker, %{
-                   username: user.username,
-                   github_owner_id: @github_owner_id,
-                   page: 1,
-                   per_page: 100,
-                   already_saved_ids: []
-                 })
+        log =
+          capture_log(fn ->
+            assert {:ok, "done and NO more pages — 1 old notebooks deleted"} =
+                     perform_job(UserNotebooksSyncWorker, %{
+                       username: user.username,
+                       github_owner_id: @github_owner_id,
+                       page: 1,
+                       per_page: 100,
+                       already_saved_ids: []
+                     })
+          end)
 
+        assert log =~ "Deleting 1 notebooks of github_owner_id #{@github_owner_id}"
         refute Notebooks.get_notebook(old.id)
         assert Notebooks.count() == 2
       end
@@ -276,15 +281,19 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _ -> response end]}
       ]) do
-        assert {:error, _} =
-                 perform_job(UserNotebooksSyncWorker, %{
-                   username: user.username,
-                   github_owner_id: @github_owner_id,
-                   page: 1,
-                   per_page: 100,
-                   already_saved_ids: []
-                 })
+        log =
+          capture_log(fn ->
+            assert {:error, _} =
+                     perform_job(UserNotebooksSyncWorker, %{
+                       username: user.username,
+                       github_owner_id: @github_owner_id,
+                       page: 1,
+                       per_page: 100,
+                       already_saved_ids: []
+                     })
+          end)
 
+        assert log =~ "GithubAPI.Search discarded ALL items as private."
         assert Notebooks.count() == 1
       end
     end
@@ -321,15 +330,19 @@ defmodule Notesclub.Workers.UserNotebooksSyncWorkerTest do
       assert Notebooks.count() == 3
 
       with_mocks([mock_req(@github_invalid_response, @github_user_not_found_response)]) do
-        assert {:ok, _} =
-                 perform_job(UserNotebooksSyncWorker, %{
-                   username: user1.username,
-                   github_owner_id: user1.github_id,
-                   page: 1,
-                   per_page: 10,
-                   already_saved_ids: []
-                 })
+        log =
+          capture_log(fn ->
+            assert {:ok, _} =
+                     perform_job(UserNotebooksSyncWorker, %{
+                       username: user1.username,
+                       github_owner_id: user1.github_id,
+                       page: 1,
+                       per_page: 10,
+                       already_saved_ids: []
+                     })
+          end)
 
+        assert log =~ "Deleting 2 notebooks of github_owner_id #{user1.github_id}"
         assert Notebooks.count() == 1
 
         # We did not delete the notebooks from other users

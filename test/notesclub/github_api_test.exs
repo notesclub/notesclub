@@ -4,6 +4,7 @@ defmodule Notesclub.GithubAPITest do
   alias Notesclub.GithubAPI
 
   import Mock
+  import ExUnit.CaptureLog
 
   @valid_reponse %Req.Response{
     status: 200,
@@ -118,8 +119,13 @@ defmodule Notesclub.GithubAPITest do
       with_mocks([
         {Req, [:passthrough], [get!: fn _url, _options -> response end]}
       ]) do
-        assert {:error, %GithubAPI{errors: %{filter_private_repos: :all_items_discarded}}} =
-                 GithubAPI.get(per_page: 2, page: 1, order: :asc)
+        log =
+          capture_log(fn ->
+            assert {:error, %GithubAPI{errors: %{filter_private_repos: :all_items_discarded}}} =
+                     GithubAPI.get(per_page: 2, page: 1, order: :asc)
+          end)
+
+        assert log =~ "GithubAPI.Search discarded ALL items as private."
       end
     end
 
