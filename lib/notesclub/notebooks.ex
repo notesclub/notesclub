@@ -582,8 +582,12 @@ defmodule Notesclub.Notebooks do
         })
 
       {user_id, nil} ->
+        # We store full_name so the next notebook of this repo finds it
+        # —and we do NOT create the same repo twice
         Ecto.Changeset.put_assoc(changeset, :repo, %RepoSchema{
-          name: attrs.github_repo_name,
+          name: attrs[:github_repo_name],
+          full_name: attrs[:github_repo_full_name],
+          fork: attrs[:github_repo_fork],
           user_id: user_id
         })
 

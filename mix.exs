@@ -56,7 +56,7 @@ defmodule Notesclub.MixProject do
       {:swoosh, "~> 1.3"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.18"},
+      {:gettext, "~> 0.26"},
       {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.7.1"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
