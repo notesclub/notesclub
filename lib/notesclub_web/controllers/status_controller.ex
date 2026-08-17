@@ -8,7 +8,7 @@ defmodule NotesclubWeb.StatusController do
 
     msg = "The most recent notebook was created on the #{notebook.inserted_at}"
 
-    if Timex.after?(notebook.inserted_at, Timex.now() |> Timex.shift(hours: -48)) do
+    if NaiveDateTime.after?(notebook.inserted_at, NaiveDateTime.add(NaiveDateTime.utc_now(), -48, :hour)) do
       text(conn, "OK: #{msg}")
     else
       text(conn, "ERROR: #{msg}")
