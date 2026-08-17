@@ -14,7 +14,7 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
 
     assert Livemd.render(code) ==
              {:safe,
-              "<h1>\nTest</h1>\n<pre class=\"highlight\"><code><span class=\"mi\">1</span><span class=\"o\">+</span><span class=\"mi\">1</span></code></pre>\n"}
+              "<h1>Test</h1>\n<pre class=\"highlight\"><code><span class=\"mi\">1</span><span class=\"o\">+</span><span class=\"mi\">1</span></code></pre>"}
   end
 
   test "render/1 removes javascript to prevent XSS" do
@@ -22,14 +22,15 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     refute script_html =~ "<script"
     refute script_html =~ "</script>"
 
-    assert Livemd.render("<a href=\"javascript:alert('hi');\">hey</a>") == {:safe, "<a>hey</a>"}
+    assert Livemd.render("<a href=\"javascript:alert('hi');\">hey</a>") ==
+             {:safe, "<p><a>hey</a></p>"}
   end
 
   test "render/1 does not activate encoded HTML" do
     {:safe, html} = Livemd.render("&lt;img src=x onerror=alert(1)&gt;")
 
     refute html =~ "<img"
-    assert html =~ "&amp;lt;img"
+    assert html =~ "&lt;img"
   end
 
   test "render/1 keeps HTML in code blocks escaped" do
@@ -48,7 +49,7 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
   # Example: https://notes.club/DockYard-Academy/curriculum/exercises/timer
   test "render/1 removes local .livemd links" do
     assert Livemd.render("[Score Tracker](../exercises/score_tracker.livemd)") ==
-             {:safe, "<p>\n<a href=\"../exercises/score_tracker\">Score Tracker</a></p>\n"}
+             {:safe, "<p><a href=\"../exercises/score_tracker\">Score Tracker</a></p>"}
   end
 
   test "render/1 does NOT change mermaid code blocks" do
@@ -59,6 +60,6 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     """
 
     assert Livemd.render(code) ==
-             {:safe, "<pre><code class=\"makeup mermaid\">whatever</code></pre>\n"}
+             {:safe, "<pre><code class=\"makeup mermaid\">whatever\n</code></pre>"}
   end
 end
