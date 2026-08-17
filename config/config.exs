@@ -12,6 +12,7 @@ config :notesclub,
 
 # Configures the endpoint
 config :notesclub, NotesclubWeb.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   render_errors: [view: NotesclubWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Notesclub.PubSub,
