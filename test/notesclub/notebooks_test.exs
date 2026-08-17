@@ -9,6 +9,7 @@ defmodule Notesclub.NotebooksTest do
   import Notesclub.NotebooksFixtures
   import Notesclub.ReposFixtures
   import Notesclub.AccountsFixtures
+  import ExUnit.CaptureLog
 
   describe "notebooks" do
     alias Notesclub.Notebooks.Notebook
@@ -337,9 +338,13 @@ defmodule Notesclub.NotebooksTest do
       _n3 = notebook_fixture(github_owner_login: "one", github_owner_id: 1)
       n4 = notebook_fixture(content: nil)
 
-      assert Notebooks.delete_notebooks(%{github_owner_id: 1, except_ids: [n2.id]}) ==
-               {:ok, {2, nil}}
+      log =
+        capture_log(fn ->
+          assert Notebooks.delete_notebooks(%{github_owner_id: 1, except_ids: [n2.id]}) ==
+                   {:ok, {2, nil}}
+        end)
 
+      assert log =~ "Deleting 2 notebooks of github_owner_id 1"
       assert Notebooks.list_notebooks(order: :asc) == [n2, n4]
     end
 
@@ -348,9 +353,13 @@ defmodule Notesclub.NotebooksTest do
       previous_owner = notebook_fixture(github_owner_login: "one", github_owner_id: 1)
       new_owner = notebook_fixture(github_owner_login: "one", github_owner_id: 2)
 
-      assert Notebooks.delete_notebooks(%{github_owner_id: 2, except_ids: []}) ==
-               {:ok, {1, nil}}
+      log =
+        capture_log(fn ->
+          assert Notebooks.delete_notebooks(%{github_owner_id: 2, except_ids: []}) ==
+                   {:ok, {1, nil}}
+        end)
 
+      assert log =~ "Deleting 1 notebooks of github_owner_id 2"
       assert Notebooks.list_notebooks() |> Enum.map(& &1.id) == [previous_owner.id]
       refute Notebooks.get_notebook(new_owner.id)
     end
