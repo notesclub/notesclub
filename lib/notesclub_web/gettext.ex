@@ -5,7 +5,7 @@ defmodule NotesclubWeb.Gettext do
   By using [Gettext](https://hexdocs.pm/gettext),
   your module gains a set of macros for translations, for example:
 
-      import NotesclubWeb.Gettext
+      use Gettext, backend: NotesclubWeb.Gettext
 
       # Simple translation
       gettext("Here is the string to translate")
@@ -20,5 +20,5 @@ defmodule NotesclubWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :notesclub
+  use Gettext.Backend, otp_app: :notesclub
 end

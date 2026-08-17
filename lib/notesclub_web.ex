@@ -24,7 +24,7 @@ defmodule NotesclubWeb do
       use Phoenix.Controller, namespace: NotesclubWeb
 
       import Plug.Conn
-      import NotesclubWeb.Gettext
+      use Gettext, backend: NotesclubWeb.Gettext
       alias NotesclubWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
@@ -86,7 +86,7 @@ defmodule NotesclubWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import NotesclubWeb.Gettext
+      use Gettext, backend: NotesclubWeb.Gettext
     end
   end
 
@@ -103,7 +103,7 @@ defmodule NotesclubWeb do
       import Phoenix.View
 
       import NotesclubWeb.ErrorHelpers
-      import NotesclubWeb.Gettext
+      use Gettext, backend: NotesclubWeb.Gettext
       alias NotesclubWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
