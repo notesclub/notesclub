@@ -103,6 +103,40 @@ defmodule Notesclub.GithubAPITest do
       end
     end
 
+    test "get/3 returns an error when ALL the items are discarded as private" do
+      # e.g. GitHub stops returning `private`
+      items =
+        Enum.map(@valid_reponse.body["items"], fn item ->
+          update_in(item, ["repository"], &Map.delete(&1, "private"))
+        end)
+
+      response = %Req.Response{
+        @valid_reponse
+        | body: %{@valid_reponse.body | "items" => items}
+      }
+
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _options -> response end]}
+      ]) do
+        assert {:error, %GithubAPI{errors: %{filter_private_repos: :all_items_discarded}}} =
+                 GithubAPI.get(per_page: 2, page: 1, order: :asc)
+      end
+    end
+
+    test "get/3 returns incomplete_results" do
+      response = %Req.Response{
+        @valid_reponse
+        | body: Map.put(@valid_reponse.body, "incomplete_results", true)
+      }
+
+      with_mocks([
+        {Req, [:passthrough], [get!: fn _url, _options -> response end]}
+      ]) do
+        assert {:ok, %GithubAPI{incomplete_results: true}} =
+                 GithubAPI.get(per_page: 2, page: 1, order: :asc)
+      end
+    end
+
     @tag :github_api
     test "confirm github_api_key exists" do
       assert Application.get_env(:notesclub, :github_api_key), "There is no :github_api_key"

@@ -20,6 +20,7 @@ defmodule Notesclub.NotebooksFixtures do
         content: Faker.Lorem.Shakespeare.hamlet(),
         github_owner_avatar_url: Faker.Internet.url(),
         github_owner_login: Faker.Internet.user_name(),
+        github_owner_id: System.unique_integer([:positive]),
         github_repo_name: Faker.Internet.user_name(),
         repo_id: repo.id,
         user_id: repo.user_id,

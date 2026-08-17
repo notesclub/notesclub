@@ -14,6 +14,7 @@ defmodule Notesclub.Workers.AllUserNotebooksSyncWorker do
     |> Enum.map(
       &UserNotebooksSyncWorker.new(%{
         username: &1.username,
+        github_owner_id: &1.github_id,
         page: 1,
         per_page: 100,
         already_saved_ids: []
