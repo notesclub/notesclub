@@ -195,6 +195,12 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     refute html =~ "other.livemd"
   end
 
+  test "GET /search handles punctuation-only input", %{conn: conn} do
+    notebook_fixture()
+
+    assert {:ok, _view, _html} = live(conn, "/search?q=%26")
+  end
+
   test "GET /search empty search should change the path to /", %{conn: conn} do
     notebook_fixture(github_filename: "found.livemd")
 

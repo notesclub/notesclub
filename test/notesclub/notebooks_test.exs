@@ -446,6 +446,18 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.content_fragment(notebook, "day23") == nil
     end
 
+    test "content_fragment/2 treats regular expression metacharacters as text" do
+      notebook = notebook_fixture(content: "Use foo(bar) in this example")
+
+      assert Notebooks.content_fragment(notebook, "(") == "...Use foo(bar) in this example..."
+    end
+
+    test "list_notebooks/1 accepts punctuation-only full-text searches" do
+      notebook_fixture()
+
+      assert Notebooks.list_notebooks(full_text_search: "&", order: :relevance) == []
+    end
+
     test "list_notebooks/1 filters by stars_gte" do
       # Create notebooks and users
       notebook1 = notebook_fixture()
