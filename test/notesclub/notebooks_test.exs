@@ -458,6 +458,24 @@ defmodule Notesclub.NotebooksTest do
       assert Notebooks.list_notebooks(full_text_search: "&", order: :relevance) == []
     end
 
+    test "normalize_search_term/1 limits search input length" do
+      search = String.duplicate("a", Notebooks.max_search_length() + 1)
+
+      assert String.length(Notebooks.normalize_search_term(search)) ==
+               Notebooks.max_search_length()
+    end
+
+    test "list_notebooks/1 limits search input before querying" do
+      max_length = Notebooks.max_search_length()
+      title = String.duplicate("a", max_length)
+      notebook = notebook_fixture(title: title)
+
+      assert [result] =
+               Notebooks.list_notebooks(searchable: String.duplicate("a", max_length + 1))
+
+      assert result.id == notebook.id
+    end
+
     test "list_notebooks/1 filters by stars_gte" do
       # Create notebooks and users
       notebook1 = notebook_fixture()

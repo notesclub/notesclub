@@ -24,7 +24,17 @@ defmodule Notesclub.Notebooks do
   require Logger
 
   @default_per_page 15
+  @max_search_length 100
   @default_fields Notebook.__schema__(:fields) -- [:content]
+
+  def max_search_length, do: @max_search_length
+
+  @spec normalize_search_term(binary() | nil) :: binary() | nil
+  def normalize_search_term(nil), do: nil
+
+  def normalize_search_term(search_term) when is_binary(search_term) do
+    String.slice(search_term, 0, @max_search_length)
+  end
 
   @doc """
   Returns the latest notebook inserted
@@ -45,6 +55,7 @@ defmodule Notesclub.Notebooks do
   """
   @spec list_notebooks(any) :: [Notebook.t()]
   def list_notebooks(opts \\ []) do
+    opts = normalize_search_options(opts)
     preload = opts[:preload] || []
     opts = replace_package_name_with_ids(opts, opts[:package_name])
     opts = replace_tag_name_with_ids(opts, opts[:tag_name])
@@ -171,6 +182,16 @@ defmodule Notesclub.Notebooks do
       end
     )
     |> Repo.all()
+  end
+
+  defp normalize_search_options(opts) do
+    Enum.map(opts, fn
+      {key, value} when key in [:searchable, :content, :full_text_search] and is_binary(value) ->
+        {key, normalize_search_term(value)}
+
+      option ->
+        option
+    end)
   end
 
   @spec replace_package_name_with_ids(list, binary | nil) :: list
@@ -792,6 +813,7 @@ defmodule Notesclub.Notebooks do
   def content_fragment(_notebook, ""), do: nil
 
   def content_fragment(%Notebook{content: content}, search) do
+    search = normalize_search_term(search)
     escaped_search = Regex.escape(search)
 
     escaped_search

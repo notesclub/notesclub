@@ -201,6 +201,19 @@ defmodule NotesclubWeb.NotebookLive.IndexTest do
     assert {:ok, _view, _html} = live(conn, "/search?q=%26")
   end
 
+  test "GET /search limits search input length", %{conn: conn} do
+    max_length = Notesclub.Notebooks.max_search_length()
+    search = String.duplicate("a", max_length + 1)
+    expected = Notesclub.Notebooks.normalize_search_term(search)
+
+    {:ok, view, _html} = live(conn, "/search?q=#{search}")
+
+    assert has_element?(
+             view,
+             ~s(input[name="value"][maxlength="#{max_length}"][value="#{expected}"])
+           )
+  end
+
   test "GET /search empty search should change the path to /", %{conn: conn} do
     notebook_fixture(github_filename: "found.livemd")
 
