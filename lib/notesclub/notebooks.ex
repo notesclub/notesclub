@@ -24,7 +24,17 @@ defmodule Notesclub.Notebooks do
   require Logger
 
   @default_per_page 15
+  @max_search_length 100
   @default_fields Notebook.__schema__(:fields) -- [:content]
+
+  def max_search_length, do: @max_search_length
+
+  @spec normalize_search_term(binary() | nil) :: binary() | nil
+  def normalize_search_term(nil), do: nil
+
+  def normalize_search_term(search_term) when is_binary(search_term) do
+    String.slice(search_term, 0, @max_search_length)
+  end
 
   @doc """
   Returns the latest notebook inserted
@@ -45,6 +55,7 @@ defmodule Notesclub.Notebooks do
   """
   @spec list_notebooks(any) :: [Notebook.t()]
   def list_notebooks(opts \\ []) do
+    opts = normalize_search_options(opts)
     preload = opts[:preload] || []
     opts = replace_package_name_with_ids(opts, opts[:package_name])
     opts = replace_tag_name_with_ids(opts, opts[:tag_name])
@@ -130,15 +141,6 @@ defmodule Notesclub.Notebooks do
           query
 
         {:full_text_search, search_term}, query ->
-          # Prefix match for lexemes in full-text search
-          tsquery =
-            search_term
-            |> String.split(" ")
-            |> Enum.map(&String.trim/1)
-            |> Enum.reject(&(&1 == ""))
-            # allow partial lexeme match
-            |> Enum.map_join(" & ", &"#{&1}:*")
-
           # Join user so we can search in user.name via trigram
           query =
             join(query, :inner, [n], u in User, on: u.id == n.user_id)
@@ -148,7 +150,7 @@ defmodule Notesclub.Notebooks do
           where(
             query,
             [n, u],
-            fragment("? @@ to_tsquery('english', ?)", n.search_vector, ^tsquery) or
+            fragment("? @@ websearch_to_tsquery('english', ?)", n.search_vector, ^search_term) or
               fragment("? ILIKE ?", n.github_owner_login, ^"%#{search_term}%") or
               fragment("? ILIKE ?", n.github_repo_name, ^"%#{search_term}%") or
               fragment("? ILIKE ?", u.name, ^"%#{search_term}%") or
@@ -180,6 +182,16 @@ defmodule Notesclub.Notebooks do
       end
     )
     |> Repo.all()
+  end
+
+  defp normalize_search_options(opts) do
+    Enum.map(opts, fn
+      {key, value} when key in [:searchable, :content, :full_text_search] and is_binary(value) ->
+        {key, normalize_search_term(value)}
+
+      option ->
+        option
+    end)
   end
 
   @spec replace_package_name_with_ids(list, binary | nil) :: list
@@ -220,18 +232,7 @@ defmodule Notesclub.Notebooks do
   defp apply_relevance_ordering(query, nil), do: query
 
   defp apply_relevance_ordering(query, search_term) do
-    formatted_query =
-      if search_term do
-        search_term
-        |> String.split(" ")
-        |> Enum.map(&String.trim/1)
-        |> Enum.filter(&(&1 != ""))
-        |> Enum.join(" & ")
-      else
-        ""
-      end
-
-    if formatted_query != "" do
+    if String.trim(search_term) != "" do
       # Join with user table to access user name for ranking
       query = join(query, :inner, [n], u in User, on: u.id == n.user_id)
 
@@ -239,9 +240,9 @@ defmodule Notesclub.Notebooks do
         desc:
           fragment(
             # Boost ranking when user name matches the search term
-            "ts_rank(?, to_tsquery('english', ?)) + CASE WHEN ? ILIKE ? THEN 2.0 ELSE 0.0 END",
+            "ts_rank(?, websearch_to_tsquery('english', ?)) + CASE WHEN ? ILIKE ? THEN 2.0 ELSE 0.0 END",
             n.search_vector,
-            ^formatted_query,
+            ^search_term,
             u.name,
             ^"%#{search_term}%"
           )
@@ -809,12 +810,15 @@ defmodule Notesclub.Notebooks do
 
   def content_fragment(%Notebook{content: nil}, _search), do: nil
   def content_fragment(_notebook, nil), do: nil
+  def content_fragment(_notebook, ""), do: nil
 
   def content_fragment(%Notebook{content: content}, search) do
-    search
-    |> Regex.escape()
+    search = normalize_search_term(search)
+    escaped_search = Regex.escape(search)
+
+    escaped_search
     |> extract_line(content)
-    |> extract_surounding(search)
+    |> extract_surounding(search, escaped_search)
   end
 
   defp extract_line(search, content) do
@@ -824,10 +828,10 @@ defmodule Notesclub.Notebooks do
     end
   end
 
-  defp extract_surounding(nil, _), do: nil
+  defp extract_surounding(nil, _, _), do: nil
 
-  defp extract_surounding(line, search) do
-    [part_before, part_after | _] = String.split(line, ~r/#{search}/i)
+  defp extract_surounding(line, search, escaped_search) do
+    [part_before, part_after | _] = String.split(line, ~r/#{escaped_search}/i)
     len = String.length(part_before)
     part_before = String.slice(part_before, (len - 25)..(len - 1))
     part_after = String.slice(part_after, 0..25)

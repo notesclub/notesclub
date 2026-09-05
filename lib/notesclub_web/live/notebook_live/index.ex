@@ -17,6 +17,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
      assign(socket,
        last_search_time: 0,
        notebooks_count: Notebooks.count(),
+       max_search_length: Notebooks.max_search_length(),
        sort: :new,
        empty_message: nil
      )}
@@ -107,6 +108,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   defp run_action(%{"q" => search} = params, :search, socket) do
     # We get_notebooks/3 needs :search and :notebooks in the socket
+    search = Notebooks.normalize_search_term(search)
     sort = extract_sort(params)
     socket = assign(socket, search: search, notebooks: [], sort: sort)
     notebooks = get_notebooks(socket, :search, 0, [])
@@ -198,6 +200,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
 
   def handle_event("search", params, socket) do
     timestamp = params["timestamp"]
+    search = Notebooks.normalize_search_term(params["value"])
 
     cond do
       timestamp && timestamp > socket.assigns.last_search_time ->
@@ -208,7 +211,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
             to:
               path_for_action(
                 :search,
-                %{search: params["value"]},
+                %{search: search},
                 socket.assigns[:sort] || :new
               )
           )
@@ -223,8 +226,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
         socket =
           push_patch(
             socket,
-            to:
-              path_for_action(:search, %{search: params["value"]}, socket.assigns[:sort] || :new)
+            to: path_for_action(:search, %{search: search}, socket.assigns[:sort] || :new)
           )
 
         {:noreply, socket}
