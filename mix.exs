@@ -67,7 +67,7 @@ defmodule Notesclub.MixProject do
       {:appsignal_phoenix, "~> 2.7.0"},
       {:faker, "~> 0.19", only: :test},
       {:lazy_html, ">= 0.1.0", only: :test},
-      {:oban, "2.19.4"},
+      {:oban, "2.24.1"},
       {:oban_web, "~> 2.11.3"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
