@@ -4,10 +4,12 @@ defmodule NotesclubWeb.AuthControllerTest do
   alias Notesclub.Accounts
   alias Notesclub.Accounts.User
   alias Notesclub.Workers.XScheduledPostWorker
-  alias Notesclub.X
+  alias Notesclub.X.XTokens
   alias NotesclubWeb.AuthController
 
-  import Mock
+  import Notesclub.HTTPStub
+
+  setup :setup_http
 
   test "callback/2 persists an error value in flash when fails", %{conn: conn} do
     auth = %Ueberauth.Failure{}
@@ -99,32 +101,32 @@ defmodule NotesclubWeb.AuthControllerTest do
   test "botcallback/2 rejects missing or mismatched X OAuth state", %{conn: conn} do
     conn = conn_with_x_oauth_session(conn, "expected-state", "code-verifier")
 
-    with_mock X,
-      authenticate: fn _code, _verifier -> flunk("X.authenticate/2 should not be called") end do
-      conn = AuthController.botcallback(conn, %{"code" => "auth-code", "state" => "bad-state"})
+    conn = AuthController.botcallback(conn, %{"code" => "auth-code", "state" => "bad-state"})
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed to authenticate with X."
-      assert get_session(conn, :x_oauth_state) == nil
-      assert get_session(conn, :x_pkce_verifier) == nil
-      refute_enqueued(worker: XScheduledPostWorker)
-    end
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed to authenticate with X."
+    assert get_session(conn, :x_oauth_state) == nil
+    assert get_session(conn, :x_pkce_verifier) == nil
+    refute_enqueued(worker: XScheduledPostWorker)
+    assert XTokens.get_latest_token() == nil
   end
 
   test "botcallback/2 exchanges X OAuth code with the stored PKCE verifier", %{conn: conn} do
     conn = conn_with_x_oauth_session(conn, "expected-state", "code-verifier")
 
-    with_mock X, authenticate: fn "auth-code", "code-verifier" -> {:ok, "access-token"} end do
-      conn =
-        AuthController.botcallback(conn, %{"code" => "auth-code", "state" => "expected-state"})
+    Req.Test.stub(__MODULE__, fn request ->
+      params = URI.decode_query(request.query_string)
+      assert params["code"] == "auth-code"
+      assert params["code_verifier"] == "code-verifier"
+      Req.Test.json(request, %{access_token: "access-token", refresh_token: "refresh-token"})
+    end)
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Successfully authenticated with X"
+    conn = AuthController.botcallback(conn, %{"code" => "auth-code", "state" => "expected-state"})
 
-      assert get_session(conn, :x_oauth_state) == nil
-      assert get_session(conn, :x_pkce_verifier) == nil
-      assert_enqueued(worker: XScheduledPostWorker)
-      assert called(X.authenticate("auth-code", "code-verifier"))
-    end
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully authenticated with X"
+    assert get_session(conn, :x_oauth_state) == nil
+    assert get_session(conn, :x_pkce_verifier) == nil
+    assert_enqueued(worker: XScheduledPostWorker)
+    assert XTokens.get_latest_token().access_token == "access-token"
   end
 
   defp auth_fixture do

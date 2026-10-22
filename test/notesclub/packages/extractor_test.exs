@@ -3,6 +3,12 @@ defmodule Notesclub.Packages.ExtractorTest do
 
   alias Notesclub.Packages.Extractor
 
+  test "missing content and notebooks without Mix.install have no packages" do
+    for content <- [nil, "", "# Notebook without dependencies"] do
+      assert Extractor.extract_packages(content) == []
+    end
+  end
+
   test "extract hex packages" do
     content = """
     <!-- livebook:{"persist_outputs":true} -->

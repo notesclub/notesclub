@@ -1,5 +1,7 @@
 [
   exit: "low",
   private: true,
+  # Honor only the documented, per-function and per-pipeline false-positive annotations.
+  skip: true,
   strict: true
 ]

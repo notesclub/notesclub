@@ -206,7 +206,7 @@ defmodule NotesclubWeb.NotebookLive.Index do
       timestamp && timestamp > socket.assigns.last_search_time ->
         socket =
           socket
-          |> assign(timestamp: timestamp)
+          |> assign(last_search_time: timestamp)
           |> push_patch(
             to:
               path_for_action(
@@ -283,7 +283,8 @@ defmodule NotesclubWeb.NotebookLive.Index do
     {:noreply,
      assign(
        socket,
-       notebooks: notebooks ++ get_notebooks(socket, live_action, next_page, exclude_ids),
+       # Already loaded notebooks are excluded, so start at the first remaining result.
+       notebooks: notebooks ++ get_notebooks(socket, live_action, 0, exclude_ids),
        page: next_page
      )}
   end

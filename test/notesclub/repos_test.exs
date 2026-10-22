@@ -31,6 +31,19 @@ defmodule Notesclub.ReposTest do
       assert {:error, %Ecto.Changeset{}} = Repos.create_repo(@invalid_attrs)
     end
 
+    test "incomplete repository metadata returns validation errors without enqueuing jobs" do
+      for field <- [:name, :full_name, :fork] do
+        attrs = @valid_attrs |> Map.put(:default_branch, "main") |> Map.put(field, nil)
+        assert {:error, changeset} = Repos.create_repo(attrs)
+        assert "can't be blank" in errors_on(changeset)[field]
+      end
+
+      assert {:error, changeset} = Repos.create_repo()
+      assert "can't be blank" in errors_on(changeset).name
+      assert Repos.list_repos() == []
+      refute_enqueued(worker: Notesclub.Workers.RepoSyncWorker)
+    end
+
     test "update_repo/2 with valid data updates the repo" do
       repo = repo_fixture()
       update_attrs = %{name: "some updated name"}
