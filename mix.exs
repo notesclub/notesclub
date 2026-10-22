@@ -77,7 +77,7 @@ defmodule Notesclub.MixProject do
       {:redirect, "~> 0.4.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.16.0", only: [:dev, :test], runtime: false},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+      {:typed_ecto_schema, "~> 0.5.0", runtime: false},
       {:mdex, "~> 0.13"},
       {:makeup, "~> 1.0"},
       {:makeup_elixir, "~> 1.0"},
