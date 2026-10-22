@@ -28,6 +28,25 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Quality checks
+
+Install Elixir dependencies with `mix deps.get`, install JavaScript dependencies
+with `npm ci --prefix assets` (Node.js 24), and start PostgreSQL before running:
+
+* `mix check` formats the code, compiles with warnings treated as errors, builds
+  CSS and JavaScript, runs strict Credo checks and tests, and scans with Sobelow.
+* `mix precommit` also audits dependencies, checks for unused dependencies, checks
+  formatting without rewriting files, and runs tests with coverage. Coverage uses
+  Mix's default 90% minimum; HTML reports are written to `cover/`.
+* `mix ci` runs `mix precommit`. GitHub Actions uses this command and then runs
+  the existing Dialyzer checks.
+
+All three commands default to the test environment and return a nonzero status
+when checks fail. Asset builds write to `priv/static/assets/`; the build tools
+download their binaries on first use. Sobelow fails on findings at any confidence level and runs
+without its update check. Tests tagged `:github_api` remain excluded; run them
+explicitly with `mix test --include github_api` after configuring the key below.
+
 ## Secrets
 
 To use tests with the `:github_api` tag, and to interact with the GitHub API the project requires a [GitHub API key](https://github.com/settings/tokens/new).

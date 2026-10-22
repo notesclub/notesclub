@@ -18,6 +18,10 @@ defmodule Notesclub.MixProject do
     ]
   end
 
+  def cli do
+    [preferred_envs: [check: :test, precommit: :test, ci: :test]]
+  end
+
   # Configuration for the OTP application.
   #
   # Type `mix help compile.app` for more information.
@@ -72,6 +76,7 @@ defmodule Notesclub.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.16.0", only: [:dev, :test], runtime: false},
       {:typed_ecto_schema, "~> 0.4.1", runtime: false},
       {:mdex, "~> 0.13"},
       {:makeup, "~> 1.0"},
@@ -104,7 +109,29 @@ defmodule Notesclub.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.check": ["tailwind default", "esbuild default"],
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      # Fast feedback; external dependency audits belong in precommit.
+      check: [
+        "format",
+        "compile --warnings-as-errors",
+        "assets.check",
+        "credo --strict",
+        "test",
+        "sobelow --config"
+      ],
+      # Verify formatting without changing files, and collect test coverage.
+      precommit: [
+        "hex.audit",
+        "deps.unlock --check-unused",
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "assets.check",
+        "credo --strict",
+        "test --cover",
+        "sobelow --config"
+      ],
+      ci: ["precommit"]
     ]
   end
 end
