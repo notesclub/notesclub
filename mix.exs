@@ -68,7 +68,7 @@ defmodule Notesclub.MixProject do
       {:mock, "~> 0.3.7"},
       {:meck, "~> 1.2", override: true},
       {:appsignal, "~> 2.17"},
-      {:appsignal_phoenix, "~> 2.7.0"},
+      {:appsignal_phoenix, "~> 2.8.2"},
       {:faker, "~> 0.19", only: :test},
       {:lazy_html, "~> 0.1.13", only: :test},
       {:oban, "2.24.2"},
