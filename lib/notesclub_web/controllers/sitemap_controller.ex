@@ -10,6 +10,8 @@ defmodule NotesclubWeb.SitemapController do
   @doc """
   Generates a sitemap for the home, the /top page and packages
   """
+  # All interpolated XML values are escaped; responses use XML with nosniff headers.
+  # sobelow_skip ["XSS.SendResp"]
   def packages_sitemap(conn, _params) do
     sitemap = sitemap_from_ets_or_generate("packages")
 
@@ -21,6 +23,8 @@ defmodule NotesclubWeb.SitemapController do
   @doc """
   Generates a sitemap for all notebooks that have at least 1 clap
   """
+  # All interpolated XML values are escaped; responses use XML with nosniff headers.
+  # sobelow_skip ["XSS.SendResp"]
   def clapped_notebooks_sitemap(conn, _params) do
     sitemap = sitemap_from_ets_or_generate("clapped-notebooks")
 
@@ -110,7 +114,7 @@ defmodule NotesclubWeb.SitemapController do
 
     """
     <url>
-      <loc>#{url}</loc>
+      <loc>#{escape_xml(url)}</loc>
       <lastmod>#{last_mod}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>
@@ -118,12 +122,18 @@ defmodule NotesclubWeb.SitemapController do
     """
   end
 
+  defp escape_xml(value) do
+    value
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
+  end
+
   defp package_url({package_name, notebook_inserted_at}) do
     last_mod = Calendar.strftime(notebook_inserted_at, "%Y-%m-%d")
 
     """
     <url>
-      <loc>https://notes.club/hex/#{package_name}</loc>
+      <loc>#{escape_xml("https://notes.club/hex/" <> package_name)}</loc>
       <lastmod>#{last_mod}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>

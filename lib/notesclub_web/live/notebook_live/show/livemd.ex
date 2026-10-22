@@ -8,6 +8,9 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
   @doc """
   Renders markdown and highlights elixir code blocks
   """
+  # Markdown is sanitized before highlighting. Makeup escapes Elixir source; other
+  # code remains escaped. LivemdTest covers encoded, highlighted, and foreign HTML.
+  # sobelow_skip ["XSS.Raw"]
   def render(content) do
     content
     |> Paths.remove_livemd_extension_from_links()

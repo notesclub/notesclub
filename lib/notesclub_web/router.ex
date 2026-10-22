@@ -6,7 +6,10 @@ defmodule NotesclubWeb.Router do
   import NotesclubWeb.UserAuth
 
   alias NotesclubWeb.Plugs.AssetInterceptor
+  alias NotesclubWeb.Plugs.SecurityHeaders
 
+  # SecurityHeaders sets a per-response CSP with a random nonce; covered by SecurityHeadersTest.
+  # sobelow_skip ["Config.CSP"]
   pipeline :browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
@@ -14,6 +17,7 @@ defmodule NotesclubWeb.Router do
     plug(:put_root_layout, {NotesclubWeb.LayoutView, :root})
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
+    plug SecurityHeaders
     plug(:fetch_current_user)
 
     plug NotesclubWeb.Plugs.RawUrlRedirector
@@ -37,7 +41,7 @@ defmodule NotesclubWeb.Router do
   scope "/", NotesclubWeb do
     pipe_through([:browser, :admin_auth])
 
-    oban_dashboard("/oban")
+    oban_dashboard("/oban", csp_nonce_assign_key: :csp_nonce)
 
     get("/x/signin", AuthController, :botsignin)
   end
@@ -57,7 +61,10 @@ defmodule NotesclubWeb.Router do
     scope "/" do
       pipe_through(:browser)
 
-      live_dashboard("/dashboard", metrics: NotesclubWeb.Telemetry)
+      live_dashboard("/dashboard",
+        metrics: NotesclubWeb.Telemetry,
+        csp_nonce_assign_key: :csp_nonce
+      )
     end
   end
 

@@ -62,7 +62,7 @@ defmodule Notesclub.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.4"},
-      {:bandit, "~> 1.12.5"},
+      {:bandit, "~> 1.13.1"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.5"},
       {:mock, "~> 0.3.7"},
@@ -70,8 +70,8 @@ defmodule Notesclub.MixProject do
       {:appsignal, "~> 2.17"},
       {:appsignal_phoenix, "~> 2.7.0"},
       {:faker, "~> 0.19", only: :test},
-      {:lazy_html, ">= 0.1.0", only: :test},
-      {:oban, "2.24.1"},
+      {:lazy_html, "~> 0.1.13", only: :test},
+      {:oban, "2.24.2"},
       {:oban_web, "~> 2.11.3"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:redirect, "~> 0.4.0"},
@@ -123,6 +123,7 @@ defmodule Notesclub.MixProject do
       # Verify formatting without changing files, and collect test coverage.
       precommit: [
         "hex.audit",
+        "cmd npm audit --prefix assets --audit-level=low",
         "deps.unlock --check-unused",
         "format --check-formatted",
         "compile --warnings-as-errors",

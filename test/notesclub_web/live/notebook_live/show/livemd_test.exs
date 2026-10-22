@@ -45,6 +45,36 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     assert html =~ "&lt;img"
   end
 
+  test "highlighted Elixir code cannot introduce executable HTML" do
+    {:safe, html} =
+      Livemd.render("```elixir\n\"</code><img src=x onerror=alert(1)>\"\n```")
+
+    document = Floki.parse_fragment!(html)
+    assert Floki.find(document, "img, script, [onerror]") == []
+    assert Floki.find(document, "span") != []
+    assert Floki.text(document) =~ "<img src=x onerror=alert(1)>"
+  end
+
+  test "foreign HTML, event handlers, and encoded script URLs remain inert" do
+    for content <- [
+          ~s|<svg><style>&lt;/style&gt;&lt;img src=x onerror=alert(1)&gt;</style></svg>|,
+          ~s|<math><mtext><img src=x onerror=alert(1)></mtext></math>|,
+          ~s|<a href="jav&#x61;script:alert(1)" onclick="alert(1)">click</a>|,
+          ~s|<img src="https://example.com/image.png" onload="alert(1)">|
+        ] do
+      {:safe, html} = Livemd.render(content)
+      document = Floki.parse_fragment!(html)
+
+      assert Floki.find(document, "script, svg, math, style, [onerror], [onload], [onclick]") ==
+               []
+
+      refute Enum.any?(
+               Floki.attribute(document, "a", "href"),
+               &String.starts_with?(&1, "javascript:")
+             )
+    end
+  end
+
   # DockYard-Academy has many notebooks with navigation links at the bottom
   # Example: https://notes.club/DockYard-Academy/curriculum/exercises/timer
   test "render/1 removes local .livemd links" do

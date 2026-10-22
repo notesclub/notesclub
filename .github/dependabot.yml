@@ -5,3 +5,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "mix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/assets"
+    schedule:
+      interval: "weekly"
