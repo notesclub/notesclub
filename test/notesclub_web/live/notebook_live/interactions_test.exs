@@ -9,6 +9,7 @@ defmodule NotesclubWeb.NotebookLive.InteractionsTest do
   alias Notesclub.Stars
   alias Notesclub.Tags
   alias NotesclubWeb.NotebookLive.Index
+  alias NotesclubWeb.RateLimiter
 
   test "sorting preserves each filter and cycles through supported orders", %{conn: conn} do
     user_fixture(%{username: "author"})
@@ -123,6 +124,28 @@ defmodule NotesclubWeb.NotebookLive.InteractionsTest do
     assert html =~ notebook.github_filename
     assert render_click(view, "toggle-star") =~ "Log in to star this notebook"
     assert Stars.star_count(notebook) == 0
+  end
+
+  test "rate limits repeated LiveView events", %{conn: conn} do
+    user = user_fixture()
+    filename = "rate-limited.livemd"
+
+    notebook =
+      notebook_fixture(%{
+        user_id: user.id,
+        github_filename: filename,
+        url: "https://github.com/#{user.username}/repo/blob/main/#{filename}"
+      })
+
+    conn = init_test_session(conn, %{user_id: user.id})
+    {:ok, view, _} = live(conn, "/#{user.username}/repo/rate-limited")
+
+    for _ <- 1..60 do
+      assert RateLimiter.allow?({:live_event, {:user, user.id}, "toggle-star"}, 60, 60_000)
+    end
+
+    assert render_click(view, "toggle-star") =~ "Too many requests"
+    refute Stars.starred?(notebook, user)
   end
 
   test "timestamped searches ignore older events", %{conn: conn} do

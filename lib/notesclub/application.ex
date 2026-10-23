@@ -19,6 +19,8 @@ defmodule Notesclub.Application do
       NotesclubWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Notesclub.PubSub},
+      # Bound request and LiveView event rates per client.
+      NotesclubWeb.RateLimiter,
       # Start the Endpoint (http/https)
       NotesclubWeb.Endpoint,
       # Oban
