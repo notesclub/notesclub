@@ -86,6 +86,25 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     end
   end
 
+  test "only loads remote notebook images from trusted GitHub hosts" do
+    {:safe, html} =
+      Livemd.render("""
+      ![tracked](https://attacker.example/pixel.png)
+      ![github](https://raw.githubusercontent.com/owner/repo/main/image.png)
+      """)
+
+    document = Floki.parse_fragment!(html)
+
+    refute Enum.any?(
+             Floki.attribute(document, "img", "src"),
+             &String.contains?(&1, "attacker.example")
+           )
+
+    assert Floki.attribute(document, "img", "src") == [
+             "https://raw.githubusercontent.com/owner/repo/main/image.png"
+           ]
+  end
+
   # DockYard-Academy has many notebooks with navigation links at the bottom
   # Example: https://notes.club/DockYard-Academy/curriculum/exercises/timer
   test "render/1 removes local .livemd links" do
