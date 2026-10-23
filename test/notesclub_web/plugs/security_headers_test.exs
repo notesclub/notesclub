@@ -19,6 +19,8 @@ defmodule NotesclubWeb.Plugs.SecurityHeadersTest do
     assert policy =~ "base-uri 'self'"
     assert policy =~ "frame-ancestors 'self'"
     assert policy =~ "form-action 'self'"
+    assert policy =~ "img-src 'self' data: https://avatars.githubusercontent.com"
+    refute policy =~ "img-src 'self' https:"
     assert get_resp_header(conn, "x-content-type-options") == ["nosniff"]
 
     html = html_response(conn, 200)

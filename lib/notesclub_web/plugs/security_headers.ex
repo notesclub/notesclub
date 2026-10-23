@@ -21,7 +21,9 @@ defmodule NotesclubWeb.Plugs.SecurityHeaders do
           "script-src 'self' 'nonce-#{nonce}' https://plausible.io/js/plausible.js",
           # Mermaid and the dashboards generate inline styles; scripts remain restricted.
           "style-src 'self' 'unsafe-inline'",
-          "img-src 'self' https: data:",
+          "img-src 'self' data: https://avatars.githubusercontent.com " <>
+            "https://github.com https://private-user-images.githubusercontent.com " <>
+            "https://raw.githubusercontent.com https://user-images.githubusercontent.com",
           "font-src 'self' data:",
           "connect-src 'self' #{websocket_origin} https://plausible.io",
           "object-src 'none'",
