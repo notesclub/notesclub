@@ -160,9 +160,16 @@ defmodule Notesclub.Notebooks.Analyser.AiAnalyser do
        when is_binary(content) do
     case Jason.decode(content) do
       {:ok, %{"rating" => rating, "tags" => tags} = _response}
-      when is_integer(rating) and rating >= 0 and rating <= 1000 ->
-        Logger.debug("Notebook analysed: #{rating}/1000 with tags: #{inspect(tags)}")
-        {:ok, rating, tags}
+      when is_integer(rating) and rating >= 0 and rating <= 1000 and is_list(tags) ->
+        valid_tag_names = Tags.list_tag_names()
+
+        if Enum.all?(tags, &(is_binary(&1) and &1 in valid_tag_names)) do
+          Logger.debug("Notebook analysed: #{rating}/1000 with tags: #{inspect(tags)}")
+          {:ok, rating, Enum.uniq(tags)}
+        else
+          Logger.error("Invalid tags in analysis response: #{inspect(tags)}")
+          {:error, :invalid_response}
+        end
 
       {:ok, invalid_response} ->
         Logger.error("Invalid analysis response structure: #{inspect(invalid_response)}")

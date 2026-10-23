@@ -80,4 +80,19 @@ defmodule Notesclub.Workers.SyncFailuresTest do
 
     assert Notebooks.get_notebook!(notebook.id).ai_rating == nil
   end
+
+  @tag app_env: [notebook_analyser_implementation: AiAnalyser, openrouter_api_key: "test-key"]
+  test "invalid analysis output is cancelled without overwriting ratings", %{notebook: notebook} do
+    Req.Test.stub(__MODULE__, fn conn ->
+      Req.Test.json(
+        conn,
+        %{"choices" => [%{"message" => %{"content" => ~s({"rating":999,"tags":["bogus"]})}}]}
+      )
+    end)
+
+    assert {:cancel, "invalid AI analysis response: invalid_response"} =
+             perform_job(NotebookAnalysisWorker, %{notebook_id: notebook.id})
+
+    assert Notebooks.get_notebook!(notebook.id).ai_rating == nil
+  end
 end

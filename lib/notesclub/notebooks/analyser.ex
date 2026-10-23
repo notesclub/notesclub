@@ -5,6 +5,7 @@ defmodule Notesclub.Notebooks.Analyser do
 
   alias Notesclub.Notebooks.Analyser.AiAnalyser
   alias Notesclub.Notebooks.Notebook
+  alias Notesclub.Repo
   alias Notesclub.Tags
 
   @doc """
@@ -22,10 +23,21 @@ defmodule Notesclub.Notebooks.Analyser do
   """
   @spec analyse_notebook(Notebook.t()) :: {:ok, integer(), list(String.t())} | {:error, term()}
   def analyse_notebook(%Notebook{} = notebook) do
-    with {:ok, rating, tag_names} <- implementation().analyse_notebook(notebook),
-         {:ok, updated} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}),
+    with {:ok, rating, tag_names} <- implementation().analyse_notebook(notebook) do
+      Repo.transaction(fn -> persist_analysis(notebook, rating, tag_names) end)
+      |> case do
+        {:ok, result} -> result
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
+  defp persist_analysis(notebook, rating, tag_names) do
+    with {:ok, updated} <- Notesclub.Notebooks.update_notebook(notebook, %{ai_rating: rating}),
          :ok <- Tags.link_tags_to_notebook(updated, tag_names) do
       {:ok, rating, tag_names}
+    else
+      error -> Repo.rollback(error)
     end
   end
 

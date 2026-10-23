@@ -26,9 +26,20 @@ defmodule Notesclub.Workers.NotebookAnalysisWorker do
 
       %Notebook{} = notebook ->
         case Analyser.analyse_notebook(notebook) do
-          {:ok, _rating, _tags} -> :ok
-          {:error, :no_content} -> {:cancel, "empty content; skipping AI rating"}
-          {:error, error} -> {:error, error}
+          {:ok, _rating, _tags} ->
+            :ok
+
+          {:error, :no_content} ->
+            {:cancel, "empty content; skipping AI rating"}
+
+          {:error, error} when error in [:nil_content, :empty_content, :invalid_response] ->
+            {:cancel, "invalid AI analysis response: #{error}"}
+
+          {:error, {:json_parse_error, _reason}} ->
+            {:cancel, "invalid JSON in AI analysis response"}
+
+          {:error, error} ->
+            {:error, error}
         end
     end
   end
