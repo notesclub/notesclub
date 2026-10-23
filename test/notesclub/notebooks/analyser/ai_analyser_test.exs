@@ -67,6 +67,9 @@ defmodule Notesclub.Notebooks.Analyser.AiAnalyserTest do
           {~s({"rating":1001,"tags":[]}), :invalid_response},
           {~s({"rating":-1,"tags":[]}), :invalid_response},
           {~s({"rating":"high","tags":[]}), :invalid_response},
+          {~s({"rating":500,"tags":"ai"}), :invalid_response},
+          {~s({"rating":500,"tags":["not-allowed"]}), :invalid_response},
+          {~s({"rating":500,"tags":[1]}), :invalid_response},
           {~s({"tags":[]}), :invalid_response}
         ] do
       Req.Test.stub(__MODULE__, &Req.Test.json(&1, completion(content)))
