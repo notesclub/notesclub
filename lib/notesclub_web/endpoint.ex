@@ -1,14 +1,18 @@
 defmodule NotesclubWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :notesclub
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
+  # Production is HTTPS-only; development and test still need HTTP cookies.
   @session_options [
     store: :cookie,
     key: "_notesclub_key",
-    signing_salt: "WuUjyTB7"
+    signing_salt: "WuUjyTB7",
+    encryption_salt: "K4HjZdpu",
+    http_only: true,
+    secure: Mix.env() == :prod,
+    same_site: "Lax"
   ]
+
+  def session_options, do: @session_options
 
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [:peer_data, session: @session_options]]
