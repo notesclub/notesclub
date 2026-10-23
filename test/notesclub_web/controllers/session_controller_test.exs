@@ -33,9 +33,16 @@ defmodule NotesclubWeb.SessionControllerTest do
     conn = post(conn, "/_return_to", %{path: "/tags/tutorial"})
     assert response(conn, 204) == ""
     assert get_session(conn, :return_to) == "/tags/tutorial"
-    conn = get(recycle(conn), "/auth/signout")
+    conn = post(recycle(conn), "/auth/signout")
     assert redirected_to(conn) == "/"
     assert conn.private.plug_session_info == :drop
+  end
+
+  test "does not allow logout via GET", %{conn: conn} do
+    conn = conn |> init_test_session(%{user_id: 123}) |> get("/auth/signout")
+
+    assert get_session(conn, :user_id) == 123
+    refute conn.private.plug_session_info == :drop
   end
 
   test "rejects callbacks with missing or non-string OAuth state", %{conn: conn} do

@@ -6,7 +6,7 @@
       <%= if @current_user do %>
         <div class="text-xs md:text-sm pr-4">
           <.link navigate={~p"/#{@current_user.username}"}><%= @current_user.name %></.link>
-          <.link navigate={~p"/auth/signout"} class="underline underline-offset-2" >Log out</.link>
+          <.link href={~p"/auth/signout"} method="post" class="underline underline-offset-2">Log out</.link>
         </div>
         <% else %>
           <div class="flex flex-col w-44 mr-4">
