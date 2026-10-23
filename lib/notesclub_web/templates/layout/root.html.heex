@@ -17,11 +17,13 @@
       src={Routes.static_path(@conn, "/assets/app.js")}
     >
     </script>
-    <script :if={@conn.assigns[:csp_nonce]} type="module" nonce={@conn.assigns[:csp_nonce]}>
-      import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js@0.12.6/dist/latex.mjs"
-      customElements.define("latex-js", LaTeXJSComponent)
-    </script>
-    <script defer data-domain="notes.club" src="https://plausible.io/js/plausible.js">
+    <script
+      defer
+      data-domain="notes.club"
+      src="https://plausible.io/js/plausible.js"
+      integrity="sha384-A/+e8MGB5ruM9qUEz7ST0YKPo2TLEwdHhBIZL1Ii9jqCGKR2ZwLKc6ArNahGzYOV"
+      crossorigin="anonymous"
+    >
     </script>
   </head>
   <body>

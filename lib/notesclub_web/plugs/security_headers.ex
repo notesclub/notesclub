@@ -18,12 +18,11 @@ defmodule NotesclubWeb.Plugs.SecurityHeaders do
       Enum.join(
         [
           "default-src 'self'",
-          "script-src 'self' 'nonce-#{nonce}' https://plausible.io/js/plausible.js " <>
-            "https://cdn.jsdelivr.net/npm/latex.js@0.12.6/dist/latex.mjs",
+          "script-src 'self' 'nonce-#{nonce}' https://plausible.io/js/plausible.js",
           # Mermaid and the dashboards generate inline styles; scripts remain restricted.
-          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+          "style-src 'self' 'unsafe-inline'",
           "img-src 'self' https: data:",
-          "font-src 'self' https://cdn.jsdelivr.net data:",
+          "font-src 'self' data:",
           "connect-src 'self' #{websocket_origin} https://plausible.io",
           "object-src 'none'",
           "base-uri 'self'",
