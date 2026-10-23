@@ -8,8 +8,8 @@ defmodule Notesclub.X.XToken do
   @timestamps_opts []
 
   typed_schema "x_tokens" do
-    field :access_token, :string
-    field :refresh_token, :string, default: nil
+    field :access_token, Notesclub.EncryptedField, redact: true
+    field :refresh_token, Notesclub.EncryptedField, default: nil, redact: true
     field :last_used_at, :utc_datetime
 
     timestamps()
