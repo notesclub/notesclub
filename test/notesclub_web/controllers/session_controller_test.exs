@@ -38,6 +38,28 @@ defmodule NotesclubWeb.SessionControllerTest do
     assert conn.private.plug_session_info == :drop
   end
 
+  test "rejects unsafe return paths", %{conn: conn} do
+    for path <- [
+          "https://example.com",
+          "//example.com",
+          "/%2fexample.com",
+          "/\\example.com",
+          "/path\nheader",
+          "/" <> String.duplicate("a", 2_048)
+        ] do
+      rejected = post(recycle(conn), "/_return_to", %{path: path})
+      assert response(rejected, 422) == "invalid return path"
+      assert get_session(rejected, :return_to) == nil
+    end
+  end
+
+  test "rejects missing and non-string return paths", %{conn: conn} do
+    for params <- [%{}, %{path: nil}, %{path: ["/"]}] do
+      rejected = post(recycle(conn), "/_return_to", params)
+      assert response(rejected, 422) == "invalid return path"
+    end
+  end
+
   test "does not allow logout via GET", %{conn: conn} do
     conn = conn |> init_test_session(%{user_id: 123}) |> get("/auth/signout")
 
