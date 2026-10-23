@@ -88,6 +88,12 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # A dedicated key is preferred so session-secret rotation doesn't invalidate
+  # stored X tokens. Falling back keeps existing deployments upgradeable.
+  config :notesclub,
+         :x_token_encryption_key,
+         System.get_env("X_TOKEN_ENCRYPTION_KEY") || secret_key_base
+
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.

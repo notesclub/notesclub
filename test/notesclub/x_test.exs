@@ -34,6 +34,15 @@ defmodule Notesclub.XTest do
 
     assert {:ok, "access"} = X.authenticate("authorization-code", "verifier")
     assert %{access_token: "access", refresh_token: "refresh"} = XTokens.get_latest_token()
+
+    assert %{rows: [[encrypted_access, encrypted_refresh]]} =
+             Repo.query!("SELECT access_token, refresh_token FROM x_tokens")
+
+    assert String.starts_with?(encrypted_access, "XCP.")
+    assert String.starts_with?(encrypted_refresh, "XCP.")
+    refute encrypted_access =~ "access"
+    refute encrypted_refresh =~ "refresh"
+
     assert {:ok, %{body: %{"data" => %{"id" => "tweet-id"}}}} = X.post("A notebook")
     assert %DateTime{} = XTokens.get_latest_token().last_used_at
   end
