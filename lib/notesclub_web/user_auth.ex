@@ -6,6 +6,10 @@ defmodule NotesclubWeb.UserAuth do
   import Plug.Conn
 
   alias Notesclub.Accounts
+  alias NotesclubWeb.RateLimiter
+
+  @live_event_limit 60
+  @live_event_period :timer.minutes(1)
 
   @doc """
   Handles mounting and retrieving the current_user in LiveViews.
@@ -17,7 +21,16 @@ defmodule NotesclubWeb.UserAuth do
       there's no user_id or no matching user.
   """
   def on_mount(:mount_current_user, _params, session, socket) do
-    {:cont, mount_current_user(socket, session)}
+    socket = mount_current_user(socket, session)
+    socket = Phoenix.Component.assign(socket, :rate_limit_identity, live_client_identity(socket))
+
+    {:cont,
+     Phoenix.LiveView.attach_hook(
+       socket,
+       :rate_limit_events,
+       :handle_event,
+       &rate_limit_event/3
+     )}
   end
 
   @doc """
@@ -39,5 +52,24 @@ defmodule NotesclubWeb.UserAuth do
         Accounts.get_user(user_id)
       end
     end)
+  end
+
+  defp rate_limit_event(event, _params, socket) do
+    key = {:live_event, socket.assigns.rate_limit_identity, event}
+
+    if RateLimiter.allow?(key, @live_event_limit, @live_event_period) do
+      {:cont, socket}
+    else
+      {:halt, Phoenix.LiveView.put_flash(socket, :error, "Too many requests. Please slow down.")}
+    end
+  end
+
+  defp live_client_identity(%{assigns: %{current_user: %{id: id}}}), do: {:user, id}
+
+  defp live_client_identity(socket) do
+    case Phoenix.LiveView.get_connect_info(socket, :peer_data) do
+      %{address: address} -> {:ip, address}
+      _unavailable -> {:socket, socket.id}
+    end
   end
 end

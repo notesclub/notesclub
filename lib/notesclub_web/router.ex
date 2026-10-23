@@ -20,6 +20,11 @@ defmodule NotesclubWeb.Router do
     plug SecurityHeaders
     plug(:fetch_current_user)
 
+    plug NotesclubWeb.Plugs.RateLimit,
+      bucket: :browser,
+      limit: 120,
+      period_ms: :timer.minutes(1)
+
     plug NotesclubWeb.Plugs.RawUrlRedirector
     plug AssetInterceptor
   end
@@ -29,6 +34,11 @@ defmodule NotesclubWeb.Router do
   end
 
   pipeline :admin_auth do
+    plug NotesclubWeb.Plugs.RateLimit,
+      bucket: :admin_auth,
+      limit: 10,
+      period_ms: :timer.minutes(1)
+
     plug(:auth)
 
     defp auth(conn, _opts) do
