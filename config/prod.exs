@@ -22,7 +22,6 @@ config :notesclub, NotesclubWeb.Endpoint,
   # Needed for Phoenix 1.2 and 1.4. Doesn't hurt for 1.3.
   http: [port: {:system, "PORT"}],
   secret_key_base: "${SECRET_KEY_BASE}",
-  check_origin: ["//notes.club", "//staging.notes.club"],
   url: [host: {:system, "HOST"}, port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   # To bust cache during hot upgrades
