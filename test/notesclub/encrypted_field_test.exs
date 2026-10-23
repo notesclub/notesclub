@@ -28,9 +28,12 @@ defmodule Notesclub.EncryptedFieldTest do
     assert TokenCipher.encrypt(encrypted) == encrypted
     assert TokenCipher.decrypt("legacy plaintext") == {:ok, "legacy plaintext"}
 
-    final_byte = binary_part(encrypted, byte_size(encrypted) - 1, 1)
-    replacement = if final_byte == "A", do: "B", else: "A"
-    tampered = binary_part(encrypted, 0, byte_size(encrypted) - 1) <> replacement
+    "XCP." <> encoded_payload = encrypted
+    <<first_byte, rest::binary>> = Base.url_decode64!(encoded_payload, padding: false)
+
+    tampered =
+      "XCP." <>
+        Base.url_encode64(<<Bitwise.bxor(first_byte, 1), rest::binary>>, padding: false)
 
     assert TokenCipher.decrypt(tampered) == :error
     assert EncryptedField.load(tampered) == :error
