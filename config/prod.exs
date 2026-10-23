@@ -12,8 +12,7 @@ import Config
 config :notesclub, NotesclubWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
-# config :logger, level: :info
-config :logger, level: :debug
+config :logger, level: :info
 
 config :notesclub, NotesclubWeb.Endpoint,
   # Without this line, your app will not start the web server!
