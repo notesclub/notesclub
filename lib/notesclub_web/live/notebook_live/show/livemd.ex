@@ -4,19 +4,20 @@ defmodule NotesclubWeb.NotebookLive.Show.Livemd do
   import Phoenix.HTML
 
   alias Notesclub.Notebooks.Paths
+  alias NotesclubWeb.HTMLScrubbers.NotebookHTML
 
   @doc """
   Renders markdown and highlights elixir code blocks
   """
-  # Markdown is sanitized before highlighting. Makeup escapes Elixir source; other
-  # code remains escaped. LivemdTest covers encoded, highlighted, and foreign HTML.
+  # The final HTML is sanitized after syntax highlighting, so neither the Markdown
+  # renderer nor the highlighting rewrite can inject unsanitized markup.
   # sobelow_skip ["XSS.Raw"]
   def render(content) do
     content
     |> Paths.remove_livemd_extension_from_links()
     |> mdex_to_html()
-    |> HtmlSanitizeEx.markdown_html()
     |> highlight_code_blocks()
+    |> NotebookHTML.sanitize()
     |> raw()
   end
 

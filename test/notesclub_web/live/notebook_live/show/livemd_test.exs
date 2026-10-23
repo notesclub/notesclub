@@ -55,6 +55,17 @@ defmodule NotesclubWeb.NotebookLive.Show.LivemdTest do
     assert Floki.text(document) =~ "<img src=x onerror=alert(1)>"
   end
 
+  test "sanitizes the complete document after highlighting" do
+    {:safe, html} =
+      Livemd.render("""
+      <pre class="highlight" onclick="alert(1)"><span class="mi" onmouseover="alert(1)">1</span></pre>
+      """)
+
+    document = Floki.parse_fragment!(html)
+    assert Floki.find(document, "pre.highlight span.mi") != []
+    assert Floki.find(document, "[onclick], [onmouseover]") == []
+  end
+
   test "foreign HTML, event handlers, and encoded script URLs remain inert" do
     for content <- [
           ~s|<svg><style>&lt;/style&gt;&lt;img src=x onerror=alert(1)&gt;</style></svg>|,
