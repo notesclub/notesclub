@@ -16,6 +16,7 @@ defmodule NotesclubWeb.SessionControllerTest do
     end)
 
     assert conn |> get("/x/signin") |> response(401) =~ "Unauthorized"
+    assert conn |> get("/oban/anything.png") |> response(401) =~ "Unauthorized"
 
     authenticated =
       conn

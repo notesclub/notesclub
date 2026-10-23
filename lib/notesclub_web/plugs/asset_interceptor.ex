@@ -10,11 +10,12 @@ defmodule NotesclubWeb.Plugs.AssetInterceptor do
 
   # Regex to match common asset file extensions at the end of a path.
   @asset_pattern ~r/\.(png|jpg|jpeg|gif|svg|pdf|webp|heic)$/i
+  @protected_prefixes ["/oban", "/x/signin"]
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    if String.match?(conn.request_path, @asset_pattern) do
+    if public_asset_path?(conn.request_path) do
       conn
       |> send_resp(200, "OK")
       |> halt()
@@ -22,5 +23,10 @@ defmodule NotesclubWeb.Plugs.AssetInterceptor do
       # Not an asset path, continue the pipeline
       conn
     end
+  end
+
+  defp public_asset_path?(path) do
+    String.match?(path, @asset_pattern) and
+      not Enum.any?(@protected_prefixes, &String.starts_with?(path, &1))
   end
 end
