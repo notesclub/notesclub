@@ -55,7 +55,7 @@ defmodule Notesclub.Notebooks do
   """
   @spec list_notebooks(any) :: [Notebook.t()]
   def list_notebooks(opts \\ []) do
-    opts = normalize_search_options(opts)
+    opts = opts |> normalize_search_options() |> Keyword.put_new(:order, :asc)
     preload = opts[:preload] || []
     opts = replace_package_name_with_ids(opts, opts[:package_name])
     opts = replace_tag_name_with_ids(opts, opts[:tag_name])
@@ -85,6 +85,9 @@ defmodule Notesclub.Notebooks do
 
         {:order, :desc}, query ->
           order_by(query, desc: :id)
+
+        {:order, :asc}, query ->
+          order_by(query, asc: :id)
 
         {:order, :random}, query ->
           order_by(query, fragment("RANDOM()"))

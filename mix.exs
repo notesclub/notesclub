@@ -55,12 +55,12 @@ defmodule Notesclub.MixProject do
       {:phoenix_live_reload, "~> 1.7.0", only: :dev},
       {:phoenix_live_view, "~> 1.1.8"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:phoenix_live_dashboard, "~> 0.9.1"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.26"},
+      {:gettext, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:bandit, "~> 1.14.0"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
@@ -85,7 +85,7 @@ defmodule Notesclub.MixProject do
       {:html_entities, "~> 0.5"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.8"},
-      {:tidewave, "~> 0.4", only: :dev}
+      {:tidewave, "~> 0.9.2", only: :dev}
     ]
   end
 
