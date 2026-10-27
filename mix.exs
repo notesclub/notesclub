@@ -85,7 +85,7 @@ defmodule Notesclub.MixProject do
       {:html_entities, "~> 0.5"},
       {:ueberauth, "~> 0.10"},
       {:ueberauth_github, "~> 0.8"},
-      {:tidewave, "~> 0.4", only: :dev}
+      {:tidewave, "~> 0.9.2", only: :dev}
     ]
   end
 

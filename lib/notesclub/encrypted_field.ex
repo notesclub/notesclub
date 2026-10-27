@@ -5,6 +5,8 @@ defmodule Notesclub.EncryptedField do
 
   alias Notesclub.TokenCipher
 
+  @type t :: String.t()
+
   def type, do: :string
 
   def cast(nil), do: {:ok, nil}
