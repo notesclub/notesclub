@@ -53,7 +53,7 @@ defmodule Notesclub.MixProject do
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_view, "~> 2.0.3"},
       {:phoenix_live_reload, "~> 1.7.0", only: :dev},
-      {:phoenix_live_view, "~> 1.1.8"},
+      {:phoenix_live_view, "~> 1.2.13"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.9.1"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
