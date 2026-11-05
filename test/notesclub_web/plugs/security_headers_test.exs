@@ -24,8 +24,11 @@ defmodule NotesclubWeb.Plugs.SecurityHeadersTest do
     assert get_resp_header(conn, "x-content-type-options") == ["nosniff"]
 
     html = html_response(conn, 200)
-    assert html =~ "sha384-A/+e8MGB5ruM9qUEz7ST0YKPo2TLEwdHhBIZL1Ii9jqCGKR2ZwLKc6ArNahGzYOV"
-    assert html =~ ~s(crossorigin="anonymous")
+    assert html =~ ~s(data-domain="notes.club")
+    assert html =~ ~s(src="https://plausible.io/js/plausible.js")
+    # This URL is intentionally mutable, so a fixed SRI hash eventually blocks analytics.
+    refute html =~ "integrity="
+    refute html =~ "crossorigin="
     refute html =~ "cdn.jsdelivr.net"
     refute policy =~ "cdn.jsdelivr.net"
 
