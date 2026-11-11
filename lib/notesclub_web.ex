@@ -21,7 +21,9 @@ defmodule NotesclubWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: NotesclubWeb
+      use Phoenix.Controller, formats: [html: "View"]
+
+      plug :put_layout, html: {NotesclubWeb.LayoutView, :app}
 
       import Plug.Conn
       use Gettext, backend: NotesclubWeb.Gettext
