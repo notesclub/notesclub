@@ -1,6 +1,6 @@
 # Notesclub · Discover Livebook Notebooks
 
-We add new Livebook notebooks from Github every day.
+We add new Elixir Livebook notebooks from Github every day.
 
 https://notes.club
 
