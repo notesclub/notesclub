@@ -13,7 +13,6 @@ Feel free to:
 - Propose a new issue
 - Refactor existent code
 - Add documentation
-Thanks!
 
 # Run it locally
 
