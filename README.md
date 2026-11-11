@@ -37,8 +37,10 @@ with `npm ci --prefix assets` (Node.js 24), and start PostgreSQL before running:
 * `mix precommit` also audits Hex and npm dependencies, checks for unused
   dependencies, checks formatting without rewriting files, and runs tests with coverage. Coverage uses
   Mix's default 90% minimum; HTML reports are written to `cover/`.
-* `mix ci` runs `mix precommit`. GitHub Actions uses this command and then runs
-  the existing Dialyzer checks.
+* `mix ci` runs `mix precommit`. GitHub Actions runs the same checks as separate
+  steps to show their individual timings, then runs Dialyzer. It caches Elixir
+  dependencies, the test build, and Dialyzer PLTs. Oban Pro is disabled in this
+  workflow so its caches contain only public dependencies.
 
 All three commands default to the test environment and return a nonzero status
 when checks fail. Asset builds write to `priv/static/assets/`; the build tools
