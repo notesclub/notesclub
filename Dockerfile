@@ -58,9 +58,9 @@ RUN --mount=type=secret,id=OBAN_KEY_FINGERPRINT \
   --mount=type=secret,id=OBAN_LICENSE_KEY \
   mix hex.repo add oban https://repo.oban.pro \
   --fetch-public-key "$(cat /run/secrets/OBAN_KEY_FINGERPRINT)" \
-  --auth-key "$(cat /run/secrets/OBAN_LICENSE_KEY)"
-
-RUN mix deps.get --only $MIX_ENV
+  --auth-key "$(cat /run/secrets/OBAN_LICENSE_KEY)" && \
+  mix deps.get --only "$MIX_ENV" && \
+  mix hex.repo remove oban
 
 RUN mkdir config
 
