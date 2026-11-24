@@ -62,7 +62,7 @@ defmodule Notesclub.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.4"},
-      {:bandit, "~> 1.14.0"},
+      {:bandit, "~> 1.15.0"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:req, "~> 0.5"},
       {:mock, "~> 0.3.7"},
