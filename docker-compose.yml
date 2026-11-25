@@ -7,7 +7,7 @@ services:
       - POSTGRES_DB=notesclub_dev
     # https://hub.docker.com/_/postgres
     # This is the same Docker image as in the continuous integration
-    image: postgres:15.0
+    image: postgres:15.20
     ports:
       - '5432:5432'
     volumes:
