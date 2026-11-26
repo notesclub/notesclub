@@ -10,15 +10,15 @@
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
 #   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bookworm-20261123-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.20.4-erlang-29.1.2-debian-bookworm-20261027-slim
+#   - Ex: hexpm/elixir:1.20.5-erlang-29.1.3-debian-bookworm-20261123-slim
 #
 # Keep this on bookworm (glibc 2.36) or newer: mdex_native ships a precompiled
 # x86_64-unknown-linux-gnu NIF that requires GLIBC_2.33, which bullseye (2.31)
 # does not have. On bullseye the release boots and then dies with
 # "Failed to load NIF library: ... version `GLIBC_2.33' not found".
-ARG ELIXIR_VERSION=1.20.4
-ARG OTP_VERSION=29.1.2
-ARG BUILDER_DEBIAN_VERSION=bookworm-20261027-slim
+ARG ELIXIR_VERSION=1.20.5
+ARG OTP_VERSION=29.1.3
+ARG BUILDER_DEBIAN_VERSION=bookworm-20261123-slim
 ARG RUNNER_DEBIAN_VERSION=bookworm-20261123-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${BUILDER_DEBIAN_VERSION}"
