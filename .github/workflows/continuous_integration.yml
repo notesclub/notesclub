@@ -33,17 +33,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Elixir and OTP
-        uses: erlef/setup-beam@v1.24
+        uses: erlef/setup-beam@v1.24.1
         id: setup-beam
         with:
           otp-version: '29.1.3'
           elixir-version: '1.20.5'
 
       - name: Cache Elixir dependencies and test build
-        uses: actions/cache@v6
+        uses: actions/cache@v6.1.0
         with:
           path: |
             deps
@@ -56,7 +56,7 @@ jobs:
         run: mix deps.get
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -120,7 +120,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
